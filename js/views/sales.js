@@ -267,13 +267,14 @@ function renderHistory(sales) {
 
   const table = document.createElement('table');
   table.setAttribute('aria-label', 'Sales history');
+  table.className = 'history-table';
 
   const thead = document.createElement('thead');
   thead.innerHTML = `
     <tr>
       <th scope="col">Date</th>
-      <th scope="col">Qty Sold</th>
-      <th scope="col">Sell Price per Unit</th>
+      <th scope="col">Qty</th>
+      <th scope="col">Price/unit</th>
     </tr>`;
   table.appendChild(thead);
 

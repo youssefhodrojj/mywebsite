@@ -186,12 +186,12 @@ function renderHistory(purchases) {
     .join('');
 
   container.innerHTML = `
-    <table class="data-table" aria-label="Purchase history">
+    <table class="history-table" aria-label="Purchase history">
       <thead>
         <tr>
           <th scope="col">Date</th>
-          <th scope="col">Quantity</th>
-          <th scope="col">Cost per unit</th>
+          <th scope="col">Qty</th>
+          <th scope="col">Cost/unit</th>
         </tr>
       </thead>
       <tbody>

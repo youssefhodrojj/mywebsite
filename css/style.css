@@ -465,9 +465,47 @@ h1.view-title {
   max-width: 100%;
 }
 
+/* History tables inside cards -- no forced min-width, fit to screen */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  background: var(--color-surface);
+}
+
+.history-table th,
+.history-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+
+.history-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  white-space: nowrap;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* On mobile, shorten "Cost per unit" / "Sell price per unit" column label */
+@media (max-width: 480px) {
+  .history-table th:last-child,
+  .history-table td:last-child {
+    white-space: nowrap;
+  }
+}
+
 table {
   width: 100%;
-  min-width: 480px;
   border-collapse: collapse;
   font-size: 0.88rem;
   background: var(--color-surface);
