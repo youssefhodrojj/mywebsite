@@ -1,5 +1,5 @@
 /* ============================================================
-   Stock Management Admin Panel â€” Global Styles
+   Stock Management Admin Panel — Global Styles
    ============================================================ */
 
 /* ----- Reset / base ----- */
@@ -48,15 +48,18 @@ html, body {
   min-height: 100vh;
 }
 
-/* ----- Navigation ----- */
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+
 #nav {
   background: var(--color-nav-bg);
   color: var(--color-nav-text);
   display: flex;
   align-items: center;
-  gap: 0;
-  padding: 0 1.25rem;
-  height: 52px;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+  min-height: 52px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -68,16 +71,43 @@ html, body {
   font-weight: 700;
   color: var(--color-nav-active);
   text-decoration: none;
-  margin-right: 1.5rem;
   white-space: nowrap;
+  padding: 0.75rem 0;
+  flex-shrink: 0;
 }
 
+/* Hamburger button — hidden on desktop, shown on mobile */
+#btn-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-nav-text);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  margin-left: auto;
+  border-radius: var(--radius);
+}
+
+#btn-hamburger.hidden {
+  display: none !important;
+}
+
+/* Nav links — horizontal on desktop */
 #nav-links {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.15rem;
   flex: 1;
   list-style: none;
+  margin-left: 1rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#nav-links::-webkit-scrollbar {
+  display: none;
 }
 
 #nav-links.hidden {
@@ -87,9 +117,10 @@ html, body {
 #nav-links a {
   color: var(--color-nav-text);
   text-decoration: none;
-  padding: 0.35rem 0.75rem;
+  padding: 0.35rem 0.6rem;
   border-radius: var(--radius);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
   transition: background var(--transition), color var(--transition);
 }
 
@@ -100,14 +131,16 @@ html, body {
 }
 
 #btn-logout {
-  margin-left: auto;
   background: transparent;
   border: 1px solid rgba(255,255,255,.3);
   color: var(--color-nav-text);
-  padding: 0.3rem 0.9rem;
+  padding: 0.3rem 0.75rem;
   border-radius: var(--radius);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
   transition: background var(--transition);
 }
 
@@ -120,10 +153,71 @@ html, body {
   display: none;
 }
 
+/* ============================================================
+   MOBILE NAV  (? 640px)
+   ============================================================ */
+
+@media (max-width: 640px) {
+
+  #nav {
+    padding: 0 0.75rem;
+    position: relative;
+  }
+
+  /* Show hamburger on mobile when nav is visible (not hidden) */
+  #btn-hamburger:not(.hidden) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Nav links collapse into a full-width dropdown */
+  #nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-left: 0;
+    overflow-x: visible;
+    background: var(--color-nav-bg);
+    border-top: 1px solid rgba(255,255,255,.1);
+    padding: 0.5rem 0;
+    gap: 0;
+  }
+
+  /* When collapsed, it's hidden via the .nav-collapsed class */
+  #nav-links.nav-collapsed {
+    display: none !important;
+  }
+
+  #nav-links li {
+    width: 100%;
+  }
+
+  #nav-links a {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 0;
+  }
+
+  #btn-logout {
+    width: calc(100% - 2rem);
+    margin: 0.5rem 1rem;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Logout sits at bottom of expanded mobile menu */
+  #nav-links.hidden ~ #btn-logout {
+    display: none !important;
+  }
+}
+
 /* ----- Main content area ----- */
 #content {
   flex: 1;
-  padding: 1.75rem 2rem;
+  padding: 1.5rem 1.5rem;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -155,29 +249,29 @@ html, body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .card h2 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
   color: var(--color-text);
 }
 
 /* ----- Section headings ----- */
 h1.view-title {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   color: var(--color-text);
 }
 
 /* ----- Forms ----- */
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
 }
 
 .form-group label {
@@ -226,6 +320,7 @@ h1.view-title {
   display: block;
 }
 
+/* Form row — wraps to single column on mobile */
 .form-row {
   display: flex;
   gap: 1rem;
@@ -234,7 +329,15 @@ h1.view-title {
 
 .form-row .form-group {
   flex: 1;
-  min-width: 160px;
+  min-width: 140px;
+}
+
+/* On very small screens every form group takes full width */
+@media (max-width: 480px) {
+  .form-row .form-group {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
 }
 
 /* Attribute pair inputs in variant form */
@@ -252,6 +355,7 @@ h1.view-title {
 
 .attr-pair input {
   flex: 1;
+  min-width: 0;
   padding: 0.45rem 0.65rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
@@ -266,6 +370,7 @@ h1.view-title {
   font-size: 1.1rem;
   line-height: 1;
   padding: 0.25rem;
+  flex-shrink: 0;
 }
 
 /* ----- Buttons ----- */
@@ -273,13 +378,14 @@ h1.view-title {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 1.1rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--radius);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   border: none;
   transition: background var(--transition), opacity var(--transition);
+  white-space: nowrap;
 }
 
 .btn:disabled {
@@ -316,8 +422,8 @@ h1.view-title {
 }
 
 .btn-sm {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.82rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
 }
 
 .btn-icon {
@@ -335,17 +441,20 @@ h1.view-title {
   color: var(--color-text);
 }
 
-/* ----- Tables ----- */
+/* ----- Tables — always scrollable on mobile ----- */
 .table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: var(--radius);
   border: 1px solid var(--color-border);
+  max-width: 100%;
 }
 
 table {
   width: 100%;
+  min-width: 480px;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   background: var(--color-surface);
 }
 
@@ -355,19 +464,21 @@ thead {
 
 th {
   text-align: left;
-  padding: 0.6rem 1rem;
-  font-size: 0.8rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-muted);
   border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
 }
 
 td {
-  padding: 0.65rem 1rem;
+  padding: 0.6rem 0.85rem;
   border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
+  word-break: break-word;
 }
 
 tr:last-child td {
@@ -378,7 +489,7 @@ tbody tr:hover {
   background: var(--color-bg);
 }
 
-/* Low-stock indicator (Requirement 6.5) */
+/* Low-stock indicator */
 .row--low-stock {
   background-color: var(--color-danger-light) !important;
   color: var(--color-danger);
@@ -389,7 +500,7 @@ tbody tr:hover {
 }
 
 .row--low-stock .stock-icon::before {
-  content: 'âš  ';
+  content: '? ';
 }
 
 /* ----- Badges ----- */
@@ -410,10 +521,11 @@ tbody tr:hover {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: calc(var(--radius) * 1.5);
-  padding: 2.5rem 2rem;
+  padding: 2rem 1.5rem;
   width: 100%;
   max-width: 380px;
   box-shadow: var(--shadow-md);
+  margin: 1rem;
 }
 
 .login-card h1 {
@@ -427,7 +539,7 @@ tbody tr:hover {
   text-align: center;
   color: var(--color-text-muted);
   font-size: 0.875rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .login-error {
@@ -457,6 +569,7 @@ tbody tr:hover {
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition);
+  padding: 1rem;
 }
 
 .modal-overlay.open {
@@ -467,7 +580,7 @@ tbody tr:hover {
 .modal {
   background: var(--color-surface);
   border-radius: calc(var(--radius) * 1.5);
-  padding: 1.75rem;
+  padding: 1.5rem;
   width: 100%;
   max-width: 440px;
   box-shadow: var(--shadow-md);
@@ -495,17 +608,20 @@ tbody tr:hover {
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 /* ----- Toast notifications ----- */
 #toast-container {
   position: fixed;
-  bottom: 1.25rem;
-  right: 1.25rem;
+  bottom: 1rem;
+  right: 1rem;
+  left: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   z-index: 600;
+  pointer-events: none;
 }
 
 .toast {
@@ -516,10 +632,12 @@ tbody tr:hover {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 0.75rem 1rem;
-  min-width: 260px;
-  max-width: 380px;
+  width: 100%;
+  max-width: 420px;
+  margin-left: auto;
   box-shadow: var(--shadow-md);
   animation: toast-in 0.2s ease forwards;
+  pointer-events: auto;
 }
 
 .toast.toast-error {
@@ -537,6 +655,7 @@ tbody tr:hover {
 .toast-message {
   flex: 1;
   font-size: 0.875rem;
+  word-break: break-word;
 }
 
 .toast-close {
@@ -547,6 +666,7 @@ tbody tr:hover {
   line-height: 1;
   color: inherit;
   opacity: 0.65;
+  flex-shrink: 0;
 }
 
 .toast-close:hover {
@@ -574,7 +694,8 @@ tbody tr:hover {
   font-size: 0.9rem;
   background: var(--color-surface);
   color: var(--color-text);
-  min-width: 200px;
+  width: 100%;
+  max-width: 320px;
 }
 
 .filter-input:focus {
@@ -587,10 +708,10 @@ tbody tr:hover {
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 700px) {
   .charts-grid {
     grid-template-columns: 1fr;
   }
@@ -600,18 +721,19 @@ tbody tr:hover {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 1rem;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
 }
 
 .chart-card h3 {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   color: var(--color-text);
 }
 
-/* ----- Inline error banner (DB/fetch failures) ----- */
+/* ----- Inline error banner ----- */
 .error-banner {
   background: var(--color-danger-light);
   border: 1px solid #fecaca;
@@ -655,18 +777,17 @@ tbody tr:hover {
 .mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem;   }
 
-/* ----- Responsive adjustments ----- */
-@media (max-width: 640px) {
+/* ----- Small screen content padding ----- */
+@media (max-width: 480px) {
   #content {
+    padding: 0.75rem;
+  }
+
+  h1.view-title {
+    font-size: 1.15rem;
+  }
+
+  .card {
     padding: 1rem;
-  }
-
-  #nav {
-    padding: 0 0.75rem;
-  }
-
-  #nav-links a {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.82rem;
   }
 }

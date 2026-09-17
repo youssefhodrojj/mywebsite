@@ -85,13 +85,23 @@ function showView(route) {
 function updateNav(route) {
   const navLinks = document.getElementById('nav-links');
   const btnLogout = document.getElementById('btn-logout');
+  const btnHamburger = document.getElementById('btn-hamburger');
 
   if (route === '/login') {
     navLinks?.classList.add('hidden');
     btnLogout?.classList.add('hidden');
+    btnHamburger?.classList.add('hidden');
   } else {
+    // On mobile: show hamburger, keep links collapsed by default
+    // On desktop: show links directly (CSS handles display)
     navLinks?.classList.remove('hidden');
+    navLinks?.classList.add('nav-collapsed'); // start collapsed on mobile
     btnLogout?.classList.remove('hidden');
+    btnHamburger?.classList.remove('hidden');
+    if (btnHamburger) {
+      btnHamburger.setAttribute('aria-expanded', 'false');
+      btnHamburger.textContent = '\u2630';
+    }
   }
 
   // Mark the matching nav link as active
@@ -180,6 +190,30 @@ document.getElementById('btn-logout')?.addEventListener('click', async () => {
   await logout();
   navigate('/login');
 });
+
+// ---------------------------------------------------------------------------
+// Hamburger menu toggle (mobile nav)
+// ---------------------------------------------------------------------------
+
+const _hamburgerBtn = document.getElementById('btn-hamburger');
+const _navLinks = document.getElementById('nav-links');
+
+if (_hamburgerBtn && _navLinks) {
+  _hamburgerBtn.addEventListener('click', () => {
+    const isCollapsed = _navLinks.classList.toggle('nav-collapsed');
+    _hamburgerBtn.setAttribute('aria-expanded', String(!isCollapsed));
+    _hamburgerBtn.textContent = isCollapsed ? '\u2630' : '\u2715';
+  });
+
+  // Close menu when a nav link is clicked
+  _navLinks.addEventListener('click', (e) => {
+    if (e.target.closest('a')) {
+      _navLinks.classList.add('nav-collapsed');
+      _hamburgerBtn.setAttribute('aria-expanded', 'false');
+      _hamburgerBtn.textContent = '\u2630';
+    }
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Auth state listener — handles session expiry and cross-tab sign-out/sign-in
