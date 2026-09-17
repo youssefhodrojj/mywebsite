@@ -378,11 +378,10 @@
 <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
 <!-- =====================================================
-     Third-party libraries (UMD bundles, must load before
-     ES modules that reference their globals)
+     Third-party libraries loaded from CDN (no local install needed)
      ===================================================== -->
-<script src="libs/supabase.min.js"></script>
-<script src="libs/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 
 <!-- =====================================================
      App entry point (ES module)
