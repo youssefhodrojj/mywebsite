@@ -1,0 +1,13 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Kiro spec files (not needed in the deployed repo)
+.kiro/
+
+# If you ever store real secrets locally, add them here:
+# js/config.local.js

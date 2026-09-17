@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Management Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- =====================================================
+       Navigation bar (hidden on login screen)
+       ===================================================== -->
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <a href="#/dashboard" class="nav-brand">📦 StockAdmin</a>
+
+    <ul id="nav-links" class="hidden" role="list">
+      <li><a href="#/dashboard"  data-route="/dashboard">Dashboard</a></li>
+      <li><a href="#/products"   data-route="/products">Products</a></li>
+      <li><a href="#/purchases"  data-route="/purchases">Purchases</a></li>
+      <li><a href="#/corrections" data-route="/corrections">Corrections</a></li>
+      <li><a href="#/sales"      data-route="/sales">Sales</a></li>
+      <li><a href="#/stock"      data-route="/stock">Stock</a></li>
+      <li><a href="#/charts"     data-route="/charts">Charts</a></li>
+    </ul>
+
+    <button id="btn-logout" class="hidden" type="button" aria-label="Log out">
+      Log out
+    </button>
+  </nav>
+
+  <!-- =====================================================
+       Main content — all views live here
+       ===================================================== -->
+  <main id="content" role="main">
+
+    <!-- ---- Login view ---- -->
+    <section id="view-login" class="view" role="region" aria-labelledby="login-heading">
+      <div class="login-card">
+        <h1 id="login-heading">Stock Admin</h1>
+        <p class="subtitle">Sign in to your account</p>
+
+        <div id="login-error" class="login-error" role="alert" aria-live="polite"></div>
+
+        <form id="form-login" novalidate>
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input
+              type="email"
+              id="login-email"
+              name="email"
+              autocomplete="email"
+              required
+              placeholder="you@example.com"
+            />
+            <span class="field-error" id="login-email-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              autocomplete="current-password"
+              required
+              placeholder="••••••••"
+            />
+            <span class="field-error" id="login-password-error"></span>
+          </div>
+
+          <div class="mt-2">
+            <button type="submit" id="btn-login-submit" class="btn btn-primary" style="width:100%">
+              Sign in
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ---- Dashboard view ---- -->
+    <section id="view-dashboard" class="view hidden" role="region" aria-labelledby="dashboard-heading">
+      <h1 id="dashboard-heading" class="view-title">Dashboard</h1>
+      <div id="dashboard-content">
+        <!-- Populated by js/views/dashboard.js -->
+        <div class="card">
+          <p class="text-muted">Welcome! Use the navigation above to manage your products, stock, and sales.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Products & Variants view ---- -->
+    <section id="view-products" class="view hidden" role="region" aria-labelledby="products-heading">
+      <h1 id="products-heading" class="view-title">Products &amp; Variants</h1>
+
+      <div class="error-banner" id="products-error" role="alert" aria-live="polite"></div>
+
+      <!-- Add product form -->
+      <div class="card" id="card-add-product">
+        <h2>Add Product</h2>
+        <form id="form-add-product" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="product-name">Product name <span aria-hidden="true">*</span></label>
+              <input type="text" id="product-name" name="name" required placeholder="e.g. T-Shirt" />
+              <span class="field-error" id="product-name-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="product-description">Description</label>
+              <input type="text" id="product-description" name="description" placeholder="Optional" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Add Product</button>
+        </form>
+      </div>
+
+      <!-- Products list -->
+      <div id="products-list">
+        <!-- Populated by js/views/products.js -->
+        <p class="text-muted">Loading products…</p>
+      </div>
+    </section>
+
+    <!-- ---- Purchase Batches view ---- -->
+    <section id="view-purchases" class="view hidden" role="region" aria-labelledby="purchases-heading">
+      <h1 id="purchases-heading" class="view-title">Purchase Batches</h1>
+
+      <div class="error-banner" id="purchases-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Record Purchase</h2>
+        <form id="form-add-purchase" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="purchase-product">Product <span aria-hidden="true">*</span></label>
+              <select id="purchase-product" name="productId" required>
+                <option value="">— select product —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="purchase-variant">Variant <span aria-hidden="true">*</span></label>
+              <select id="purchase-variant" name="variantId" required>
+                <option value="">— select variant —</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="purchase-quantity">Quantity <span aria-hidden="true">*</span></label>
+              <input type="number" id="purchase-quantity" name="quantity" min="1" step="1" required placeholder="1" />
+              <span class="field-error" id="purchase-quantity-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="purchase-cost">Cost price per unit <span aria-hidden="true">*</span></label>
+              <input type="number" id="purchase-cost" name="costPrice" min="0" step="0.01" required placeholder="0.00" />
+              <span class="field-error" id="purchase-cost-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="purchase-date">Date <span aria-hidden="true">*</span></label>
+              <input type="date" id="purchase-date" name="purchasedAt" required />
+              <span class="field-error" id="purchase-date-error"></span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Save Purchase</button>
+        </form>
+      </div>
+
+      <!-- Purchase history -->
+      <div class="card">
+        <h2>Purchase History</h2>
+        <div id="purchases-history">
+          <p class="text-muted">Select a product and variant to see history.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Stock Corrections view ---- -->
+    <section id="view-corrections" class="view hidden" role="region" aria-labelledby="corrections-heading">
+      <h1 id="corrections-heading" class="view-title">Stock Corrections</h1>
+
+      <div class="error-banner" id="corrections-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Record Correction</h2>
+        <form id="form-add-correction" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="correction-product">Product <span aria-hidden="true">*</span></label>
+              <select id="correction-product" name="productId" required>
+                <option value="">— select product —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="correction-variant">Variant <span aria-hidden="true">*</span></label>
+              <select id="correction-variant" name="variantId" required>
+                <option value="">— select variant —</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="correction-adjustment">Adjustment <span aria-hidden="true">*</span></label>
+              <input type="number" id="correction-adjustment" name="adjustment" step="1" required placeholder="e.g. -5 or +10" />
+              <span class="field-error" id="correction-adjustment-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="correction-date">Date <span aria-hidden="true">*</span></label>
+              <input type="date" id="correction-date" name="correctedAt" required />
+              <span class="field-error" id="correction-date-error"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="correction-reason">Reason (optional)</label>
+            <input type="text" id="correction-reason" name="reason" placeholder="e.g. Damaged goods" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Save Correction</button>
+        </form>
+      </div>
+
+      <!-- Correction history -->
+      <div class="card">
+        <h2>Correction History</h2>
+        <div id="corrections-history">
+          <p class="text-muted">Select a product and variant to see history.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Sales Recording view ---- -->
+    <section id="view-sales" class="view hidden" role="region" aria-labelledby="sales-heading">
+      <h1 id="sales-heading" class="view-title">Sales Recording</h1>
+
+      <div class="error-banner" id="sales-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Record Sale</h2>
+        <form id="form-add-sale" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sale-product">Product <span aria-hidden="true">*</span></label>
+              <select id="sale-product" name="productId" required>
+                <option value="">— select product —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sale-variant">Variant <span aria-hidden="true">*</span></label>
+              <select id="sale-variant" name="variantId" required>
+                <option value="">— select variant —</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sale-quantity">Quantity sold <span aria-hidden="true">*</span></label>
+              <input type="number" id="sale-quantity" name="quantity" min="1" step="1" required placeholder="1" />
+              <span class="field-error" id="sale-quantity-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="sale-price">Sell price per unit <span aria-hidden="true">*</span></label>
+              <input type="number" id="sale-price" name="sellPrice" min="0" step="0.01" required placeholder="0.00" />
+              <span class="field-error" id="sale-price-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="sale-date">Date <span aria-hidden="true">*</span></label>
+              <input type="date" id="sale-date" name="soldAt" required />
+              <span class="field-error" id="sale-date-error"></span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Save Sale</button>
+        </form>
+      </div>
+
+      <!-- Sales history -->
+      <div class="card">
+        <h2>Sales History</h2>
+        <div id="sales-history">
+          <p class="text-muted">Select a product and variant to see history.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Remaining Stock summary view ---- -->
+    <section id="view-stock" class="view hidden" role="region" aria-labelledby="stock-heading">
+      <h1 id="stock-heading" class="view-title">Remaining Stock</h1>
+
+      <div class="error-banner" id="stock-error" role="alert" aria-live="polite"></div>
+
+      <div class="toolbar">
+        <input
+          type="search"
+          id="stock-filter"
+          class="filter-input"
+          placeholder="Filter by product name…"
+          aria-label="Filter by product name"
+        />
+      </div>
+
+      <div class="table-wrapper">
+        <table id="stock-table" aria-label="Remaining stock summary">
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col">Variant</th>
+              <th scope="col">Remaining Stock</th>
+            </tr>
+          </thead>
+          <tbody id="stock-table-body">
+            <tr>
+              <td colspan="3" class="text-muted">Loading…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ---- Monthly Charts view ---- -->
+    <section id="view-charts" class="view hidden" role="region" aria-labelledby="charts-heading">
+      <h1 id="charts-heading" class="view-title">Monthly Charts</h1>
+
+      <div class="error-banner" id="charts-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <div class="form-row" style="align-items:flex-end">
+          <div class="form-group">
+            <label for="chart-start-month">Start month</label>
+            <input type="month" id="chart-start-month" name="startMonth" />
+          </div>
+          <div class="form-group">
+            <label for="chart-end-month">End month</label>
+            <input type="month" id="chart-end-month" name="endMonth" />
+          </div>
+          <div class="form-group">
+            <label for="chart-product-filter">Product (optional)</label>
+            <select id="chart-product-filter" name="productId">
+              <option value="">— all products —</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:0">
+            <button type="button" id="btn-apply-chart-filters" class="btn btn-primary">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Units Purchased vs Sold</h3>
+          <canvas id="chart-units" role="img" aria-label="Bar chart: units purchased and sold per month"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Purchase Cost vs Sales Revenue</h3>
+          <canvas id="chart-monetary" role="img" aria-label="Bar chart: purchase cost and sales revenue per month"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- /#content -->
+
+</div><!-- /#app -->
+
+<!-- =====================================================
+     Global modal (reused by all views for confirmations)
+     ===================================================== -->
+<div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+  <div class="modal">
+    <h3 id="modal-title">Confirm action</h3>
+    <p id="modal-body"></p>
+    <div class="modal-actions">
+      <button type="button" id="btn-modal-cancel" class="btn btn-secondary">Cancel</button>
+      <button type="button" id="btn-modal-confirm" class="btn btn-danger">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     Toast notification container
+     ===================================================== -->
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<!-- =====================================================
+     Third-party libraries (UMD bundles, must load before
+     ES modules that reference their globals)
+     ===================================================== -->
+<script src="libs/supabase.min.js"></script>
+<script src="libs/chart.min.js"></script>
+
+<!-- =====================================================
+     App entry point (ES module)
+     ===================================================== -->
+<script type="module" src="js/router.js"></script>
+
+</body>
+</html>
