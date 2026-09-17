@@ -181,3 +181,53 @@ export function renderMonetaryChart(canvasId, labels, costData, revenueData) {
   const config = _buildBarConfig(labels, datasets, 'Month', 'Amount');
   return _createChart(canvasId, config);
 }
+
+/**
+ * Render a bar chart showing net profit (revenue ? cost) per month.
+ * Bars are green for positive months, red for negative.
+ *
+ * @param {string}   canvasId    - id of the <canvas> element
+ * @param {string[]} labels      - month label array
+ * @param {number[]} profitData  - net profit per month (can be negative)
+ */
+export function renderProfitChart(canvasId, labels, profitData) {
+  if (typeof window === 'undefined' || !window.Chart) {
+    console.warn('charts.js: window.Chart not defined.');
+    return null;
+  }
+
+  _destroyExisting(canvasId);
+
+  const backgroundColors = profitData.map((v) =>
+    v >= 0 ? 'rgba(22, 163, 74, 0.8)' : 'rgba(220, 38, 38, 0.8)'
+  );
+  const borderColors = profitData.map((v) =>
+    v >= 0 ? 'rgba(22, 163, 74, 1)' : 'rgba(220, 38, 38, 1)'
+  );
+
+  const config = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Net Profit',
+        data: profitData,
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
+        borderWidth: 1,
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Month' } },
+        y: { title: { display: true, text: 'Net Profit' }, beginAtZero: false },
+      },
+    },
+  };
+
+  return _createChart(canvasId, config);
+}

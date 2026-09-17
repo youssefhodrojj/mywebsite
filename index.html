@@ -342,6 +342,30 @@
         </div>
       </div>
 
+      <!-- Profit summary cards -->
+      <div class="form-row" id="chart-summary-cards" style="flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+        <div class="card" style="flex:1; min-width:140px; text-align:center;">
+          <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Total Revenue</p>
+          <p id="summary-revenue" style="font-size:1.5rem; font-weight:700; color:var(--color-success);">—</p>
+        </div>
+        <div class="card" style="flex:1; min-width:140px; text-align:center;">
+          <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Total Cost</p>
+          <p id="summary-cost" style="font-size:1.5rem; font-weight:700; color:var(--color-primary);">—</p>
+        </div>
+        <div class="card" style="flex:1; min-width:140px; text-align:center;">
+          <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Net Profit</p>
+          <p id="summary-profit" style="font-size:1.5rem; font-weight:700;">—</p>
+        </div>
+        <div class="card" style="flex:1; min-width:140px; text-align:center;">
+          <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Units Sold</p>
+          <p id="summary-units-sold" style="font-size:1.5rem; font-weight:700;">—</p>
+        </div>
+        <div class="card" style="flex:1; min-width:140px; text-align:center;">
+          <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Units Purchased</p>
+          <p id="summary-units-purchased" style="font-size:1.5rem; font-weight:700;">—</p>
+        </div>
+      </div>
+
       <div class="charts-grid">
         <div class="chart-card">
           <h3>Units Purchased vs Sold</h3>
@@ -350,6 +374,10 @@
         <div class="chart-card">
           <h3>Purchase Cost vs Sales Revenue</h3>
           <canvas id="chart-monetary" role="img" aria-label="Bar chart: purchase cost and sales revenue per month"></canvas>
+        </div>
+        <div class="chart-card" style="grid-column: 1 / -1;">
+          <h3>Net Profit per Month</h3>
+          <canvas id="chart-profit" role="img" aria-label="Bar chart: net profit per month"></canvas>
         </div>
       </div>
     </section>
