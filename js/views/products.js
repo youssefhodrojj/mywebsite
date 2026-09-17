@@ -220,18 +220,20 @@ function buildVariantsTableHTML(variants, stockMap) {
   }).join('');
 
   return `
-    <table class="variants-table" style="width:100%; border-collapse:collapse; margin-top:0.5rem;">
-      <thead>
-        <tr>
-          <th scope="col" style="text-align:left; padding:0.4rem 0.75rem; font-size:0.78rem; font-weight:600; text-transform:uppercase; color:var(--color-text-muted);">Attributes</th>
-          <th scope="col" style="text-align:left; padding:0.4rem 0.75rem; font-size:0.78rem; font-weight:600; text-transform:uppercase; color:var(--color-text-muted);">Remaining Stock</th>
-          <th scope="col" style="width:80px;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>`;
+    <div style="overflow-x:auto; -webkit-overflow-scrolling:touch; margin-top:0.5rem;">
+      <table style="width:100%; min-width:360px; border-collapse:collapse; font-size:0.88rem;">
+        <thead>
+          <tr style="background:var(--color-bg);">
+            <th style="text-align:left; padding:0.4rem 0.75rem; font-size:0.75rem; font-weight:600; text-transform:uppercase; color:var(--color-text-muted); border-bottom:1px solid var(--color-border);">Attributes</th>
+            <th style="text-align:left; padding:0.4rem 0.75rem; font-size:0.75rem; font-weight:600; text-transform:uppercase; color:var(--color-text-muted); border-bottom:1px solid var(--color-border); white-space:nowrap;">Stock</th>
+            <th style="width:64px; border-bottom:1px solid var(--color-border);"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>`;
 }
 
 /**

@@ -1,5 +1,5 @@
-/**
- * charts-view.js — Monthly Charts view with profit summary cards.
+ï»¿ï»¿/**
+ * charts-view.js ï¿½ Monthly Charts view with profit summary cards.
  */
 import { getProducts, getMonthlyPurchaseSummary, getMonthlySalesSummary } from '../db.js';
 import { renderUnitsChart, renderMonetaryChart, renderProfitChart } from '../charts.js';
@@ -145,7 +145,7 @@ export async function init() {
 
   const productFilter = getProductFilter();
   if (productFilter) {
-    productFilter.innerHTML = '<option value="">— all products —</option>';
+    productFilter.innerHTML = '<option value="">-- all products --</option>';
     try {
       const products = await getProducts();
       for (const p of products) {
