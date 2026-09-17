@@ -69,8 +69,10 @@ function showView(route) {
   const targetId = VIEW_IDS[route];
   for (const el of allViewEls()) {
     if (el.id === targetId) {
+      el.classList.add('active');
       el.classList.remove('hidden');
     } else {
+      el.classList.remove('active');
       el.classList.add('hidden');
     }
   }
