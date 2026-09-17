@@ -77,21 +77,28 @@ function aggregateByMonth(purchases, sales) {
 }
 
 function updateSummaryCards(purchasedUnits, purchaseCosts, soldUnits, salesRevenue) {
-  const totalRevenue  = salesRevenue.reduce((s, v) => s + v, 0);
-  const totalCost     = purchaseCosts.reduce((s, v) => s + v, 0);
-  const netProfit     = totalRevenue - totalCost;
-  const totalSold     = soldUnits.reduce((s, v) => s + v, 0);
+  const totalRevenue   = salesRevenue.reduce((s, v) => s + v, 0);
+  const totalCost      = purchaseCosts.reduce((s, v) => s + v, 0);
+  const netProfit      = totalRevenue - totalCost;
+  const totalSold      = soldUnits.reduce((s, v) => s + v, 0);
   const totalPurchased = purchasedUnits.reduce((s, v) => s + v, 0);
 
-  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  setEl('summary-revenue', fmt(totalRevenue));
-  setEl('summary-cost', fmt(totalCost));
-  setEl('summary-units-sold', totalSold.toLocaleString());
-  setEl('summary-units-purchased', totalPurchased.toLocaleString());
+  const ids = ['summary-revenue', 'summary-cost', 'summary-profit', 'summary-units-sold', 'summary-units-purchased'];
+  const values = [
+    fmt(totalRevenue),
+    fmt(totalCost),
+    (netProfit >= 0 ? '+' : '') + fmt(netProfit),
+    totalSold.toLocaleString(),
+    totalPurchased.toLocaleString(),
+  ];
+
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = values[i];
+  });
 
   const profitEl = document.getElementById('summary-profit');
   if (profitEl) {
-    profitEl.textContent = (netProfit >= 0 ? '+' : '') + fmt(netProfit);
     profitEl.style.color = netProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
   }
 }

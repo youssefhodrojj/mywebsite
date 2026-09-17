@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <nav id="nav" role="navigation" aria-label="Main navigation">
     <a href="#/dashboard" class="nav-brand">?? StockAdmin</a>
 
-    <!-- Hamburger — shown on mobile when logged in -->
+    <!-- Hamburger ï¿½ shown on mobile when logged in -->
     <button id="btn-hamburger" class="hidden" type="button" aria-label="Open menu" aria-expanded="false">&#9776;</button>
 
     <ul id="nav-links" class="hidden" role="list">
@@ -349,23 +349,23 @@
       <div class="form-row" id="chart-summary-cards" style="flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
         <div class="card" style="flex:1; min-width:140px; text-align:center;">
           <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Total Revenue</p>
-          <p id="summary-revenue" style="font-size:1.5rem; font-weight:700; color:var(--color-success);">—</p>
+          <p id="summary-revenue" style="font-size:1.5rem; font-weight:700; color:var(--color-success);">-</p>
         </div>
         <div class="card" style="flex:1; min-width:140px; text-align:center;">
           <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Total Cost</p>
-          <p id="summary-cost" style="font-size:1.5rem; font-weight:700; color:var(--color-primary);">—</p>
+          <p id="summary-cost" style="font-size:1.5rem; font-weight:700; color:var(--color-primary);">-</p>
         </div>
         <div class="card" style="flex:1; min-width:140px; text-align:center;">
           <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Net Profit</p>
-          <p id="summary-profit" style="font-size:1.5rem; font-weight:700;">—</p>
+          <p id="summary-profit" style="font-size:1.5rem; font-weight:700;">-</p>
         </div>
         <div class="card" style="flex:1; min-width:140px; text-align:center;">
           <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Units Sold</p>
-          <p id="summary-units-sold" style="font-size:1.5rem; font-weight:700;">—</p>
+          <p id="summary-units-sold" style="font-size:1.5rem; font-weight:700;">-</p>
         </div>
         <div class="card" style="flex:1; min-width:140px; text-align:center;">
           <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Units Purchased</p>
-          <p id="summary-units-purchased" style="font-size:1.5rem; font-weight:700;">—</p>
+          <p id="summary-units-purchased" style="font-size:1.5rem; font-weight:700;">-</p>
         </div>
       </div>
 
@@ -378,10 +378,11 @@
           <h3>Purchase Cost vs Sales Revenue</h3>
           <canvas id="chart-monetary" role="img" aria-label="Bar chart: purchase cost and sales revenue per month"></canvas>
         </div>
-        <div class="chart-card" style="grid-column: 1 / -1;">
-          <h3>Net Profit per Month</h3>
-          <canvas id="chart-profit" role="img" aria-label="Bar chart: net profit per month"></canvas>
-        </div>
+      </div>
+
+      <div class="chart-card" style="margin-top:1.25rem;">
+        <h3>Net Profit per Month</h3>
+        <canvas id="chart-profit" role="img" aria-label="Bar chart: net profit per month"></canvas>
       </div>
     </section>
 
