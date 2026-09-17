@@ -1,5 +1,4 @@
-// Supabase project credentials (public — anon key only, no service role key)
-// Fill in your project's URL and anon key from the Supabase dashboard:
-// Settings → API → Project URL and anon / public key
-export const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
-export const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+// Supabase project credentials (public � anon key only, no service role key)
+// Settings ? API ? Project URL and publishable key
+export const SUPABASE_URL = 'https://ivxkneclrpqekvrfvfbt.supabase.co';
+export const SUPABASE_ANON_KEY = 'sb_publishable_4CyRQXEQp3BiwnMJ3_rgwg_rTx4lhNG';
