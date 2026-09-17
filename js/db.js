@@ -85,13 +85,14 @@ export async function getProducts() {
  * @returns {Promise<{id: string, name: string, description: string|null, created_at: string}>}
  */
 export async function createProduct({ name, description = null }) {
-  // user_id must be set explicitly so the RLS INSERT policy (auth.uid() = user_id) passes
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  // Get current user to satisfy RLS policy: user_id = auth.uid()
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const userId = sessionData?.session?.user?.id;
+  if (!userId) throw new Error('Not authenticated');
 
   const { data, error } = await supabaseClient
     .from('products')
-    .insert({ name, description, user_id: user.id })
+    .insert({ name, description, user_id: userId })
     .select('id, name, description, created_at')
     .single();
 
