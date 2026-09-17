@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockAdmin -- How-To Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #374151;
+      background: #f8fafc;
+    }
+
+    /* NAV */
+    nav {
+      background: #1e293b;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+
+    nav .brand {
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+
+    /* LAYOUT */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+
+    /* PAGE TITLE */
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    /* CARD */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* SECTION HEADINGS */
+    h2 {
+      font-size: 1.4rem;
+      color: #1e293b;
+      margin-bottom: 8px;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 8px;
+      font-weight: 700;
+    }
+
+    /* STEP HEADINGS */
+    h3 {
+      font-size: 1.05rem;
+      color: #2563eb;
+      margin: 16px 0 8px;
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: 10px;
+    }
+
+    /* BADGE */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #2563eb;
+      color: #ffffff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-right: 8px;
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+
+    /* STEP ROW */
+    .step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .step-text {
+      flex: 1;
+    }
+
+    /* CODE / EXAMPLE BOX */
+    .box-example {
+      background: #f1f5f9;
+      border-left: 4px solid #2563eb;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.875rem;
+      margin: 8px 0 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.6;
+    }
+
+    .box-example .box-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #2563eb;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* WARNING BOX */
+    .box-warning {
+      background: #fef2f2;
+      border-left: 4px solid #dc2626;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.875rem;
+      margin: 8px 0 16px;
+      line-height: 1.6;
+    }
+
+    .box-warning .box-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #dc2626;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* TIP BOX */
+    .box-tip {
+      background: #f0fdf4;
+      border-left: 4px solid #16a34a;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.875rem;
+      margin: 8px 0 16px;
+      line-height: 1.6;
+    }
+
+    .box-tip .box-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #16a34a;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* TABLE OF CONTENTS */
+    .toc-list {
+      list-style: none;
+      counter-reset: toc;
+      padding: 0;
+    }
+
+    .toc-list li {
+      counter-increment: toc;
+      margin-bottom: 6px;
+    }
+
+    .toc-list li a {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.15s;
+    }
+
+    .toc-list li a:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    .toc-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e2e8f0;
+      color: #1e293b;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Q&A */
+    .qa-item {
+      margin-bottom: 18px;
+    }
+
+    .qa-q {
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .qa-a {
+      color: #374151;
+    }
+
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 20px 0;
+    }
+
+    /* FORMULA ROW */
+    .formula {
+      display: inline-block;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      margin: 8px 0 16px;
+    }
+
+    /* SUMMARY CARD GRID */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 12px 0 16px;
+    }
+
+    .summary-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .summary-item .s-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .summary-item .s-desc {
+      font-size: 0.85rem;
+      color: #374151;
+    }
+
+    /* CHART LIST */
+    .chart-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .chart-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9rem;
+    }
+
+    .chart-list li:last-child {
+      border-bottom: none;
+    }
+
+    .chart-num {
+      font-weight: 700;
+      color: #2563eb;
+      margin-right: 6px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 16px 48px;
+      }
+
+      .page-title {
+        font-size: 1.4rem;
+      }
+
+      h2 {
+        font-size: 1.2rem;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <span class="brand">StockAdmin -- User Guide</span>
+  </nav>
+
+  <div class="container">
+
+    <h1 class="page-title">How-To Guide</h1>
+    <p class="page-subtitle">A step-by-step guide for managing your stock, purchases, sales, and reports.</p>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="card" id="top">
+      <h2>Table of Contents</h2>
+      <ul class="toc-list" style="margin-top: 14px;">
+        <li><a href="#section-1"><span class="toc-num">1</span> Getting Started</a></li>
+        <li><a href="#section-2"><span class="toc-num">2</span> Products and Variants</a></li>
+        <li><a href="#section-3"><span class="toc-num">3</span> Recording Purchases (Adding Stock)</a></li>
+        <li><a href="#section-4"><span class="toc-num">4</span> Recording Sales</a></li>
+        <li><a href="#section-5"><span class="toc-num">5</span> Stock Corrections</a></li>
+        <li><a href="#section-6"><span class="toc-num">6</span> Remaining Stock View</a></li>
+        <li><a href="#section-7"><span class="toc-num">7</span> Monthly Charts</a></li>
+        <li><a href="#section-8"><span class="toc-num">8</span> Dashboard</a></li>
+        <li><a href="#section-9"><span class="toc-num">9</span> Tips and Common Questions</a></li>
+      </ul>
+    </div>
+
+    <!-- SECTION 1 -->
+    <div class="card" id="section-1">
+      <h2>1. Getting Started</h2>
+
+      <h3>What is StockAdmin?</h3>
+      <p>
+        StockAdmin is an inventory management tool for small business owners. It helps you
+        track your products, record what you buy and sell, and understand your profit at a glance.
+        You do not need any accounting knowledge to use it -- just follow the steps in this guide.
+      </p>
+      <p>
+        <strong>Who is it for?</strong> Anyone who buys goods and resells them: clothing shops,
+        shoe stores, electronics resellers, market traders, and so on.
+      </p>
+
+      <hr class="divider">
+
+      <h3>How to log in</h3>
+      <div class="step"><span class="badge">1</span><span class="step-text">Open your web browser and go to the StockAdmin URL provided to you.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">You will see the login page. Type your email address in the Email field.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Type your password in the Password field.</span></div>
+      <div class="step"><span class="badge">4</span><span class="step-text">Click the "Login" button. If your details are correct, you will be taken to the Dashboard.</span></div>
+
+      <div class="box-warning">
+        <span class="box-label">Note</span>
+        If you see "Invalid login credentials", double-check your email address and password.
+        Passwords are case-sensitive -- make sure Caps Lock is off.
+      </div>
+
+      <hr class="divider">
+
+      <h3>What you see after logging in</h3>
+      <p>
+        After a successful login you land on the <strong>Dashboard</strong>. This is the home screen.
+        It shows a quick summary of your products, variants, stock levels, and total profit.
+        You will learn more about the Dashboard in Section 8.
+      </p>
+
+      <hr class="divider">
+
+      <h3>How to open the navigation menu</h3>
+      <p>
+        All pages in StockAdmin are accessed through the side menu (drawer). To open it:
+      </p>
+      <div class="step"><span class="badge">1</span><span class="step-text">Look at the top-left corner of the screen. You will see three horizontal lines (the hamburger icon).</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">Tap or click it. A menu slides in from the left side of the screen.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Tap any item in the menu to navigate to that page.</span></div>
+      <div class="step"><span class="badge">4</span><span class="step-text">To close the menu without navigating, tap the X button at the top of the menu, or tap anywhere outside the menu.</span></div>
+
+      <div class="box-tip">
+        <span class="box-label">Tip</span>
+        You can also tap the "Logout" button at the bottom of the menu to sign out of your account.
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="card" id="section-2">
+      <h2>2. Products and Variants</h2>
+
+      <h3>What is a Product?</h3>
+      <p>
+        A product is the general item you sell. For example: <strong>Boot black</strong> or
+        <strong>T-Shirt</strong>. Think of it as the name on the label.
+      </p>
+
+      <h3>What is a Variant?</h3>
+      <p>
+        A variant is a specific version of a product. Products can have multiple variants that
+        differ in size, colour, material, or any other attribute you choose.
+        Each variant has its <strong>own separate stock count</strong>.
+      </p>
+      <div class="box-example">
+<span class="box-label">Example</span>Product: Boot black
+  Variant 1 -- size: 40, zipper: no
+  Variant 2 -- size: 41, zipper: yes
+  Variant 3 -- size: 42, zipper: yes</div>
+
+      <hr class="divider">
+
+      <h3>How to add a Product</h3>
+      <div class="step"><span class="badge">1</span><span class="step-text">Open the menu, then tap <strong>Products</strong>.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">Find the "Add Product" form at the top of the page. Type the product name in the Name field. Example: <em>Boot black</em>.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Optionally type a short description to help you identify the product later.</span></div>
+      <div class="step"><span class="badge">4</span><span class="step-text">Click the <strong>"Add Product"</strong> button.</span></div>
+      <div class="step"><span class="badge">5</span><span class="step-text">Your new product appears in the product list below the form.</span></div>
+
+      <hr class="divider">
+
+      <h3>How to add a Variant</h3>
+      <p>Once a product exists in the list, you can add variants to it:</p>
+      <div class="step"><span class="badge">1</span><span class="step-text">Find your product in the list.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">Below the product name you will see a small form with fields for "Key" and "Value". These are the attributes that make this variant unique. Example: Key = <em>size</em>, Value = <em>40</em>.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">To add another attribute (for example "zipper"), click the <strong>"+ Add attribute"</strong> link. New key-value fields will appear.</span></div>
+      <div class="step"><span class="badge">4</span><span class="step-text">Fill in as many attribute pairs as needed to uniquely describe this variant.</span></div>
+      <div class="step"><span class="badge">5</span><span class="step-text">Click <strong>"Add Variant"</strong>. The variant is saved and appears under the product.</span></div>
+      <div class="step"><span class="badge">6</span><span class="step-text">Repeat for each variant you want to add.</span></div>
+
+      <div class="box-example">
+<span class="box-label">Example -- Boot black variants</span>Variant 1:  Key: size   Value: 40   |   Key: zipper   Value: no
+Variant 2:  Key: size   Value: 41   |   Key: zipper   Value: yes</div>
+
+      <hr class="divider">
+
+      <h3>How to edit or delete a Product</h3>
+      <p>
+        Each product in the list has an <strong>Edit</strong> button (pencil icon) and a
+        <strong>Delete</strong> button (trash icon) next to it.
+      </p>
+      <p>
+        Clicking Edit opens a form where you can update the product name or description.
+        Click <strong>Save</strong> to confirm.
+      </p>
+
+      <div class="box-warning">
+        <span class="box-label">Warning</span>
+        Deleting a product will also delete all its variants and all the purchase, sale, and
+        correction records linked to those variants. This cannot be undone. Only delete a
+        product if you are completely sure you no longer need it.
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="card" id="section-3">
+      <h2>3. Recording Purchases (Adding Stock)</h2>
+
+      <h3>What is a Purchase?</h3>
+      <p>
+        A purchase is when you buy units of a product to add to your stock for resale.
+        Recording a purchase does two things:
+      </p>
+      <p>1. It <strong>increases the stock count</strong> for that variant.</p>
+      <p>2. It <strong>records your cost</strong>, so the app can calculate your profit later.</p>
+
+      <hr class="divider">
+
+      <h3>How to record a Purchase</h3>
+      <div class="step"><span class="badge">1</span><span class="step-text">Open the menu, tap <strong>Purchases</strong>.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">In the "Record Purchase" form, click the <strong>Product</strong> dropdown and select the product you bought. Example: <em>Boot black</em>.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Click the <strong>Variant</strong> dropdown and select the specific variant. Example: <em>size 41, zipper yes</em>.</span></div>
+      <div class="step"><span class="badge">4</span><span class="step-text">In the <strong>Quantity</strong> field, type how many units you bought. Example: <em>15</em>.</span></div>
+      <div class="step"><span class="badge">5</span><span class="step-text">In the <strong>Cost per unit</strong> field, type what you paid for each unit. Example: <em>25.00</em>. Do not include a currency symbol -- just the number.</span></div>
+      <div class="step"><span class="badge">6</span><span class="step-text">Set the <strong>Date</strong> to the date you made the purchase. It defaults to today.</span></div>
+      <div class="step"><span class="badge">7</span><span class="step-text">Click <strong>"Save Purchase"</strong>.</span></div>
+
+      <div class="box-example">
+<span class="box-label">Example</span>Product:        Boot black
+Variant:        size 41, zipper yes
+Quantity:       15
+Cost per unit:  25.00
+Date:           17 Sep 2026
+---
+Result: Stock goes from 0 to 15.
+Total purchase cost recorded: 375.00 (15 x 25.00)</div>
+
+      <hr class="divider">
+
+      <h3>Purchase History</h3>
+      <p>
+        Below the form you will see a <strong>Purchase History</strong> table. It shows all
+        previous purchases for the selected product and variant -- including the date, quantity,
+        cost per unit, and total cost. Use this to review your buying history.
+      </p>
+
+      <div class="box-tip">
+        <span class="box-label">Tip</span>
+        You can record multiple separate purchases for the same variant at different times.
+        For example, if you restock every month, add a new purchase entry each time.
+        The app adds them all together to calculate your total stock and total cost.
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="card" id="section-4">
+      <h2>4. Recording Sales</h2>
+
+      <h3>What is a Sale?</h3>
+      <p>
+        A sale is when you sell a unit to a customer. Recording a sale does two things:
+      </p>
+      <p>1. It <strong>reduces the stock count</strong> for that variant.</p>
+      <p>2. It <strong>records your revenue</strong>, so the app can calculate your profit.</p>
+
+      <hr class="divider">
+
+      <h3>How to record a Sale</h3>
+      <div class="step"><span class="badge">1</span><span class="step-text">Open the menu, tap <strong>Sales</strong>.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">Select the <strong>Product</strong> from the dropdown. Example: <em>Boot black</em>.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Select the <strong>Variant</strong>. Example: <em>size 41, zipper yes</em>.</span></div>
+      <div class="step"><span class="badge">4</span><span class="step-text">Enter the <strong>Quantity sold</strong>. Example: <em>1</em>.</span></div>
+      <div class="step"><span class="badge">5</span><span class="step-text">Enter the <strong>Sell price per unit</strong> -- the amount the customer paid you. Example: <em>45.00</em>.</span></div>
+      <div class="step"><span class="badge">6</span><span class="step-text">Set the <strong>Date</strong> of the sale.</span></div>
+      <div class="step"><span class="badge">7</span><span class="step-text">Click <strong>"Save Sale"</strong>.</span></div>
+
+      <div class="box-example">
+<span class="box-label">Example</span>Product:         Boot black
+Variant:         size 41, zipper yes
+Quantity sold:   1
+Sell price:      45.00
+Date:            17 Sep 2026
+---
+Result: Stock goes from 15 to 14.
+Revenue recorded: 45.00</div>
+
+      <hr class="divider">
+
+      <h3>What happens if stock goes to zero?</h3>
+      <p>
+        If the quantity you are trying to sell is greater than or equal to the current stock,
+        the app will show a warning message. You can still choose to confirm and save the sale.
+        The stock count will go to zero or below. See Section 5 (Corrections) or Section 3
+        (Purchases) to fix a negative stock count.
+      </p>
+
+      <h3>Sale History</h3>
+      <p>
+        Below the form you will see a <strong>Sale History</strong> table showing all past
+        sales for the selected variant, including date, quantity, sell price per unit, and
+        total revenue.
+      </p>
+
+      <div class="box-tip">
+        <span class="box-label">Tip</span>
+        If a customer buys 3 units at once, you can enter quantity 3 and the sell price per unit.
+        You do not need to record 3 separate sales.
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="card" id="section-5">
+      <h2>5. Stock Corrections</h2>
+
+      <h3>What is a Stock Correction?</h3>
+      <p>
+        A correction manually adjusts your stock count without recording a purchase or sale.
+        Use it to fix your stock count when the real-world quantity differs from what the
+        app shows. Common reasons:
+      </p>
+      <p>- You found <strong>damaged goods</strong> (use a negative correction, e.g. -2)</p>
+      <p>- You found <strong>extra units</strong> during a stock count (use a positive correction, e.g. +3)</p>
+      <p>- Units were <strong>lost or stolen</strong> (use a negative correction)</p>
+      <p>- You <strong>miscounted</strong> a previous entry and need to fix the balance</p>
+
+      <div class="box-warning">
+        <span class="box-label">Important</span>
+        Corrections affect the stock quantity only. They do NOT change your total purchase
+        cost or total sales revenue. This means a negative correction will lower your
+        effective profit (because you have fewer units to sell) but the correction itself
+        does not appear as a cost in the Charts page.
+      </div>
+
+      <hr class="divider">
+
+      <h3>How to make a Correction</h3>
+      <div class="step"><span class="badge">1</span><span class="step-text">Open the menu, tap <strong>Corrections</strong>.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">Select the <strong>Product</strong> from the dropdown.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Select the <strong>Variant</strong>.</span></div>
+      <div class="step"><span class="badge">4</span><span class="step-text">In the <strong>Adjustment</strong> field, enter a number. Use a <strong>negative number</strong> to reduce stock (e.g. -2) or a <strong>positive number</strong> to increase stock (e.g. +3). Do not use the + sign for positive -- just type the number, e.g. 3.</span></div>
+      <div class="step"><span class="badge">5</span><span class="step-text">In the <strong>Reason</strong> field, type a short note explaining why you are making the correction. Example: <em>2 units found damaged</em>. This is optional but strongly recommended for your records.</span></div>
+      <div class="step"><span class="badge">6</span><span class="step-text">Set the <strong>Date</strong>.</span></div>
+      <div class="step"><span class="badge">7</span><span class="step-text">Click <strong>"Save Correction"</strong>.</span></div>
+
+      <div class="box-example">
+<span class="box-label">Example -- Damaged goods</span>Scenario: You inspect your stock and find 2 damaged boots.
+
+Product:     Boot black
+Variant:     size 41, zipper yes
+Adjustment:  -2
+Reason:      Damaged goods found during stock check
+Date:        18 Sep 2026
+---
+Result: Stock goes from 14 to 12.
+Purchase cost (375.00) stays unchanged.
+Net profit will be lower because you now have fewer sellable units.</div>
+
+      <div class="box-warning">
+        <span class="box-label">Warning</span>
+        If your correction would make the stock count go below zero, the app will show a
+        warning. You can still confirm it, but a negative stock count means you have
+        "oversold" or over-corrected. Use a purchase or another correction to bring
+        the count back to a realistic number.
+      </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="card" id="section-6">
+      <h2>6. Remaining Stock View</h2>
+
+      <h3>What is the Stock view?</h3>
+      <p>
+        The Stock page gives you a live overview of how many units you currently have
+        for every product and variant. It is the fastest way to see what is running low.
+      </p>
+
+      <hr class="divider">
+
+      <h3>How to use the Stock view</h3>
+      <div class="step"><span class="badge">1</span><span class="step-text">Open the menu, tap <strong>Stock</strong>.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">You will see a table with columns: Product | Variant | Remaining Stock.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Rows highlighted in <strong>red</strong> mean that variant has zero or negative stock. These need your attention.</span></div>
+
+      <hr class="divider">
+
+      <h3>How remaining stock is calculated</h3>
+      <p>The app uses this simple formula:</p>
+      <div class="formula">Remaining Stock = Purchases - Sales + Corrections</div>
+
+      <div class="box-example">
+<span class="box-label">Example -- Boot black, size 41, zipper yes</span>Purchases total:    15 units (bought on 17 Sep)
+Sales total:         1 unit  (sold on 17 Sep)
+Corrections total:  -2 units (damaged on 18 Sep)
+---
+Remaining Stock = 15 - 1 + (-2) = 12 units</div>
+
+      <hr class="divider">
+
+      <h3>Using the search filter</h3>
+      <p>
+        If you have many products, use the search box at the top of the Stock page.
+        Start typing a product name and the table will filter automatically to show
+        only matching rows. Clear the search box to see all products again.
+      </p>
+
+      <div class="box-tip">
+        <span class="box-label">Tip</span>
+        Check the Stock page regularly -- for example at the start of each week --
+        to identify which variants need restocking before you run out.
+      </div>
+    </div>
+
+    <!-- SECTION 7 -->
+    <div class="card" id="section-7">
+      <h2>7. Monthly Charts</h2>
+
+      <h3>What do the Charts show?</h3>
+      <p>
+        The Charts page shows your business performance over a chosen time period.
+        It is the best place to understand your overall financial picture: how much
+        you spent buying stock, how much you earned from sales, and whether you
+        are making a profit.
+      </p>
+
+      <hr class="divider">
+
+      <h3>Summary Cards</h3>
+      <p>At the top of the Charts page you will see five summary cards:</p>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="s-label">Total Revenue</div>
+          <div class="s-desc">All money received from sales in the selected period.</div>
+        </div>
+        <div class="summary-item">
+          <div class="s-label">Total Cost</div>
+          <div class="s-desc">All money spent buying stock in the selected period.</div>
+        </div>
+        <div class="summary-item">
+          <div class="s-label">Net Profit</div>
+          <div class="s-desc">Revenue minus Cost. Green = profit, red = loss.</div>
+        </div>
+        <div class="summary-item">
+          <div class="s-label">Units Sold</div>
+          <div class="s-desc">Total number of units sold in the period.</div>
+        </div>
+        <div class="summary-item">
+          <div class="s-label">Units Purchased</div>
+          <div class="s-desc">Total number of units bought in the period.</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <h3>The 3 Charts</h3>
+      <ul class="chart-list">
+        <li><span class="chart-num">1.</span> <strong>Units Purchased vs Sold</strong> -- Blue bars show units you bought each month; orange bars show units you sold. Use this to see if you are selling what you buy.</li>
+        <li><span class="chart-num">2.</span> <strong>Purchase Cost vs Sales Revenue</strong> -- Blue bars show what you spent; orange bars show what you earned. When orange is higher than blue, you made money that month.</li>
+        <li><span class="chart-num">3.</span> <strong>Net Profit per Month</strong> -- Green bars mean a profitable month; red bars mean a loss month. This is the quickest view of your month-by-month performance.</li>
+      </ul>
+
+      <hr class="divider">
+
+      <h3>How to use the filters</h3>
+      <div class="step"><span class="badge">1</span><span class="step-text">At the top of the Charts page, find the <strong>Start Month</strong> and <strong>End Month</strong> fields. Change these to select the date range you want to see.</span></div>
+      <div class="step"><span class="badge">2</span><span class="step-text">To see data for a specific product only, select it from the <strong>Product</strong> dropdown. Leave it on "All products" to see combined data.</span></div>
+      <div class="step"><span class="badge">3</span><span class="step-text">Click <strong>"Apply"</strong> to update the charts and summary cards.</span></div>
+
+      <div class="box-example">
+<span class="box-label">Example -- First month of trading</span>Time period:  Apr 2026 to Sep 2026
+Product:      Boot black
+---
+Revenue:     45.00   (1 pair sold at 45.00)
+Cost:        375.00  (15 pairs bought at 25.00 each)
+Net Profit:  -330.00
+
+This is expected -- you have bought 15 pairs but only sold 1 so far.
+As you sell more, the net profit will rise toward positive.</div>
+
+      <div class="box-tip">
+        <span class="box-label">Tip</span>
+        A negative net profit at the start is completely normal. It just means your
+        total purchase cost is higher than your total sales revenue so far.
+        As you sell through your stock, the profit will climb and eventually become positive.
+      </div>
+    </div>
+
+    <!-- SECTION 8 -->
+    <div class="card" id="section-8">
+      <h2>8. Dashboard</h2>
+
+      <h3>What is the Dashboard?</h3>
+      <p>
+        The Dashboard is the first page you see after logging in. It gives you an instant
+        at-a-glance summary of your entire business -- no filters needed.
+      </p>
+
+      <p>The Dashboard shows:</p>
+      <p>- <strong>Number of products</strong> -- how many distinct products you have set up</p>
+      <p>- <strong>Number of variants</strong> -- total variants across all products</p>
+      <p>- <strong>Low / out-of-stock items</strong> -- variants with zero or negative remaining stock (these need restocking)</p>
+      <p>- <strong>Units sold (all time)</strong> -- total units sold since you started using the app</p>
+      <p>- <strong>Total purchase cost (all time)</strong> -- total money spent buying stock</p>
+      <p>- <strong>Total sales revenue (all time)</strong> -- total money earned from sales</p>
+      <p>- <strong>Net profit (all time)</strong> -- Revenue minus Cost across all time</p>
+
+      <div class="box-tip">
+        <span class="box-label">Tip</span>
+        Use the Dashboard as your daily health check. If the "Low / out-of-stock" number
+        is greater than zero, go to the Stock page to find out which variants need
+        a purchase recorded.
+      </div>
+    </div>
+
+    <!-- SECTION 9 -->
+    <div class="card" id="section-9">
+      <h2>9. Tips and Common Questions</h2>
+
+      <div class="qa-item">
+        <p class="qa-q">Q: I recorded a purchase but I do not see the stock increase.</p>
+        <p class="qa-a">A: Make sure you selected the correct variant before saving. Each variant has its own
+        separate stock count. For example, "Boot black size 40" and "Boot black size 41" are
+        tracked independently. Go to the Stock page and check the exact variant you bought.</p>
+      </div>
+
+      <hr class="divider">
+
+      <div class="qa-item">
+        <p class="qa-q">Q: Can I delete a sale or purchase if I made a mistake?</p>
+        <p class="qa-a">A: No -- records are permanent to protect the accuracy of your history. If you entered
+        the wrong quantity, use a <strong>Stock Correction</strong> to adjust the quantity back.
+        If you entered the wrong price, you may need to record a correcting sale or purchase entry.
+        Contact your administrator if you need help correcting a financial error.</p>
+      </div>
+
+      <hr class="divider">
+
+      <div class="qa-item">
+        <p class="qa-q">Q: My net profit shows as a negative number. Is something wrong?</p>
+        <p class="qa-a">A: Not necessarily. A negative net profit simply means your total purchase cost is
+        currently higher than your total sales revenue. This is common when you have recently
+        restocked. As you sell more of your purchased inventory, the revenue will increase and
+        the profit will improve. Check the Charts page to see the trend over time.</p>
+      </div>
+
+      <hr class="divider">
+
+      <div class="qa-item">
+        <p class="qa-q">Q: What is the difference between "Cost per unit" and "Sell price per unit"?</p>
+        <p class="qa-a">A: Cost per unit is what <strong>you paid</strong> to buy the item from your supplier.
+        Sell price per unit is what <strong>your customer paid you</strong>.
+        The difference between the two is your gross profit per unit.</p>
+        <div class="box-example">
+<span class="box-label">Example</span>Cost per unit:       25.00  (you paid this to the supplier)
+Sell price per unit: 45.00  (the customer paid you this)
+---
+Profit per unit:     20.00  (45.00 - 25.00)</div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="qa-item">
+        <p class="qa-q">Q: My stock is showing as -1 or a negative number. What happened?</p>
+        <p class="qa-a">A: This happens when the total sales and/or corrections for a variant
+        are greater than the total purchases. Common causes: a sale was recorded before
+        the matching purchase was entered, or a correction reduced the stock too far.
+        To fix it, either record a new purchase to add units, or add a positive
+        stock correction to bring the count back to the correct level.</p>
+      </div>
+
+      <hr class="divider">
+
+      <div class="qa-item">
+        <p class="qa-q">Q: How do I find a specific product quickly in the Stock view?</p>
+        <p class="qa-a">A: Use the search/filter box at the top of the Stock page. Start typing
+        the product name and the table will filter live as you type. This is useful
+        when you have many products and variants in the list.</p>
+      </div>
+
+      <hr class="divider">
+
+      <div class="qa-item">
+        <p class="qa-q">Q: What should I do at the end of each month?</p>
+        <p class="qa-a">A: A good monthly routine is: (1) check the Dashboard for any out-of-stock
+        items; (2) open the Stock page and verify the counts look correct; (3) open the
+        Charts page and review that month's revenue, cost, and net profit; (4) record
+        any stock corrections for damaged or missing items you discovered during the month.</p>
+      </div>
+
+      <div class="box-tip">
+        <span class="box-label">Tip</span>
+        Keep your records up to date daily or weekly. The more regularly you enter
+        purchases and sales, the more accurate your profit figures will be.
+      </div>
+
+      <hr class="divider">
+
+      <p style="text-align: center; color: #94a3b8; font-size: 0.82rem; margin-top: 8px;">
+        StockAdmin User Guide &nbsp;|&nbsp; <a href="#top" style="color: #2563eb; text-decoration: none;">Back to top</a>
+      </p>
+    </div>
+
+  </div><!-- /container -->
+
+</body>
+</html>
