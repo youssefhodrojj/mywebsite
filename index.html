@@ -10,31 +10,42 @@
 <div id="app">
 
   <!-- =====================================================
-       Navigation bar (hidden on login screen)
+       Top navigation bar
        ===================================================== -->
   <nav id="nav" role="navigation" aria-label="Main navigation">
-    <a href="#/dashboard" class="nav-brand">?? StockAdmin</a>
-
-    <!-- Hamburger � shown on mobile when logged in -->
     <button id="btn-hamburger" class="hidden" type="button" aria-label="Open menu" aria-expanded="false">&#9776;</button>
-
-    <ul id="nav-links" class="hidden" role="list">
-      <li><a href="#/dashboard"  data-route="/dashboard">Dashboard</a></li>
-      <li><a href="#/products"   data-route="/products">Products</a></li>
-      <li><a href="#/purchases"  data-route="/purchases">Purchases</a></li>
-      <li><a href="#/corrections" data-route="/corrections">Corrections</a></li>
-      <li><a href="#/sales"      data-route="/sales">Sales</a></li>
-      <li><a href="#/stock"      data-route="/stock">Stock</a></li>
-      <li><a href="#/charts"     data-route="/charts">Charts</a></li>
-    </ul>
-
-    <button id="btn-logout" class="hidden" type="button" aria-label="Log out">
-      Log out
-    </button>
+    <a href="#/dashboard" class="nav-brand">StockAdmin</a>
   </nav>
 
+  <!-- Side drawer overlay -->
+  <div id="drawer-overlay" class="drawer-overlay hidden"></div>
+
+  <!-- Side drawer -->
+  <aside id="side-drawer" class="side-drawer hidden" role="complementary" aria-label="Navigation drawer">
+    <div class="drawer-header">
+      <span class="drawer-title">StockAdmin</span>
+      <button id="btn-drawer-close" class="drawer-close" type="button" aria-label="Close menu">&#10005;</button>
+    </div>
+
+    <ul id="nav-links" class="drawer-links hidden" role="list">
+      <li><a href="#/dashboard"   data-route="/dashboard">Dashboard</a></li>
+      <li><a href="#/products"    data-route="/products">Products</a></li>
+      <li><a href="#/purchases"   data-route="/purchases">Purchases</a></li>
+      <li><a href="#/corrections" data-route="/corrections">Corrections</a></li>
+      <li><a href="#/sales"       data-route="/sales">Sales</a></li>
+      <li><a href="#/stock"       data-route="/stock">Stock</a></li>
+      <li><a href="#/charts"      data-route="/charts">Charts</a></li>
+    </ul>
+
+    <div class="drawer-footer">
+      <button id="btn-logout" class="hidden btn-logout-drawer" type="button" aria-label="Log out">
+        &#x2192; Log out
+      </button>
+    </div>
+  </aside>
+
   <!-- =====================================================
-       Main content — all views live here
+       Main content -- all views live here
        ===================================================== -->
   <main id="content" role="main">
 
@@ -68,7 +79,7 @@
               name="password"
               autocomplete="current-password"
               required
-              placeholder="••••••••"
+              placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
             />
             <span class="field-error" id="login-password-error"></span>
           </div>
@@ -93,7 +104,7 @@
       </div>
     </section>
 
-    <!-- ---- Products & Variants view ---- -->
+    <!-- ---- Products &amp; Variants view ---- -->
     <section id="view-products" class="view hidden" role="region" aria-labelledby="products-heading">
       <h1 id="products-heading" class="view-title">Products &amp; Variants</h1>
 
@@ -121,7 +132,7 @@
       <!-- Products list -->
       <div id="products-list">
         <!-- Populated by js/views/products.js -->
-        <p class="text-muted">Loading products…</p>
+        <p class="text-muted">Loading products...</p>
       </div>
     </section>
 
@@ -138,13 +149,13 @@
             <div class="form-group">
               <label for="purchase-product">Product <span aria-hidden="true">*</span></label>
               <select id="purchase-product" name="productId" required>
-                <option value="">— select product —</option>
+                <option value="">-- select product --</option>
               </select>
             </div>
             <div class="form-group">
               <label for="purchase-variant">Variant <span aria-hidden="true">*</span></label>
               <select id="purchase-variant" name="variantId" required>
-                <option value="">— select variant —</option>
+                <option value="">-- select variant --</option>
               </select>
             </div>
           </div>
@@ -191,13 +202,13 @@
             <div class="form-group">
               <label for="correction-product">Product <span aria-hidden="true">*</span></label>
               <select id="correction-product" name="productId" required>
-                <option value="">— select product —</option>
+                <option value="">-- select product --</option>
               </select>
             </div>
             <div class="form-group">
               <label for="correction-variant">Variant <span aria-hidden="true">*</span></label>
               <select id="correction-variant" name="variantId" required>
-                <option value="">— select variant —</option>
+                <option value="">-- select variant --</option>
               </select>
             </div>
           </div>
@@ -243,13 +254,13 @@
             <div class="form-group">
               <label for="sale-product">Product <span aria-hidden="true">*</span></label>
               <select id="sale-product" name="productId" required>
-                <option value="">— select product —</option>
+                <option value="">-- select product --</option>
               </select>
             </div>
             <div class="form-group">
               <label for="sale-variant">Variant <span aria-hidden="true">*</span></label>
               <select id="sale-variant" name="variantId" required>
-                <option value="">— select variant —</option>
+                <option value="">-- select variant --</option>
               </select>
             </div>
           </div>
@@ -294,7 +305,7 @@
           type="search"
           id="stock-filter"
           class="filter-input"
-          placeholder="Filter by product name…"
+          placeholder="Filter by product name..."
           aria-label="Filter by product name"
         />
       </div>
@@ -310,7 +321,7 @@
           </thead>
           <tbody id="stock-table-body">
             <tr>
-              <td colspan="3" class="text-muted">Loading…</td>
+              <td colspan="3" class="text-muted">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -336,7 +347,7 @@
           <div class="form-group">
             <label for="chart-product-filter">Product (optional)</label>
             <select id="chart-product-filter" name="productId">
-              <option value="">— all products —</option>
+              <option value="">-- all products --</option>
             </select>
           </div>
           <div class="form-group" style="flex:0">
@@ -410,7 +421,7 @@
 <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
 <!-- =====================================================
-     Third-party libraries loaded from CDN (no local install needed)
+     Third-party libraries
      ===================================================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>

@@ -1,8 +1,7 @@
 /* ============================================================
-   Stock Management Admin Panel — Global Styles
+   Stock Management Admin Panel -- Global Styles
    ============================================================ */
 
-/* ----- Reset / base ----- */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -30,6 +29,7 @@
   --shadow-sm:           0 1px 3px rgba(0,0,0,.08);
   --shadow-md:           0 4px 12px rgba(0,0,0,.12);
   --transition:          0.18s ease;
+  --drawer-width:        240px;
 }
 
 html, body {
@@ -41,7 +41,6 @@ html, body {
   background: var(--color-bg);
 }
 
-/* ----- Layout ----- */
 #app {
   display: flex;
   flex-direction: column;
@@ -49,181 +48,214 @@ html, body {
 }
 
 /* ============================================================
-   NAVIGATION
+   TOP NAV BAR (hamburger + brand)
    ============================================================ */
 
 #nav {
   background: var(--color-nav-bg);
-  color: var(--color-nav-text);
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   padding: 0 1rem;
-  min-height: 52px;
+  height: 52px;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 200;
   box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  gap: 0.75rem;
 }
 
-#nav .nav-brand {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--color-nav-active);
-  text-decoration: none;
-  white-space: nowrap;
-  padding: 0.75rem 0;
-  flex-shrink: 0;
-}
-
-/* Hamburger button — hidden on desktop, shown on mobile */
 #btn-hamburger {
-  display: none;
   background: none;
   border: none;
   color: var(--color-nav-text);
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   cursor: pointer;
-  padding: 0.4rem 0.6rem;
-  margin-left: auto;
+  padding: 0.35rem 0.5rem;
   border-radius: var(--radius);
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+#btn-hamburger:hover {
+  background: rgba(255,255,255,.1);
 }
 
 #btn-hamburger.hidden {
   display: none !important;
 }
 
-/* Nav links — horizontal on desktop */
-#nav-links {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-  flex: 1;
-  list-style: none;
-  margin-left: 1rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-#nav-links::-webkit-scrollbar {
-  display: none;
-}
-
-#nav-links.hidden {
-  display: none;
-}
-
-#nav-links a {
-  color: var(--color-nav-text);
+.nav-brand {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-nav-active);
   text-decoration: none;
-  padding: 0.35rem 0.6rem;
-  border-radius: var(--radius);
-  font-size: 0.85rem;
   white-space: nowrap;
-  transition: background var(--transition), color var(--transition);
-}
-
-#nav-links a:hover,
-#nav-links a.active {
-  background: rgba(255,255,255,.12);
-  color: var(--color-nav-active);
-}
-
-#btn-logout {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,.3);
-  color: var(--color-nav-text);
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 0.82rem;
-  white-space: nowrap;
-  margin-left: 0.5rem;
-  flex-shrink: 0;
-  transition: background var(--transition);
-}
-
-#btn-logout:hover {
-  background: rgba(255,255,255,.15);
-  color: var(--color-nav-active);
-}
-
-#btn-logout.hidden {
-  display: none;
 }
 
 /* ============================================================
-   MOBILE NAV  (? 640px)
+   SIDE DRAWER OVERLAY
    ============================================================ */
 
-@media (max-width: 640px) {
-
-  #nav {
-    padding: 0 0.75rem;
-    position: relative;
-  }
-
-  /* Show hamburger on mobile when nav is visible (not hidden) */
-  #btn-hamburger:not(.hidden) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Nav links collapse into a full-width dropdown */
-  #nav-links {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    margin-left: 0;
-    overflow-x: visible;
-    background: var(--color-nav-bg);
-    border-top: 1px solid rgba(255,255,255,.1);
-    padding: 0.5rem 0;
-    gap: 0;
-  }
-
-  /* When collapsed, it's hidden via the .nav-collapsed class */
-  #nav-links.nav-collapsed {
-    display: none !important;
-  }
-
-  #nav-links li {
-    width: 100%;
-  }
-
-  #nav-links a {
-    display: block;
-    width: 100%;
-    padding: 0.65rem 1rem;
-    font-size: 0.95rem;
-    border-radius: 0;
-  }
-
-  #btn-logout {
-    width: calc(100% - 2rem);
-    margin: 0.5rem 1rem;
-    text-align: center;
-    justify-content: center;
-  }
-
-  /* Logout sits at bottom of expanded mobile menu */
-  #nav-links.hidden ~ #btn-logout {
-    display: none !important;
-  }
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 300;
+  transition: opacity var(--transition);
 }
 
-/* ----- Main content area ----- */
+.drawer-overlay.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   SIDE DRAWER
+   ============================================================ */
+
+.side-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--drawer-width);
+  height: 100%;
+  background: var(--color-nav-bg);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  box-shadow: 2px 0 12px rgba(0,0,0,.2);
+}
+
+.side-drawer.open {
+  transform: translateX(0);
+}
+
+.side-drawer.hidden {
+  display: none !important;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: 52px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+
+.drawer-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-nav-active);
+}
+
+.drawer-close {
+  background: none;
+  border: none;
+  color: var(--color-nav-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius);
+  line-height: 1;
+  transition: background var(--transition);
+}
+
+.drawer-close:hover {
+  background: rgba(255,255,255,.1);
+  color: var(--color-nav-active);
+}
+
+/* Nav links list inside drawer */
+.drawer-links {
+  flex: 1;
+  list-style: none;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.drawer-links.hidden {
+  display: none !important;
+}
+
+.drawer-links li a {
+  display: block;
+  color: var(--color-nav-text);
+  text-decoration: none;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.95rem;
+  transition: background var(--transition), color var(--transition);
+}
+
+.drawer-links li a:hover,
+.drawer-links li a.active {
+  background: rgba(255,255,255,.1);
+  color: var(--color-nav-active);
+}
+
+.drawer-links li a.active {
+  border-left: 3px solid var(--color-primary);
+  padding-left: calc(1.25rem - 3px);
+}
+
+/* Drawer footer -- logout */
+.drawer-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+
+.btn-logout-drawer {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.2);
+  color: var(--color-nav-text);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+
+.btn-logout-drawer:hover {
+  background: rgba(255,255,255,.08);
+  color: var(--color-nav-active);
+}
+
+.btn-logout-drawer.hidden {
+  display: none !important;
+}
+
+/* Keep old #btn-logout hidden -- we use .btn-logout-drawer now */
+#btn-logout {
+  display: none;
+}
+
+#btn-logout.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   MAIN CONTENT AREA
+   ============================================================ */
+
 #content {
   flex: 1;
-  padding: 1.5rem 1.5rem;
+  padding: 1.5rem;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
 }
 
-/* ----- Views (shown/hidden by router) ----- */
+/* ============================================================
+   VIEWS
+   ============================================================ */
+
 .view {
   display: none;
 }
@@ -232,7 +264,6 @@ html, body {
   display: block;
 }
 
-/* Login view centres itself */
 #view-login {
   display: none;
   min-height: calc(100vh - 52px);
@@ -244,7 +275,10 @@ html, body {
   display: flex;
 }
 
-/* ----- Cards / panels ----- */
+/* ============================================================
+   CARDS
+   ============================================================ */
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -261,7 +295,6 @@ html, body {
   color: var(--color-text);
 }
 
-/* ----- Section headings ----- */
 h1.view-title {
   font-size: 1.3rem;
   font-weight: 700;
@@ -269,7 +302,10 @@ h1.view-title {
   color: var(--color-text);
 }
 
-/* ----- Forms ----- */
+/* ============================================================
+   FORMS
+   ============================================================ */
+
 .form-group {
   margin-bottom: 0.9rem;
 }
@@ -320,7 +356,6 @@ h1.view-title {
   display: block;
 }
 
-/* Form row — wraps to single column on mobile */
 .form-row {
   display: flex;
   gap: 1rem;
@@ -332,7 +367,6 @@ h1.view-title {
   min-width: 140px;
 }
 
-/* On very small screens every form group takes full width */
 @media (max-width: 480px) {
   .form-row .form-group {
     flex: 1 1 100%;
@@ -340,7 +374,6 @@ h1.view-title {
   }
 }
 
-/* Attribute pair inputs in variant form */
 .attr-pairs {
   display: flex;
   flex-direction: column;
@@ -373,7 +406,10 @@ h1.view-title {
   flex-shrink: 0;
 }
 
-/* ----- Buttons ----- */
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -384,47 +420,26 @@ h1.view-title {
   font-weight: 500;
   cursor: pointer;
   border: none;
-  transition: background var(--transition), opacity var(--transition);
   white-space: nowrap;
+  transition: background var(--transition), opacity var(--transition);
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.btn-primary {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--color-primary-dark); }
 
 .btn-secondary {
   background: var(--color-bg);
   color: var(--color-text);
   border: 1px solid var(--color-border);
 }
+.btn-secondary:hover:not(:disabled) { background: var(--color-border); }
 
-.btn-secondary:hover:not(:disabled) {
-  background: var(--color-border);
-}
+.btn-danger { background: var(--color-danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #b91c1c; }
 
-.btn-danger {
-  background: var(--color-danger);
-  color: #fff;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background: #b91c1c;
-}
-
-.btn-sm {
-  padding: 0.3rem 0.65rem;
-  font-size: 0.8rem;
-}
+.btn-sm { padding: 0.3rem 0.65rem; font-size: 0.8rem; }
 
 .btn-icon {
   background: none;
@@ -436,12 +451,12 @@ h1.view-title {
   font-size: 1rem;
   transition: color var(--transition);
 }
+.btn-icon:hover { color: var(--color-text); }
 
-.btn-icon:hover {
-  color: var(--color-text);
-}
+/* ============================================================
+   TABLES
+   ============================================================ */
 
-/* ----- Tables — always scrollable on mobile ----- */
 .table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -458,9 +473,7 @@ table {
   background: var(--color-surface);
 }
 
-thead {
-  background: var(--color-bg);
-}
+thead { background: var(--color-bg); }
 
 th {
   text-align: left;
@@ -481,29 +494,20 @@ td {
   word-break: break-word;
 }
 
-tr:last-child td {
-  border-bottom: none;
-}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--color-bg); }
 
-tbody tr:hover {
-  background: var(--color-bg);
-}
-
-/* Low-stock indicator */
 .row--low-stock {
   background-color: var(--color-danger-light) !important;
   color: var(--color-danger);
 }
+.row--low-stock td { color: var(--color-danger); }
+.row--low-stock .stock-icon::before { content: '! '; }
 
-.row--low-stock td {
-  color: var(--color-danger);
-}
+/* ============================================================
+   BADGES
+   ============================================================ */
 
-.row--low-stock .stock-icon::before {
-  content: '? ';
-}
-
-/* ----- Badges ----- */
 .badge {
   display: inline-block;
   padding: 0.2rem 0.55rem;
@@ -511,12 +515,14 @@ tbody tr:hover {
   font-size: 0.75rem;
   font-weight: 600;
 }
-
 .badge-success { background: var(--color-success-light); color: var(--color-success); }
 .badge-danger  { background: var(--color-danger-light);  color: var(--color-danger);  }
 .badge-warning { background: var(--color-warning-light); color: var(--color-warning); }
 
-/* ----- Login card ----- */
+/* ============================================================
+   LOGIN CARD
+   ============================================================ */
+
 .login-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -552,12 +558,12 @@ tbody tr:hover {
   margin-bottom: 1rem;
   display: none;
 }
+.login-error.visible { display: block; }
 
-.login-error.visible {
-  display: block;
-}
+/* ============================================================
+   MODAL
+   ============================================================ */
 
-/* ----- Modal ----- */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -571,11 +577,7 @@ tbody tr:hover {
   transition: opacity var(--transition);
   padding: 1rem;
 }
-
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
 
 .modal {
   background: var(--color-surface);
@@ -587,31 +589,16 @@ tbody tr:hover {
   transform: translateY(-12px);
   transition: transform var(--transition);
 }
+.modal-overlay.open .modal { transform: translateY(0); }
 
-.modal-overlay.open .modal {
-  transform: translateY(0);
-}
+.modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.75rem; }
+.modal p { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+.modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap; }
 
-.modal h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-}
+/* ============================================================
+   TOASTS
+   ============================================================ */
 
-.modal p {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  margin-bottom: 1.25rem;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-/* ----- Toast notifications ----- */
 #toast-container {
   position: fixed;
   bottom: 1rem;
@@ -640,45 +627,21 @@ tbody tr:hover {
   pointer-events: auto;
 }
 
-.toast.toast-error {
-  border-color: #fecaca;
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-}
-
-.toast.toast-success {
-  border-color: #bbf7d0;
-  background: var(--color-success-light);
-  color: var(--color-success);
-}
-
-.toast-message {
-  flex: 1;
-  font-size: 0.875rem;
-  word-break: break-word;
-}
-
-.toast-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-  color: inherit;
-  opacity: 0.65;
-  flex-shrink: 0;
-}
-
-.toast-close:hover {
-  opacity: 1;
-}
+.toast.toast-error   { border-color: #fecaca; background: var(--color-danger-light);  color: var(--color-danger);  }
+.toast.toast-success { border-color: #bbf7d0; background: var(--color-success-light); color: var(--color-success); }
+.toast-message { flex: 1; font-size: 0.875rem; word-break: break-word; }
+.toast-close { background: none; border: none; cursor: pointer; font-size: 1rem; line-height: 1; color: inherit; opacity: 0.65; flex-shrink: 0; }
+.toast-close:hover { opacity: 1; }
 
 @keyframes toast-in {
   from { opacity: 0; transform: translateX(20px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-/* ----- Filter / toolbar row ----- */
+/* ============================================================
+   TOOLBAR / FILTER
+   ============================================================ */
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -697,14 +660,12 @@ tbody tr:hover {
   width: 100%;
   max-width: 320px;
 }
+.filter-input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
 
-.filter-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.15);
-}
+/* ============================================================
+   CHARTS
+   ============================================================ */
 
-/* ----- Charts layout ----- */
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -712,9 +673,7 @@ tbody tr:hover {
 }
 
 @media (max-width: 700px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
+  .charts-grid { grid-template-columns: 1fr; }
 }
 
 .chart-card {
@@ -733,7 +692,10 @@ tbody tr:hover {
   color: var(--color-text);
 }
 
-/* ----- Inline error banner ----- */
+/* ============================================================
+   ERROR BANNER
+   ============================================================ */
+
 .error-banner {
   background: var(--color-danger-light);
   border: 1px solid #fecaca;
@@ -744,18 +706,15 @@ tbody tr:hover {
   margin-bottom: 1rem;
   display: none;
 }
+.error-banner.visible { display: flex; align-items: center; gap: 0.75rem; }
 
-.error-banner.visible {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
+/* ============================================================
+   SPINNER
+   ============================================================ */
 
-/* ----- Loading spinner ----- */
 .spinner {
   display: inline-block;
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.1rem; height: 1.1rem;
   border: 2px solid var(--color-border);
   border-top-color: var(--color-primary);
   border-radius: 50%;
@@ -763,31 +722,27 @@ tbody tr:hover {
   vertical-align: middle;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ----- Utility ----- */
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+
 .hidden       { display: none !important; }
 .text-muted   { color: var(--color-text-muted); }
 .text-danger  { color: var(--color-danger); }
 .text-success { color: var(--color-success); }
 .mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem;   }
+.mt-2 { margin-top: 1rem; }
 .mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem;   }
+.mb-2 { margin-bottom: 1rem; }
 
-/* ----- Small screen content padding ----- */
+/* ============================================================
+   SMALL SCREEN ADJUSTMENTS
+   ============================================================ */
+
 @media (max-width: 480px) {
-  #content {
-    padding: 0.75rem;
-  }
-
-  h1.view-title {
-    font-size: 1.15rem;
-  }
-
-  .card {
-    padding: 1rem;
-  }
+  #content { padding: 0.75rem; }
+  h1.view-title { font-size: 1.15rem; }
+  .card { padding: 1rem; }
 }

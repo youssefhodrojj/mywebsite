@@ -2,7 +2,7 @@
  * Hash-based router for the Stock Management Admin Panel.
  *
  * Handles navigation between views, enforces the authentication guard
- * on all protected routes, and manages nav/logout visibility.
+ * on all protected routes, and manages nav/drawer visibility.
  *
  * Requirements: 1.6
  */
@@ -10,7 +10,7 @@
 import { getSession, logout, onAuthStateChange } from './auth.js';
 
 // ---------------------------------------------------------------------------
-// Route → view-container and view-module mappings
+// Route -> view-container and view-module mappings
 // ---------------------------------------------------------------------------
 
 /**
@@ -30,9 +30,6 @@ const VIEW_IDS = {
 
 /**
  * Maps each route fragment to a dynamic import of its view-init module.
- * Using dynamic import() means missing view files won't crash the router
- * at startup — failures are caught per-navigation.
- *
  * @type {Record<string, () => Promise<{ init: () => void | Promise<void> }>>}
  */
 const ROUTES = {
@@ -83,28 +80,21 @@ function showView(route) {
  * @param {string} route
  */
 function updateNav(route) {
-  const navLinks = document.getElementById('nav-links');
-  const btnLogout = document.getElementById('btn-logout');
-  const btnHamburger = document.getElementById('btn-hamburger');
+  const navLinksEl   = document.getElementById('nav-links');
+  const btnLogout    = document.getElementById('btn-logout');
+  const hamburgerBtn = document.getElementById('btn-hamburger');
 
   if (route === '/login') {
-    navLinks?.classList.add('hidden');
-    btnLogout?.classList.add('hidden');
-    btnHamburger?.classList.add('hidden');
+    hamburgerBtn?.classList.add('hidden');
+    if (navLinksEl) navLinksEl.classList.add('hidden');
+    if (btnLogout)  btnLogout.classList.add('hidden');
   } else {
-    // On mobile: show hamburger, keep links collapsed by default
-    // On desktop: show links directly (CSS handles display)
-    navLinks?.classList.remove('hidden');
-    navLinks?.classList.add('nav-collapsed'); // start collapsed on mobile
-    btnLogout?.classList.remove('hidden');
-    btnHamburger?.classList.remove('hidden');
-    if (btnHamburger) {
-      btnHamburger.setAttribute('aria-expanded', 'false');
-      btnHamburger.textContent = '\u2630';
-    }
+    hamburgerBtn?.classList.remove('hidden');
+    if (navLinksEl) navLinksEl.classList.remove('hidden');
+    if (btnLogout)  btnLogout.classList.remove('hidden');
   }
 
-  // Mark the matching nav link as active
+  // Mark active link
   document.querySelectorAll('#nav-links a[data-route]').forEach((link) => {
     if (link.getAttribute('data-route') === route) {
       link.classList.add('active');
@@ -120,7 +110,7 @@ function updateNav(route) {
 
 /**
  * Resolve the route fragment from the current hash.
- * Strips the leading `#` so `#/dashboard` → `/dashboard`.
+ * Strips the leading `#` so `#/dashboard` -> `/dashboard`.
  * @returns {string}
  */
 function currentRoute() {
@@ -138,7 +128,7 @@ function navigate(route) {
 }
 
 /**
- * Main router handler — called on every hashchange and on initial load.
+ * Main router handler -- called on every hashchange and on initial load.
  */
 async function handleRoute() {
   let route = currentRoute();
@@ -170,7 +160,7 @@ async function handleRoute() {
       await module.init();
     }
   } catch (err) {
-    // View module not yet implemented — silently ignore so the router remains
+    // View module not yet implemented -- silently ignore so the router remains
     // usable while view files are created incrementally.
     if (err?.message?.includes('Failed to fetch dynamically imported module') ||
         err?.message?.includes('Cannot find module') ||
@@ -183,40 +173,63 @@ async function handleRoute() {
 }
 
 // ---------------------------------------------------------------------------
-// Logout wiring
+// Side drawer wiring
 // ---------------------------------------------------------------------------
 
-document.getElementById('btn-logout')?.addEventListener('click', async () => {
-  await logout();
-  navigate('/login');
+const _drawerOverlay = document.getElementById('drawer-overlay');
+const _sideDrawer    = document.getElementById('side-drawer');
+const _hamburgerBtn  = document.getElementById('btn-hamburger');
+const _drawerClose   = document.getElementById('btn-drawer-close');
+const _navLinksEl    = document.getElementById('nav-links');
+
+function openDrawer() {
+  if (!_sideDrawer || !_drawerOverlay) return;
+  _sideDrawer.classList.remove('hidden');
+  _drawerOverlay.classList.remove('hidden');
+  // Small delay so CSS transition plays
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      _sideDrawer.classList.add('open');
+    });
+  });
+  _hamburgerBtn?.setAttribute('aria-expanded', 'true');
+}
+
+function closeDrawer() {
+  if (!_sideDrawer || !_drawerOverlay) return;
+  _sideDrawer.classList.remove('open');
+  _hamburgerBtn?.setAttribute('aria-expanded', 'false');
+  // Hide after transition
+  setTimeout(() => {
+    _sideDrawer.classList.add('hidden');
+    _drawerOverlay.classList.add('hidden');
+  }, 260);
+}
+
+_hamburgerBtn?.addEventListener('click', openDrawer);
+_drawerClose?.addEventListener('click', closeDrawer);
+_drawerOverlay?.addEventListener('click', closeDrawer);
+
+// Close drawer when any nav link is clicked
+_navLinksEl?.addEventListener('click', (e) => {
+  if (e.target.closest('a')) closeDrawer();
 });
 
 // ---------------------------------------------------------------------------
-// Hamburger menu toggle (mobile nav)
+// Logout wiring -- works for both #btn-logout and .btn-logout-drawer
 // ---------------------------------------------------------------------------
 
-const _hamburgerBtn = document.getElementById('btn-hamburger');
-const _navLinks = document.getElementById('nav-links');
-
-if (_hamburgerBtn && _navLinks) {
-  _hamburgerBtn.addEventListener('click', () => {
-    const isCollapsed = _navLinks.classList.toggle('nav-collapsed');
-    _hamburgerBtn.setAttribute('aria-expanded', String(!isCollapsed));
-    _hamburgerBtn.textContent = isCollapsed ? '\u2630' : '\u2715';
-  });
-
-  // Close menu when a nav link is clicked
-  _navLinks.addEventListener('click', (e) => {
-    if (e.target.closest('a')) {
-      _navLinks.classList.add('nav-collapsed');
-      _hamburgerBtn.setAttribute('aria-expanded', 'false');
-      _hamburgerBtn.textContent = '\u2630';
-    }
-  });
+async function handleLogout() {
+  await logout();
+  closeDrawer();
+  navigate('/login');
 }
 
+document.getElementById('btn-logout')?.addEventListener('click', handleLogout);
+document.querySelector('.btn-logout-drawer')?.addEventListener('click', handleLogout);
+
 // ---------------------------------------------------------------------------
-// Auth state listener � handles session expiry and cross-tab sign-out/sign-in
+// Auth state listener -- handles session expiry and cross-tab sign-out/sign-in
 // ---------------------------------------------------------------------------
 
 onAuthStateChange((session) => {
@@ -229,7 +242,7 @@ onAuthStateChange((session) => {
 });
 
 // ---------------------------------------------------------------------------
-// Event listeners � bootstrap the router
+// Event listeners -- bootstrap the router
 // ---------------------------------------------------------------------------
 
 window.addEventListener('hashchange', handleRoute);
