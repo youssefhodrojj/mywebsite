@@ -1,4 +1,4 @@
-﻿// v4 - raw URL, report yesterday
+﻿// v5 - service key bypass, raw URL, report yesterday
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -17,19 +17,36 @@ function getYesterday() {
 function fmt(n){ return Number(n).toFixed(2); }
 function attrs(a){ if(!a||typeof a!=='object') return '--'; return Object.entries(a).map(([k,v])=>k+': '+v).join(', '); }
 
-const H = { 'apikey': SUPABASE_SERVICE_KEY, 'Authorization': 'Bearer '+SUPABASE_SERVICE_KEY, 'Accept': 'application/json' };
+// Service key headers -- bypass-rls=true ensures RLS is skipped
+const H = {
+  'apikey': SUPABASE_SERVICE_KEY,
+  'Authorization': 'Bearer '+SUPABASE_SERVICE_KEY,
+  'Accept': 'application/json',
+  'Prefer': 'count=none'
+};
 
 async function fetch4date(tbl, sel, col, val) {
   const url = SUPABASE_URL+'/rest/v1/'+tbl+'?select='+sel+'&'+col+'=eq.'+val;
-  console.log('  '+tbl+' where '+col+'='+val);
+  console.log('  Fetching '+tbl+' where '+col+'='+val);
   const r = await fetch(url, {headers: H});
-  if(!r.ok){ const t=await r.text(); console.error('  ERR '+r.status+': '+t); return []; }
-  const d = await r.json();
-  console.log('  -> '+d.length+' rows');
-  return d;
+  const text = await r.text();
+  console.log('  HTTP '+r.status+' -> '+text.substring(0,200));
+  if(!r.ok){ console.error('  ERROR: '+text); return []; }
+  try { const d=JSON.parse(text); console.log('  parsed: '+d.length+' rows'); return d; }
+  catch(e){ console.error('  JSON parse error: '+e.message); return []; }
+}
+
+// Also test a simple query without joins to isolate the issue
+async function testSimpleQuery(date) {
+  const url = SUPABASE_URL+'/rest/v1/purchase_batches?select=id,purchased_at&purchased_at=eq.'+date;
+  console.log('  SIMPLE TEST: '+url);
+  const r = await fetch(url, {headers: H});
+  const text = await r.text();
+  console.log('  Simple result: HTTP '+r.status+' -> '+text.substring(0,300));
 }
 
 async function getData(date) {
+  await testSimpleQuery(date);
   const ss='id,quantity,sell_price,sold_at,variants!inner(id,attributes,products!inner(id,name))';
   const ps='id,quantity,cost_price,purchased_at,variants!inner(id,attributes,products!inner(id,name))';
   const rs='id,quantity,refund_price,reason,refunded_at,variants!inner(id,attributes,products!inner(id,name))';
@@ -80,6 +97,8 @@ function buildHTML(date,sales,purchases,refunds){
 async function main(){
   const date = getYesterday();
   console.log('=== StockAdmin Daily Report for '+date+' ===');
+  console.log('URL: '+SUPABASE_URL);
+  console.log('Key prefix: '+SUPABASE_SERVICE_KEY.substring(0,15)+'...');
   const {sales,purchases,refunds} = await getData(date);
   const rev=sales.reduce((s,r)=>s+Number(r.quantity)*Number(r.sell_price),0);
   const cost=purchases.reduce((s,r)=>s+Number(r.quantity)*Number(r.cost_price),0);
