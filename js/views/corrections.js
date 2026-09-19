@@ -405,11 +405,15 @@ export async function init() {
 
     // ── 4g. Save correction ───────────────────────────────────────────
     try {
+      const costPerUnitInput = document.getElementById('correction-cost-per-unit');
+      const costPerUnit = costPerUnitInput ? parseFloat(costPerUnitInput.value) || 0 : 0;
+
       await createStockCorrection({
         variantId,
         adjustment,
         reason: reason || undefined,
         correctedAt,
+        costPerUnit,
       });
     } catch (err) {
       showToast(err.message);

@@ -263,11 +263,11 @@ export async function getCorrectionsByVariant(variantId) {
  * @param {{ variantId: string, adjustment: number, reason?: string, correctedAt: string }} param0
  * @returns {Promise<{id: string, variant_id: string, adjustment: number, reason: string|null, corrected_at: string, created_at: string}>}
  */
-export async function createStockCorrection({ variantId, adjustment, reason, correctedAt }) {
+export async function createStockCorrection({ variantId, adjustment, reason, correctedAt, costPerUnit = 0 }) {
   const { data, error } = await supabaseClient
     .from('stock_corrections')
-    .insert({ variant_id: variantId, adjustment, reason: reason || null, corrected_at: correctedAt })
-    .select('id, variant_id, adjustment, reason, corrected_at, created_at')
+    .insert({ variant_id: variantId, adjustment, reason: reason || null, corrected_at: correctedAt, cost_per_unit: costPerUnit })
+    .select('id, variant_id, adjustment, cost_per_unit, reason, corrected_at, created_at')
     .single();
 
   if (error) throw new Error(error.message);
@@ -393,4 +393,240 @@ export async function getMonthlySalesSummary({ startMonth, endMonth, productId }
   const { data, error } = await query;
   if (error) throw new Error(error.message);
   return data;
+}
+
+// ============================================================
+// 8. Refunds
+// ============================================================
+
+/**
+ * Get all refunds for a variant.
+ */
+export async function getRefundsByVariant(variantId) {
+  const { data, error } = await supabaseClient
+    .from('refunds')
+    .select('id, sale_record_id, variant_id, quantity, refund_price, reason, refunded_at, created_at')
+    .eq('variant_id', variantId)
+    .order('refunded_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * Get all refunds for a specific sale record.
+ */
+export async function getRefundsBySale(saleRecordId) {
+  const { data, error } = await supabaseClient
+    .from('refunds')
+    .select('id, sale_record_id, variant_id, quantity, refund_price, reason, refunded_at, created_at')
+    .eq('sale_record_id', saleRecordId)
+    .order('refunded_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * Create a refund record.
+ */
+export async function createRefund({ saleRecordId, variantId, quantity, refundPrice, reason, refundedAt }) {
+  const { data, error } = await supabaseClient
+    .from('refunds')
+    .insert({
+      sale_record_id: saleRecordId,
+      variant_id: variantId,
+      quantity,
+      refund_price: refundPrice,
+      reason: reason || null,
+      refunded_at: refundedAt,
+    })
+    .select('id, sale_record_id, variant_id, quantity, refund_price, reason, refunded_at, created_at')
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * Delete a refund by id.
+ */
+export async function deleteRefund(id) {
+  const { error } = await supabaseClient.from('refunds').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+// ============================================================
+// 9. Delete sale / purchase entries
+// ============================================================
+
+/**
+ * Delete a sale record by id.
+ */
+export async function deleteSaleRecord(id) {
+  const { error } = await supabaseClient.from('sale_records').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Delete a purchase batch by id.
+ */
+export async function deletePurchaseBatch(id) {
+  const { error } = await supabaseClient.from('purchase_batches').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Get ALL sales across all variants for the current user, with product/variant info.
+ * Supports optional date range and product filter.
+ */
+export async function getAllSales({ startDate, endDate, productId } = {}) {
+  let query = supabaseClient
+    .from('sale_records')
+    .select(`
+      id, quantity, sell_price, sold_at, created_at,
+      variants!inner(
+        id, attributes,
+        products!inner(id, name)
+      )
+    `)
+    .order('sold_at', { ascending: false });
+
+  if (startDate) query = query.gte('sold_at', startDate);
+  if (endDate)   query = query.lte('sold_at', endDate);
+  if (productId) query = query.eq('variants.products.id', productId);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * Get ALL purchases across all variants for the current user, with product/variant info.
+ */
+export async function getAllPurchases({ startDate, endDate, productId } = {}) {
+  let query = supabaseClient
+    .from('purchase_batches')
+    .select(`
+      id, quantity, cost_price, purchased_at, created_at,
+      variants!inner(
+        id, attributes,
+        products!inner(id, name)
+      )
+    `)
+    .order('purchased_at', { ascending: false });
+
+  if (startDate) query = query.gte('purchased_at', startDate);
+  if (endDate)   query = query.lte('purchased_at', endDate);
+  if (productId) query = query.eq('variants.products.id', productId);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// ============================================================
+// 10. Daily report data
+// ============================================================
+
+/**
+ * Get all sales for a specific date (YYYY-MM-DD), with product/variant info.
+ */
+export async function getSalesForDate(dateStr) {
+  const { data, error } = await supabaseClient
+    .from('sale_records')
+    .select(`
+      id, quantity, sell_price, sold_at,
+      variants!inner(
+        id, attributes,
+        products!inner(id, name)
+      )
+    `)
+    .eq('sold_at', dateStr)
+    .order('created_at', { ascending: true });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * Get all purchases for a specific date (YYYY-MM-DD), with product/variant info.
+ */
+export async function getPurchasesForDate(dateStr) {
+  const { data, error } = await supabaseClient
+    .from('purchase_batches')
+    .select(`
+      id, quantity, cost_price, purchased_at,
+      variants!inner(
+        id, attributes,
+        products!inner(id, name)
+      )
+    `)
+    .eq('purchased_at', dateStr)
+    .order('created_at', { ascending: true });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * Get all refunds for a specific date (YYYY-MM-DD), with product/variant info.
+ */
+export async function getRefundsForDate(dateStr) {
+  const { data, error } = await supabaseClient
+    .from('refunds')
+    .select(`
+      id, quantity, refund_price, reason, refunded_at,
+      variants!inner(
+        id, attributes,
+        products!inner(id, name)
+      )
+    `)
+    .eq('refunded_at', dateStr)
+    .order('created_at', { ascending: true });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// ============================================================
+// 11. Dashboard monthly stats
+// ============================================================
+
+/**
+ * Get total sales count and revenue for the current calendar month.
+ */
+export async function getMonthlySalesStats() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const startOfMonth = `${yyyy}-${mm}-01`;
+  const nextM = now.getMonth() + 1 === 12 ? `${yyyy + 1}-01-01` : `${yyyy}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
+
+  const { data, error } = await supabaseClient
+    .from('sale_records')
+    .select('quantity, sell_price')
+    .gte('sold_at', startOfMonth)
+    .lt('sold_at', nextM);
+  if (error) throw new Error(error.message);
+
+  const count = data.length;
+  const revenue = data.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
+  return { count, revenue };
+}
+
+/**
+ * Get total purchases count and cost for the current calendar month.
+ */
+export async function getMonthlyPurchaseStats() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const startOfMonth = `${yyyy}-${mm}-01`;
+  const nextM = now.getMonth() + 1 === 12 ? `${yyyy + 1}-01-01` : `${yyyy}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
+
+  const { data, error } = await supabaseClient
+    .from('purchase_batches')
+    .select('quantity, cost_price')
+    .gte('purchased_at', startOfMonth)
+    .lt('purchased_at', nextM);
+  if (error) throw new Error(error.message);
+
+  const count = data.length;
+  const cost = data.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
+  return { count, cost };
 }

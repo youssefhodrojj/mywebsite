@@ -28,13 +28,16 @@
     </div>
 
     <ul id="nav-links" class="drawer-links hidden" role="list">
-      <li><a href="#/dashboard"   data-route="/dashboard">Dashboard</a></li>
-      <li><a href="#/products"    data-route="/products">Products</a></li>
-      <li><a href="#/purchases"   data-route="/purchases">Purchases</a></li>
-      <li><a href="#/corrections" data-route="/corrections">Corrections</a></li>
-      <li><a href="#/sales"       data-route="/sales">Sales</a></li>
-      <li><a href="#/stock"       data-route="/stock">Stock</a></li>
-      <li><a href="#/charts"      data-route="/charts">Charts</a></li>
+      <li><a href="#/dashboard"      data-route="/dashboard">Dashboard</a></li>
+      <li><a href="#/products"       data-route="/products">Products</a></li>
+      <li><a href="#/purchases"      data-route="/purchases">Purchases</a></li>
+      <li><a href="#/sales"          data-route="/sales">Sales</a></li>
+      <li><a href="#/refunds"        data-route="/refunds">Refunds</a></li>
+      <li><a href="#/corrections"    data-route="/corrections">Corrections</a></li>
+      <li><a href="#/stock"          data-route="/stock">Stock</a></li>
+      <li><a href="#/charts"         data-route="/charts">Charts</a></li>
+      <li><a href="#/delete-entries" data-route="/delete-entries">Delete Entries</a></li>
+      <li><a href="#/reports"        data-route="/reports">Reports</a></li>
     </ul>
 
     <div class="drawer-footer">
@@ -219,6 +222,10 @@
               <span class="field-error" id="correction-adjustment-error"></span>
             </div>
             <div class="form-group">
+              <label for="correction-cost-per-unit">Cost per unit (optional, for negative corrections)</label>
+              <input type="number" id="correction-cost-per-unit" name="costPerUnit" min="0" step="0.01" placeholder="0.00" />
+            </div>
+            <div class="form-group">
               <label for="correction-date">Date <span aria-hidden="true">*</span></label>
               <input type="date" id="correction-date" name="correctedAt" required />
               <span class="field-error" id="correction-date-error"></span>
@@ -300,14 +307,28 @@
 
       <div class="error-banner" id="stock-error" role="alert" aria-live="polite"></div>
 
-      <div class="toolbar">
+      <div class="toolbar" style="flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
         <input
           type="search"
           id="stock-filter"
           class="filter-input"
           placeholder="Filter by product name..."
           aria-label="Filter by product name"
+          style="flex:1; min-width:160px;"
         />
+        <input
+          type="text"
+          id="stock-variant-filter"
+          class="filter-input"
+          placeholder="Filter by variant (e.g. size: 40)..."
+          aria-label="Filter by variant attributes"
+          style="flex:1; min-width:160px;"
+        />
+        <select id="stock-count-filter" class="filter-input" style="flex:0; min-width:160px;">
+          <option value="">-- all stock levels --</option>
+          <option value="low">Low / out of stock (0 or below)</option>
+          <option value="instock">In stock (above 0)</option>
+        </select>
       </div>
 
       <div style="border:1px solid var(--color-border); border-radius:6px; overflow:hidden;">
@@ -397,6 +418,136 @@
       </div>
     </section>
 
+    <!-- ---- Refunds view ---- -->
+    <section id="view-refunds" class="view hidden" role="region" aria-labelledby="refunds-heading">
+      <h1 id="refunds-heading" class="view-title">Refunds</h1>
+
+      <div class="error-banner" id="refunds-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Record Refund</h2>
+        <p class="text-muted" style="margin-bottom:1rem; font-size:0.875rem;">Select the sale to refund, enter the quantity and refund price. Stock will be restored and revenue reduced.</p>
+        <form id="form-add-refund" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="refund-product">Product <span aria-hidden="true">*</span></label>
+              <select id="refund-product" name="productId" required>
+                <option value="">-- select product --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="refund-variant">Variant <span aria-hidden="true">*</span></label>
+              <select id="refund-variant" name="variantId" required>
+                <option value="">-- select variant --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="refund-sale">Sale to refund <span aria-hidden="true">*</span></label>
+            <select id="refund-sale" name="saleRecordId" required>
+              <option value="">-- select a sale --</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="refund-quantity">Qty to refund <span aria-hidden="true">*</span></label>
+              <input type="number" id="refund-quantity" name="quantity" min="1" step="1" required placeholder="1" />
+              <span class="field-error" id="refund-quantity-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="refund-price">Refund price per unit <span aria-hidden="true">*</span></label>
+              <input type="number" id="refund-price" name="refundPrice" min="0" step="0.01" required placeholder="0.00" />
+              <span class="field-error" id="refund-price-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="refund-date">Date <span aria-hidden="true">*</span></label>
+              <input type="date" id="refund-date" name="refundedAt" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="refund-reason">Reason (optional)</label>
+            <input type="text" id="refund-reason" name="reason" placeholder="e.g. Defective item" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Save Refund</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Refund History</h2>
+        <div id="refunds-history">
+          <p class="text-muted">Select a product and variant to see refund history.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Delete Entries view ---- -->
+    <section id="view-delete-entries" class="view hidden" role="region" aria-labelledby="delete-entries-heading">
+      <h1 id="delete-entries-heading" class="view-title">Delete Entries</h1>
+
+      <div class="error-banner" id="delete-entries-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Filter Entries</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="de-type">Type</label>
+            <select id="de-type">
+              <option value="sales">Sales</option>
+              <option value="purchases">Purchases</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="de-product">Product</label>
+            <select id="de-product">
+              <option value="">-- all products --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="de-date-start">From date</label>
+            <input type="date" id="de-date-start" />
+          </div>
+          <div class="form-group">
+            <label for="de-date-end">To date</label>
+            <input type="date" id="de-date-end" />
+          </div>
+          <div class="form-group" style="flex:0; align-self:flex-end;">
+            <button type="button" id="btn-de-search" class="btn btn-primary btn-sm">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="delete-entries-results">
+        <p class="text-muted">Use the filters above and click Search to find entries to delete.</p>
+      </div>
+    </section>
+
+    <!-- ---- Reports view ---- -->
+    <section id="view-reports" class="view hidden" role="region" aria-labelledby="reports-heading">
+      <h1 id="reports-heading" class="view-title">Daily Report</h1>
+
+      <div class="error-banner" id="reports-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Generate Report</h2>
+        <div class="form-row" style="align-items:flex-end;">
+          <div class="form-group">
+            <label for="report-date">Date</label>
+            <input type="date" id="report-date" />
+          </div>
+          <div class="form-group" style="flex:0;">
+            <button type="button" id="btn-load-report" class="btn btn-primary">Load Report</button>
+          </div>
+          <div class="form-group" style="flex:0;">
+            <button type="button" id="btn-download-pdf" class="btn btn-secondary" disabled>Download PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="report-content">
+        <p class="text-muted">Select a date and click "Load Report" to generate the daily summary.</p>
+      </div>
+    </section>
+
   </main><!-- /#content -->
 
 </div><!-- /#app -->
@@ -425,6 +576,7 @@
      ===================================================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2/dist/jspdf.umd.min.js"></script>
 
 <!-- =====================================================
      App entry point (ES module)

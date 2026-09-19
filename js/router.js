@@ -18,14 +18,17 @@ import { getSession, logout, onAuthStateChange } from './auth.js';
  * @type {Record<string, string>}
  */
 const VIEW_IDS = {
-  '/login':       'view-login',
-  '/dashboard':   'view-dashboard',
-  '/products':    'view-products',
-  '/purchases':   'view-purchases',
-  '/corrections': 'view-corrections',
-  '/sales':       'view-sales',
-  '/stock':       'view-stock',
-  '/charts':      'view-charts',
+  '/login':          'view-login',
+  '/dashboard':      'view-dashboard',
+  '/products':       'view-products',
+  '/purchases':      'view-purchases',
+  '/corrections':    'view-corrections',
+  '/sales':          'view-sales',
+  '/refunds':        'view-refunds',
+  '/stock':          'view-stock',
+  '/charts':         'view-charts',
+  '/delete-entries': 'view-delete-entries',
+  '/reports':        'view-reports',
 };
 
 /**
@@ -33,14 +36,17 @@ const VIEW_IDS = {
  * @type {Record<string, () => Promise<{ init: () => void | Promise<void> }>>}
  */
 const ROUTES = {
-  '/login':       () => import('./views/login.js'),
-  '/dashboard':   () => import('./views/dashboard.js'),
-  '/products':    () => import('./views/products.js'),
-  '/purchases':   () => import('./views/purchases.js'),
-  '/corrections': () => import('./views/corrections.js'),
-  '/sales':       () => import('./views/sales.js'),
-  '/stock':       () => import('./views/stock-view.js'),
-  '/charts':      () => import('./views/charts-view.js'),
+  '/login':          () => import('./views/login.js'),
+  '/dashboard':      () => import('./views/dashboard.js'),
+  '/products':       () => import('./views/products.js'),
+  '/purchases':      () => import('./views/purchases.js'),
+  '/corrections':    () => import('./views/corrections.js'),
+  '/sales':          () => import('./views/sales.js'),
+  '/refunds':        () => import('./views/refunds.js'),
+  '/stock':          () => import('./views/stock-view.js'),
+  '/charts':         () => import('./views/charts-view.js'),
+  '/delete-entries': () => import('./views/delete-entries.js'),
+  '/reports':        () => import('./views/reports.js'),
 };
 
 /** All routes that require an authenticated session. */

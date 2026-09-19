@@ -109,15 +109,34 @@ function setErrorBanner(message) {
  * @param {string} [filterText=''] — case-insensitive substring to match
  *   against productName; empty string shows all rows.
  */
-function renderTable(filterText = '') {
+function renderTable(filterText = '', variantFilterText = '', stockLevelFilter = '') {
   const tbody = getTableBody();
   if (!tbody) return;
 
-  const term = filterText.trim().toLowerCase();
+  const term        = filterText.trim().toLowerCase();
+  const variantTerm = variantFilterText.trim().toLowerCase();
 
-  const visible = term
-    ? _rows.filter(row => row.productName.toLowerCase().includes(term))
-    : _rows;
+  let visible = _rows;
+
+  if (term) {
+    visible = visible.filter(row => row.productName.toLowerCase().includes(term));
+  }
+
+  if (variantTerm) {
+    visible = visible.filter(row => {
+      const attrStr = Object.entries(row.variantAttributes || {})
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(', ')
+        .toLowerCase();
+      return attrStr.includes(variantTerm);
+    });
+  }
+
+  if (stockLevelFilter === 'low') {
+    visible = visible.filter(row => row.remainingStock <= 0);
+  } else if (stockLevelFilter === 'instock') {
+    visible = visible.filter(row => row.remainingStock > 0);
+  }
 
   if (!visible.length) {
     tbody.innerHTML = `
@@ -238,7 +257,13 @@ export async function init() {
   // ── 4. Initial render (no filter applied yet) ────────────────────────────
   const filterInput = getFilterInput();
   const currentFilter = filterInput?.value ?? '';
-  renderTable(currentFilter);
+  const variantFilterInput2 = document.getElementById('stock-variant-filter');
+  const stockCountFilter2   = document.getElementById('stock-count-filter');
+  renderTable(
+    filterInput?.value ?? '',
+    variantFilterInput2?.value ?? '',
+    stockCountFilter2?.value ?? ''
+  );
 
   // ── 5. Wire live filter input (idempotent) ───────────────────────────────
   if (filterInput) {
@@ -246,11 +271,20 @@ export async function init() {
       filterInput.removeEventListener('input', _filterHandler);
     }
 
+    const variantFilterInput = document.getElementById('stock-variant-filter');
+    const stockCountFilter   = document.getElementById('stock-count-filter');
+
     _filterHandler = () => {
-      renderTable(filterInput.value);
+      renderTable(
+        filterInput.value,
+        variantFilterInput?.value ?? '',
+        stockCountFilter?.value ?? ''
+      );
     };
 
     filterInput.addEventListener('input', _filterHandler);
+    variantFilterInput?.addEventListener('input', _filterHandler);
+    stockCountFilter?.addEventListener('change', _filterHandler);
   }
 }
 
