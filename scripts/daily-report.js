@@ -58,7 +58,21 @@ async function fetchRows(tableName, filterQuery = '') {
 
 /** Fetch with a joined select for denormalized data */
 async function fetchJoined(tableName, select, filterQuery = '') {
-  const url = `${SUPABASE_URL}/rest/v1/${tableName}?select=${encodeURIComponent(select)}${filterQuery ? '&' + filterQuery : ''}`;
+  // Build URL -- note: select must NOT be encoded for PostgREST nested joins to work
+  // Filter is appended as-is after the select parameter
+  const baseUrl = `${SUPABASE_URL}/rest/v1/${tableName}`;
+  const params = new URLSearchParams();
+  params.set('select', select);
+  // Parse filterQuery like "sold_at=eq.2026-09-17" into individual params
+  if (filterQuery) {
+    for (const part of filterQuery.split('&')) {
+      const eqIdx = part.indexOf('=');
+      if (eqIdx > 0) {
+        params.set(part.slice(0, eqIdx), part.slice(eqIdx + 1));
+      }
+    }
+  }
+  const url = `${baseUrl}?${params.toString()}`;
   const res = await fetch(url, { headers: supabaseHeaders() });
   if (!res.ok) {
     const body = await res.text();
@@ -237,7 +251,8 @@ function buildEmailHTML(date, sales, purchases, refunds) {
 
     <!-- Footer -->
     <div style="background:#f1f5f9;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:12px 24px;text-align:center;">
-      <p style="margin:0;font-size:0.78rem;color:#94a3b8;">This report was generated automatically by StockAdmin for ${date}.</p>
+      <p style="margin:0 0 6px;font-size:0.78rem;color:#94a3b8;">This report was generated automatically by StockAdmin for ${date}.</p>
+      <p style="margin:0;font-size:0.78rem;color:#94a3b8;">To download a PDF, open the app and go to Reports, select the date, and click Download PDF.</p>
     </div>
 
   </div>
@@ -284,7 +299,9 @@ async function sendEmail(date, html) {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  const date = yesterday();
+  // Report on today's date (UTC) -- the workflow runs at midnight so
+  // "today" at midnight = the day that just ended
+  const date = new Date().toISOString().slice(0, 10);
   console.log(`Generating daily report for ${date}...`);
 
   const { sales, purchases, refunds } = await getReportData(date);
