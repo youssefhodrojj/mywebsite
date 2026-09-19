@@ -11,3 +11,6 @@ Thumbs.db
 
 # If you ever store real secrets locally, add them here:
 # js/config.local.js
+
+# Keep backup files but ignore very large ones
+# backups/*.json are committed intentionally by the GitHub Action

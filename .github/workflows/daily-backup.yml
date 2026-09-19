@@ -1,0 +1,37 @@
+name: Daily Supabase Backup
+
+on:
+  schedule:
+    # Runs every day at 00:00 UTC (midnight)
+    - cron: '0 0 * * *'
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run backup script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          node scripts/backup.js
+
+      - name: Commit backup file
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add backups/
+          # Only commit if there are changes
+          git diff --staged --quiet || git commit -m "Automated backup $(date -u '+%Y-%m-%d')"
+          git push
