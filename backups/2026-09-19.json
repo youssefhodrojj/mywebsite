@@ -1,12 +1,598 @@
 {
-  "exported_at": "2026-09-19T11:22:54.927Z",
+  "exported_at": "2026-09-19T11:26:05.522Z",
   "tables": {
-    "products": [],
-    "variants": [],
-    "purchase_batches": [],
+    "products": [
+      {
+        "id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "name": "Beige Bala sahab",
+        "description": null,
+        "created_at": "2026-09-18T20:30:22.480169+00:00"
+      },
+      {
+        "id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "name": "Beige Sahab",
+        "description": null,
+        "created_at": "2026-09-18T20:28:30.395953+00:00"
+      },
+      {
+        "id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "name": "Aswad Sahab",
+        "description": null,
+        "created_at": "2026-09-18T21:13:23.32385+00:00"
+      },
+      {
+        "id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "name": "Aswad Bala Sahab",
+        "description": null,
+        "created_at": "2026-09-18T21:17:18.276323+00:00"
+      }
+    ],
+    "variants": [
+      {
+        "id": "3ee78308-d038-4525-89e8-acadcdaaba18",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "39"
+        },
+        "created_at": "2026-09-18T20:36:12.78591+00:00"
+      },
+      {
+        "id": "b226c57c-46eb-4156-8cc6-24cbe8c59abd",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "40"
+        },
+        "created_at": "2026-09-18T20:37:08.156161+00:00"
+      },
+      {
+        "id": "04d99d77-3d92-4a4a-9e85-917e26565223",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "38"
+        },
+        "created_at": "2026-09-18T20:35:40.326224+00:00"
+      },
+      {
+        "id": "dc6b3a4c-5252-43c0-b6ee-c2ee0c031e15",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "41"
+        },
+        "created_at": "2026-09-18T20:37:56.861843+00:00"
+      },
+      {
+        "id": "6fa86f24-209b-4691-aa5a-8e82d4be7010",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "42"
+        },
+        "created_at": "2026-09-18T20:38:08.620907+00:00"
+      },
+      {
+        "id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "43"
+        },
+        "created_at": "2026-09-18T20:38:27.91346+00:00"
+      },
+      {
+        "id": "4609143a-1c77-470a-9237-3d9f33c1d309",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "44"
+        },
+        "created_at": "2026-09-18T20:38:47.120273+00:00"
+      },
+      {
+        "id": "0dce2a47-be9c-4e10-b223-0a2164e04586",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "45"
+        },
+        "created_at": "2026-09-18T20:39:00.513903+00:00"
+      },
+      {
+        "id": "163fdd0e-cdab-459e-8c00-df6df6012929",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "46"
+        },
+        "created_at": "2026-09-18T20:39:09.388151+00:00"
+      },
+      {
+        "id": "b1067d83-772b-457c-ba48-7577e01f7b4a",
+        "product_id": "62a72bdb-ed4b-4865-b1da-2d4c6216da97",
+        "attributes": {
+          "size": "47"
+        },
+        "created_at": "2026-09-18T20:39:19.393973+00:00"
+      },
+      {
+        "id": "9189f4d8-b43c-4b55-961b-c14fe28ea158",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "38"
+        },
+        "created_at": "2026-09-18T20:39:27.846451+00:00"
+      },
+      {
+        "id": "a08be3fb-9bde-4ea9-a4d6-201ad8472091",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "39"
+        },
+        "created_at": "2026-09-18T20:39:40.029368+00:00"
+      },
+      {
+        "id": "71546295-7070-4959-b602-7e4428da1c28",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "40"
+        },
+        "created_at": "2026-09-18T20:39:52.01164+00:00"
+      },
+      {
+        "id": "6ed2f0cc-ffe7-4378-bfa2-80fa53067f73",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "41"
+        },
+        "created_at": "2026-09-18T20:40:01.689353+00:00"
+      },
+      {
+        "id": "7ef99b58-4909-4927-8554-d648ee2b8f0a",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "42"
+        },
+        "created_at": "2026-09-18T20:40:18.910781+00:00"
+      },
+      {
+        "id": "a1ec4215-ca01-4000-ba33-674381128c74",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "43"
+        },
+        "created_at": "2026-09-18T20:40:30.610294+00:00"
+      },
+      {
+        "id": "e594b350-78d4-4a95-8edf-3850273ede9e",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "44"
+        },
+        "created_at": "2026-09-18T20:40:40.391785+00:00"
+      },
+      {
+        "id": "334e772e-d9e7-4f7a-8950-a873940fae55",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "45"
+        },
+        "created_at": "2026-09-18T20:40:51.489827+00:00"
+      },
+      {
+        "id": "0333f217-2a21-4854-837e-d3f952b6e9c9",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "46"
+        },
+        "created_at": "2026-09-18T20:40:59.494309+00:00"
+      },
+      {
+        "id": "06a4ff57-a5e3-4553-9d5c-399ef9a1e503",
+        "product_id": "6b6ad2ee-1e17-47fe-8e4a-ca335c248707",
+        "attributes": {
+          "size": "47"
+        },
+        "created_at": "2026-09-18T20:41:14.592889+00:00"
+      },
+      {
+        "id": "c916cad1-60cf-4273-8dee-719d0de25b17",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "Size": "38"
+        },
+        "created_at": "2026-09-18T21:14:05.381517+00:00"
+      },
+      {
+        "id": "28b0c4af-b0f3-4fb7-a3c9-1d754521fd45",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "size": "39"
+        },
+        "created_at": "2026-09-18T21:14:19.891951+00:00"
+      },
+      {
+        "id": "3eea9ce8-a728-4bdf-8317-998b079bee56",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "size": "40"
+        },
+        "created_at": "2026-09-18T21:14:35.424232+00:00"
+      },
+      {
+        "id": "4b4b35be-13f2-4329-a8d2-c227065aa56d",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "Size": "41"
+        },
+        "created_at": "2026-09-18T21:15:00.881449+00:00"
+      },
+      {
+        "id": "fcf11528-4964-4a94-a9ce-15b015762457",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "size": "42"
+        },
+        "created_at": "2026-09-18T21:15:11.820661+00:00"
+      },
+      {
+        "id": "f158e457-68f5-4b98-9c74-09ecbc420af0",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "size": "43"
+        },
+        "created_at": "2026-09-18T21:15:22.510602+00:00"
+      },
+      {
+        "id": "3fe708f9-5f0e-44a6-95a2-e9dd4132c7a9",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "Size": "44"
+        },
+        "created_at": "2026-09-18T21:15:37.456103+00:00"
+      },
+      {
+        "id": "4d6f96d4-d46e-403d-a40e-321ddfde8a0f",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "size": "45"
+        },
+        "created_at": "2026-09-18T21:15:53.806616+00:00"
+      },
+      {
+        "id": "c1c40bd2-2d6e-41c3-ad69-3c9e3b41b5b4",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "size": "46"
+        },
+        "created_at": "2026-09-18T21:16:03.12767+00:00"
+      },
+      {
+        "id": "7e61fd72-6a02-4347-a9cc-c63c6f1c0dad",
+        "product_id": "52694bd1-38c8-4357-b9b2-1b5a66ba7651",
+        "attributes": {
+          "size": "47"
+        },
+        "created_at": "2026-09-18T21:16:14.679514+00:00"
+      },
+      {
+        "id": "984ecd7b-167d-4b0f-9ca2-f2945dd12e21",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "38"
+        },
+        "created_at": "2026-09-18T21:17:57.623476+00:00"
+      },
+      {
+        "id": "63b420ef-7248-4014-9370-49e277f4f60b",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "39"
+        },
+        "created_at": "2026-09-18T21:18:11.485414+00:00"
+      },
+      {
+        "id": "3f52ae25-87fa-470b-8b8c-b8bdf39f267b",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "40"
+        },
+        "created_at": "2026-09-18T21:20:23.805013+00:00"
+      },
+      {
+        "id": "b862f6a0-0be0-4b32-9185-cbd36c2a21dc",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "41"
+        },
+        "created_at": "2026-09-18T21:22:38.434414+00:00"
+      },
+      {
+        "id": "8c4ffbe5-73b6-4dd2-8f1d-4649bbff1113",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "42"
+        },
+        "created_at": "2026-09-18T21:22:47.899522+00:00"
+      },
+      {
+        "id": "cd586619-b837-44da-b6ed-c89462094c1d",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "43"
+        },
+        "created_at": "2026-09-18T21:23:04.894921+00:00"
+      },
+      {
+        "id": "04807fb9-e289-4e48-9226-4d0fa1e7e9cf",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "44"
+        },
+        "created_at": "2026-09-18T21:23:11.697162+00:00"
+      },
+      {
+        "id": "f24be110-12bc-42ef-a758-949a47e24113",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "45"
+        },
+        "created_at": "2026-09-18T21:23:22.055704+00:00"
+      },
+      {
+        "id": "45a20b98-68f9-40e8-b2af-6b4ac64f43ad",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "46"
+        },
+        "created_at": "2026-09-18T21:23:28.989583+00:00"
+      },
+      {
+        "id": "0cba79d9-19ab-4f36-ba8b-e5d6f6c41988",
+        "product_id": "65c36abf-802d-4d33-9519-e7fb10bfbd1d",
+        "attributes": {
+          "size": "47"
+        },
+        "created_at": "2026-09-18T21:23:37.553444+00:00"
+      }
+    ],
+    "purchase_batches": [
+      {
+        "id": "31d965c1-8660-452e-b182-da4152530d40",
+        "variant_id": "b226c57c-46eb-4156-8cc6-24cbe8c59abd",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-18",
+        "created_at": "2026-09-18T20:54:44.841748+00:00"
+      },
+      {
+        "id": "8826758d-348a-41bb-9c32-26532a0bb093",
+        "variant_id": "6fa86f24-209b-4691-aa5a-8e82d4be7010",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-09-18",
+        "created_at": "2026-09-18T20:55:36.949316+00:00"
+      },
+      {
+        "id": "9b7fcd3a-557b-4f70-a2e9-8456d04b1a64",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 4,
+        "cost_price": 25,
+        "purchased_at": "2026-09-18",
+        "created_at": "2026-09-18T20:55:50.251041+00:00"
+      },
+      {
+        "id": "52f92017-2461-4739-9d81-92e9d3f462fb",
+        "variant_id": "4609143a-1c77-470a-9237-3d9f33c1d309",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-18",
+        "created_at": "2026-09-18T20:56:42.09436+00:00"
+      },
+      {
+        "id": "7d18a10a-7792-4276-916c-c5978ee49b9b",
+        "variant_id": "0dce2a47-be9c-4e10-b223-0a2164e04586",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-09-18",
+        "created_at": "2026-09-18T20:56:52.39762+00:00"
+      },
+      {
+        "id": "035edba1-e50b-4d7e-9d37-3aec006d1216",
+        "variant_id": "163fdd0e-cdab-459e-8c00-df6df6012929",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-09-18",
+        "created_at": "2026-09-18T20:57:13.070981+00:00"
+      },
+      {
+        "id": "0957fc63-2593-4080-b296-db2a0691f1e8",
+        "variant_id": "71546295-7070-4959-b602-7e4428da1c28",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-18",
+        "created_at": "2026-09-18T21:09:34.443633+00:00"
+      },
+      {
+        "id": "efd3d45a-7129-44c0-b63f-0f3433810b29",
+        "variant_id": "6ed2f0cc-ffe7-4378-bfa2-80fa53067f73",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:09:56.129288+00:00"
+      },
+      {
+        "id": "4894f56b-13a4-42a5-b82b-fc13dec12045",
+        "variant_id": "7ef99b58-4909-4927-8554-d648ee2b8f0a",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:10:34.980476+00:00"
+      },
+      {
+        "id": "8eb2d4a7-f2f3-4b44-bc21-a4cb2f5c8d1b",
+        "variant_id": "a1ec4215-ca01-4000-ba33-674381128c74",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:10:46.798471+00:00"
+      },
+      {
+        "id": "29ca5f50-6f2c-45e7-b167-f55529ed6706",
+        "variant_id": "e594b350-78d4-4a95-8edf-3850273ede9e",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:10:55.989192+00:00"
+      },
+      {
+        "id": "7a4bf480-3efc-4884-ac7c-a2319e19e24b",
+        "variant_id": "334e772e-d9e7-4f7a-8950-a873940fae55",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:11:28.497329+00:00"
+      },
+      {
+        "id": "ed6b6f98-65cc-4b1e-93ae-e96f7e3a2caf",
+        "variant_id": "06a4ff57-a5e3-4553-9d5c-399ef9a1e503",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:11:49.257498+00:00"
+      },
+      {
+        "id": "f4f0185c-6444-44ea-9bfc-f87ec6de7562",
+        "variant_id": "3f52ae25-87fa-470b-8b8c-b8bdf39f267b",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:25:50.1087+00:00"
+      },
+      {
+        "id": "adcf1ba1-5222-4180-bd8a-92efef6331bf",
+        "variant_id": "b862f6a0-0be0-4b32-9185-cbd36c2a21dc",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:26:09.000678+00:00"
+      },
+      {
+        "id": "c73b1e52-c892-4a95-abc6-c71ac2acd149",
+        "variant_id": "8c4ffbe5-73b6-4dd2-8f1d-4649bbff1113",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:26:17.372391+00:00"
+      },
+      {
+        "id": "e4b832f8-00c2-46cb-ad67-d799932ac027",
+        "variant_id": "cd586619-b837-44da-b6ed-c89462094c1d",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:26:24.294378+00:00"
+      },
+      {
+        "id": "4c3d4f32-d4df-4277-b0ec-069dfd930aac",
+        "variant_id": "04807fb9-e289-4e48-9226-4d0fa1e7e9cf",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:26:32.737026+00:00"
+      },
+      {
+        "id": "2e28dd44-17ee-4140-97fb-e0059016df21",
+        "variant_id": "f24be110-12bc-42ef-a758-949a47e24113",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:26:43.423536+00:00"
+      },
+      {
+        "id": "0970cbee-f71a-4cf1-bb70-8d28dccb55ef",
+        "variant_id": "45a20b98-68f9-40e8-b2af-6b4ac64f43ad",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:26:51.947119+00:00"
+      },
+      {
+        "id": "c930378d-9f82-441b-895b-2b8954482445",
+        "variant_id": "3eea9ce8-a728-4bdf-8317-998b079bee56",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:27:21.842437+00:00"
+      },
+      {
+        "id": "1b6b69c8-9cb6-41f2-8585-ca988ceeb1ad",
+        "variant_id": "4b4b35be-13f2-4329-a8d2-c227065aa56d",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:27:27.384649+00:00"
+      },
+      {
+        "id": "5701e268-faa6-4b8b-a98e-381c1090b0b6",
+        "variant_id": "fcf11528-4964-4a94-a9ce-15b015762457",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:27:32.587371+00:00"
+      },
+      {
+        "id": "df3d2cf1-521c-43ed-8608-e0fb85ccfef9",
+        "variant_id": "f158e457-68f5-4b98-9c74-09ecbc420af0",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:27:38.162917+00:00"
+      },
+      {
+        "id": "b29cfd1f-94cf-42fe-9545-63e04d6834c4",
+        "variant_id": "3fe708f9-5f0e-44a6-95a2-e9dd4132c7a9",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:27:45.605272+00:00"
+      },
+      {
+        "id": "54120293-98aa-4eb5-95f0-4426ed0cb558",
+        "variant_id": "4d6f96d4-d46e-403d-a40e-321ddfde8a0f",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:27:53.324592+00:00"
+      },
+      {
+        "id": "d8e4d63d-cd9e-44a8-8cda-c43cc2291d2e",
+        "variant_id": "7e61fd72-6a02-4347-a9cc-c63c6f1c0dad",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-09-19",
+        "created_at": "2026-09-18T21:28:11.52529+00:00"
+      }
+    ],
     "sale_records": [],
     "stock_corrections": [],
     "refunds": [],
-    "audit_log": []
+    "audit_log": [
+      {
+        "id": "90a8051f-6777-406a-9c35-b1356604a74f",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "products",
+        "record_id": "6755d80b-3c44-4f13-be6e-6ae65ee9414e",
+        "description": "Created record in products",
+        "created_at": "2026-09-19T10:33:56.327815+00:00"
+      },
+      {
+        "id": "867579fc-9406-4fd5-9ef3-6a9b1b5bf344",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "DELETE",
+        "table_name": "products",
+        "record_id": "6755d80b-3c44-4f13-be6e-6ae65ee9414e",
+        "description": "Deleted record from products",
+        "created_at": "2026-09-19T10:34:37.018684+00:00"
+      }
+    ]
   }
 }
