@@ -1,4 +1,4 @@
-name: Daily Supabase Backup
+name: Daily Backup and Report
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  backup:
+  backup-and-report:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -20,7 +20,7 @@ jobs:
           ref: master
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run backup script
+      - name: Run database backup
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
@@ -32,6 +32,14 @@ jobs:
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
           git add backups/
-          # Only commit if there are changes
           git diff --staged --quiet || git commit -m "Automated backup $(date -u '+%Y-%m-%d')"
           git push
+
+      - name: Send daily email report
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          REPORT_TO_EMAIL: ${{ secrets.REPORT_TO_EMAIL }}
+        run: |
+          node scripts/daily-report.js
