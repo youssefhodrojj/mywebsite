@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stock Management Admin</title>
+  <title>StockAdmin</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -520,14 +520,12 @@
 
       <div class="card">
         <h2>Generate Report</h2>
-        <div class="form-group">
-          <label for="report-date">Date</label>
-          <input type="date" id="report-date" style="max-width:220px;" />
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="report-date" style="display:block; margin-bottom:0.3rem; font-size:0.85rem; color:var(--color-text-muted);">Date</label>
+          <input type="date" id="report-date" style="display:block; width:100%; max-width:220px; padding:0.5rem 0.75rem; border:1px solid var(--color-border); border-radius:6px; font-size:0.95rem;" />
         </div>
-        <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.75rem; max-width:280px;">
-          <button type="button" id="btn-load-report" class="btn btn-primary" style="width:100%;">Load Report</button>
-          <button type="button" id="btn-download-pdf" class="btn btn-secondary" disabled style="width:100%;">Download PDF</button>
-        </div>
+        <button type="button" id="btn-load-report" class="btn btn-primary" style="display:block; width:100%; max-width:280px; margin-bottom:0.75rem;">Load Report</button>
+        <button type="button" id="btn-download-pdf" class="btn btn-secondary" disabled style="display:block; width:100%; max-width:280px;">Download PDF</button>
       </div>
 
       <div id="report-content">
