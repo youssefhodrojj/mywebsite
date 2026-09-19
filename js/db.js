@@ -604,9 +604,9 @@ export async function getMonthlySalesStats() {
     .lt('sold_at', nextM);
   if (error) throw new Error(error.message);
 
-  const count = data.length;
+  const units = data.reduce((s, r) => s + Number(r.quantity), 0);
   const revenue = data.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
-  return { count, revenue };
+  return { units, revenue };
 }
 
 /**
@@ -626,7 +626,7 @@ export async function getMonthlyPurchaseStats() {
     .lt('purchased_at', nextM);
   if (error) throw new Error(error.message);
 
-  const count = data.length;
+  const units = data.reduce((s, r) => s + Number(r.quantity), 0);
   const cost = data.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
-  return { count, cost };
+  return { units, cost };
 }

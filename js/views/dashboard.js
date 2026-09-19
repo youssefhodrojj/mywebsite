@@ -100,12 +100,12 @@ export async function init() {
       <h2 class="view-title" style="font-size:1rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.75rem;">This Month -- ${monthName}</h2>
       <div class="form-row" style="flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
-          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Sales (transactions)</p>
-          <p style="font-size:2rem; font-weight:700;">${monthlySales.count}</p>
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units Sold</p>
+          <p style="font-size:2rem; font-weight:700;">${monthlySales.units}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
-          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Purchases (batches)</p>
-          <p style="font-size:2rem; font-weight:700;">${monthlyPurchases.count}</p>
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units Purchased</p>
+          <p style="font-size:2rem; font-weight:700;">${monthlyPurchases.units}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Revenue</p>

@@ -308,23 +308,13 @@
       <div class="error-banner" id="stock-error" role="alert" aria-live="polite"></div>
 
       <div class="toolbar" style="flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
-        <input
-          type="search"
-          id="stock-filter"
-          class="filter-input"
-          placeholder="Filter by product name..."
-          aria-label="Filter by product name"
-          style="flex:1; min-width:160px;"
-        />
-        <input
-          type="text"
-          id="stock-variant-filter"
-          class="filter-input"
-          placeholder="Filter by variant (e.g. size: 40)..."
-          aria-label="Filter by variant attributes"
-          style="flex:1; min-width:160px;"
-        />
-        <select id="stock-count-filter" class="filter-input" style="flex:0; min-width:160px;">
+        <select id="stock-product-filter" class="filter-input" style="flex:1; min-width:160px;">
+          <option value="">-- all products --</option>
+        </select>
+        <select id="stock-variant-filter" class="filter-input" style="flex:1; min-width:160px;">
+          <option value="">-- all variants --</option>
+        </select>
+        <select id="stock-count-filter" class="filter-input" style="flex:0; min-width:180px;">
           <option value="">-- all stock levels --</option>
           <option value="low">Low / out of stock (0 or below)</option>
           <option value="instock">In stock (above 0)</option>
