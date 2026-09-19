@@ -12,30 +12,29 @@ import {
 } from '../db.js';
 import { computeRemainingStock, isLowStock } from '../stock.js';
 
-const getErrorBanner       = () => document.getElementById('stock-error');
-const getProductFilter     = () => document.getElementById('stock-product-filter');
-const getVariantFilter     = () => document.getElementById('stock-variant-filter');
-const getStockLevelFilter  = () => document.getElementById('stock-count-filter');
-const getTableBody         = () => document.getElementById('stock-table-body');
+const getErrorBanner      = () => document.getElementById('stock-error');
+const getProductFilter    = () => document.getElementById('stock-product-filter');
+const getVariantFilter    = () => document.getElementById('stock-variant-filter');
+const getStockLevelFilter = () => document.getElementById('stock-count-filter');
+const getTableBody        = () => document.getElementById('stock-table-body');
 
-/** @type {Array<{productId: string, productName: string, variantId: string, variantAttributes: object, remainingStock: number}>} */
+/** @type {Array<{productId:string, productName:string, variantId:string, variantAttributes:object, remainingStock:number}>} */
 let _rows = [];
 
-/** @type {(() => void) | null} */
-let _filterHandler = null;
+// Store ALL handlers at module level so they can be removed on re-init
+let _onProductChange    = null;
+let _onVariantChange    = null;
+let _onStockLevelChange = null;
 
 function escapeHtml(val) {
   return String(val ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-function formatAttributes(attributes) {
-  if (!attributes || typeof attributes !== 'object' || Array.isArray(attributes)) return '--';
-  const pairs = Object.entries(attributes);
+function formatAttributes(attrs) {
+  if (!attrs || typeof attrs !== 'object' || Array.isArray(attrs)) return '--';
+  const pairs = Object.entries(attrs);
   if (!pairs.length) return '--';
   return pairs.map(([k, v]) => `${k}: ${v}`).join(', ');
 }
@@ -51,28 +50,19 @@ function renderTable() {
   const tbody = getTableBody();
   if (!tbody) return;
 
-  const productId        = getProductFilter()?.value ?? '';
-  const variantId        = getVariantFilter()?.value ?? '';
-  const stockLevelFilter = getStockLevelFilter()?.value ?? '';
+  const productId   = getProductFilter()?.value ?? '';
+  const variantId   = getVariantFilter()?.value ?? '';
+  const stockLevel  = getStockLevelFilter()?.value ?? '';
 
   let visible = _rows;
 
-  if (productId) {
-    visible = visible.filter(row => row.productId === productId);
-  }
-
-  if (variantId) {
-    visible = visible.filter(row => row.variantId === variantId);
-  }
-
-  if (stockLevelFilter === 'low') {
-    visible = visible.filter(row => row.remainingStock <= 0);
-  } else if (stockLevelFilter === 'instock') {
-    visible = visible.filter(row => row.remainingStock > 0);
-  }
+  if (productId)              visible = visible.filter(r => r.productId  === productId);
+  if (variantId)              visible = visible.filter(r => r.variantId  === variantId);
+  if (stockLevel === 'low')   visible = visible.filter(r => r.remainingStock <= 0);
+  else if (stockLevel === 'instock') visible = visible.filter(r => r.remainingStock > 0);
 
   if (!visible.length) {
-    tbody.innerHTML = `<tr><td colspan="3" class="text-muted">No stock data matches the selected filters.</td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="3" class="text-muted">No stock data matches the selected filters.</td></tr>';
     return;
   }
 
@@ -86,22 +76,14 @@ function renderTable() {
   }).join('');
 }
 
-/**
- * Populate the variant dropdown based on selected product.
- * If no product selected, show all variants.
- */
 function populateVariantDropdown(productId) {
-  const variantSelect = getVariantFilter();
-  if (!variantSelect) return;
+  const sel = getVariantFilter();
+  if (!sel) return;
 
-  const prevValue = variantSelect.value;
-  variantSelect.innerHTML = '<option value="">-- all variants --</option>';
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">-- all variants --</option>';
 
-  const source = productId
-    ? _rows.filter(r => r.productId === productId)
-    : _rows;
-
-  // Deduplicate by variantId
+  const source = productId ? _rows.filter(r => r.productId === productId) : _rows;
   const seen = new Set();
   for (const row of source) {
     if (seen.has(row.variantId)) continue;
@@ -109,13 +91,10 @@ function populateVariantDropdown(productId) {
     const opt = document.createElement('option');
     opt.value = row.variantId;
     opt.textContent = formatAttributes(row.variantAttributes);
-    variantSelect.appendChild(opt);
+    sel.appendChild(opt);
   }
 
-  // Restore previous selection if still valid
-  if (prevValue && [...variantSelect.options].some(o => o.value === prevValue)) {
-    variantSelect.value = prevValue;
-  }
+  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
 }
 
 export async function init() {
@@ -125,7 +104,16 @@ export async function init() {
   const tbody = getTableBody();
   if (tbody) tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Loading...</td></tr>';
 
-  // Load products
+  // --- Remove all stale listeners ---
+  const productSel    = getProductFilter();
+  const variantSel    = getVariantFilter();
+  const stockLevelSel = getStockLevelFilter();
+
+  if (_onProductChange    && productSel)    productSel.removeEventListener('change',    _onProductChange);
+  if (_onVariantChange    && variantSel)    variantSel.removeEventListener('change',    _onVariantChange);
+  if (_onStockLevelChange && stockLevelSel) stockLevelSel.removeEventListener('change', _onStockLevelChange);
+
+  // --- Load products ---
   let products = [];
   try {
     products = await getProducts();
@@ -135,38 +123,31 @@ export async function init() {
     return;
   }
 
-  // Populate product dropdown
-  const productSelect = getProductFilter();
-  if (productSelect) {
-    productSelect.innerHTML = '<option value="">-- all products --</option>';
+  // --- Populate product dropdown ---
+  if (productSel) {
+    productSel.innerHTML = '<option value="">-- all products --</option>';
     for (const p of products) {
       const opt = document.createElement('option');
       opt.value = p.id;
       opt.textContent = p.name;
-      productSelect.appendChild(opt);
+      productSel.appendChild(opt);
     }
   }
 
-  if (!products.length) {
-    _rows = [];
-    renderTable();
-    return;
-  }
+  if (!products.length) { renderTable(); return; }
 
-  // Load variants and stock for all products
+  // --- Load all variants and compute stock ---
   try {
     const variantResults = await Promise.all(
-      products.map(p => getVariantsByProduct(p.id).then(variants => ({ product: p, variants })))
+      products.map(p => getVariantsByProduct(p.id).then(vs => ({ product: p, variants: vs })))
     );
 
     const pairs = [];
     for (const { product, variants } of variantResults) {
-      for (const variant of variants) {
-        pairs.push({ product, variant });
-      }
+      for (const variant of variants) pairs.push({ product, variant });
     }
 
-    const stockResults = await Promise.all(
+    _rows = await Promise.all(
       pairs.map(async ({ product, variant }) => {
         const [purchases, sales, corrections] = await Promise.all([
           getPurchasesByVariant(variant.id),
@@ -174,51 +155,35 @@ export async function init() {
           getCorrectionsByVariant(variant.id),
         ]);
         return {
-          productId: product.id,
-          productName: product.name,
-          variantId: variant.id,
+          productId:         product.id,
+          productName:       product.name,
+          variantId:         variant.id,
           variantAttributes: variant.attributes,
-          remainingStock: computeRemainingStock(purchases, sales, corrections),
+          remainingStock:    computeRemainingStock(purchases, sales, corrections),
         };
       })
     );
-
-    _rows = stockResults;
   } catch (err) {
     setErrorBanner(`Failed to load stock data: ${err.message}`);
     if (tbody) tbody.innerHTML = '';
     return;
   }
 
-  // Populate variant dropdown (all variants initially)
+  // --- Populate variant dropdown and render ---
   populateVariantDropdown('');
-
-  // Initial render
   renderTable();
 
-  // Wire filters (idempotent)
-  const variantSelect     = getVariantFilter();
-  const stockLevelSelect  = getStockLevelFilter();
-
-  if (_filterHandler) {
-    productSelect?.removeEventListener('change', _filterHandler);
-    variantSelect?.removeEventListener('change', _filterHandler);
-    stockLevelSelect?.removeEventListener('change', _filterHandler);
-  }
-
-  _filterHandler = () => {
-    // When product changes, update variant dropdown to show only that product's variants
-    const selectedProduct = productSelect?.value ?? '';
-    populateVariantDropdown(selectedProduct);
+  // --- Wire new listeners ---
+  _onProductChange = () => {
+    populateVariantDropdown(productSel?.value ?? '');
     renderTable();
   };
+  _onVariantChange    = () => renderTable();
+  _onStockLevelChange = () => renderTable();
 
-  // Separate handler for variant/stock changes (no need to repopulate variant dropdown)
-  const _subFilterHandler = () => renderTable();
-
-  productSelect?.addEventListener('change', _filterHandler);
-  variantSelect?.addEventListener('change', _subFilterHandler);
-  stockLevelSelect?.addEventListener('change', _subFilterHandler);
+  productSel?.addEventListener('change',    _onProductChange);
+  variantSel?.addEventListener('change',    _onVariantChange);
+  stockLevelSel?.addEventListener('change', _onStockLevelChange);
 }
 
 export default init;
