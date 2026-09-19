@@ -630,3 +630,158 @@ export async function getMonthlyPurchaseStats() {
   const cost = data.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
   return { units, cost };
 }
+
+// ============================================================
+// 12. Dashboard all-time stats (fast batch queries)
+// ============================================================
+
+/**
+ * Get all-time totals in 3 parallel queries instead of N*M serial loops.
+ * Returns: { totalPurchaseCost, totalSalesRevenue, totalUnitsSold, lowStockVariants, totalProducts, totalVariants }
+ */
+export async function getDashboardStats() {
+  // Run all independent queries in parallel
+  const [
+    productsRes,
+    variantsRes,
+    purchasesRes,
+    salesRes,
+  ] = await Promise.all([
+    supabaseClient
+      .from('products')
+      .select('id', { count: 'exact', head: true }),
+
+    supabaseClient
+      .from('variants')
+      .select('id, product_id', { count: 'exact' }),
+
+    supabaseClient
+      .from('purchase_batches')
+      .select('quantity, cost_price'),
+
+    supabaseClient
+      .from('sale_records')
+      .select('quantity, sell_price'),
+  ]);
+
+  if (productsRes.error) throw new Error(productsRes.error.message);
+  if (variantsRes.error) throw new Error(variantsRes.error.message);
+  if (purchasesRes.error) throw new Error(purchasesRes.error.message);
+  if (salesRes.error) throw new Error(salesRes.error.message);
+
+  const totalProducts     = productsRes.count ?? 0;
+  const totalVariants     = variantsRes.data?.length ?? 0;
+  const totalPurchaseCost = (purchasesRes.data ?? []).reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
+  const totalSalesRevenue = (salesRes.data ?? []).reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
+  const totalUnitsSold    = (salesRes.data ?? []).reduce((s, r) => s + Number(r.quantity), 0);
+
+  // Low stock: need remaining stock per variant -- use the 3-table approach
+  // But do it in parallel across all variants at once
+  const allVariantIds = (variantsRes.data ?? []).map(v => v.id);
+
+  let lowStockCount = 0;
+  if (allVariantIds.length > 0) {
+    const [allPurchases, allSales, allCorrections] = await Promise.all([
+      supabaseClient.from('purchase_batches').select('variant_id, quantity'),
+      supabaseClient.from('sale_records').select('variant_id, quantity'),
+      supabaseClient.from('stock_corrections').select('variant_id, adjustment'),
+    ]);
+
+    // Build maps: variantId -> total
+    const purchaseMap = {};
+    for (const r of allPurchases.data ?? []) {
+      purchaseMap[r.variant_id] = (purchaseMap[r.variant_id] ?? 0) + Number(r.quantity);
+    }
+    const salesMap = {};
+    for (const r of allSales.data ?? []) {
+      salesMap[r.variant_id] = (salesMap[r.variant_id] ?? 0) + Number(r.quantity);
+    }
+    const correctionMap = {};
+    for (const r of allCorrections.data ?? []) {
+      correctionMap[r.variant_id] = (correctionMap[r.variant_id] ?? 0) + Number(r.adjustment);
+    }
+
+    for (const variantId of allVariantIds) {
+      const remaining = (purchaseMap[variantId] ?? 0)
+        - (salesMap[variantId] ?? 0)
+        + (correctionMap[variantId] ?? 0);
+      if (remaining <= 0) lowStockCount++;
+    }
+  }
+
+  return {
+    totalProducts,
+    totalVariants,
+    totalPurchaseCost,
+    totalSalesRevenue,
+    totalUnitsSold,
+    lowStockCount,
+  };
+}
+
+/**
+ * Get all data for export/backup as JSON.
+ */
+export async function exportAllData() {
+  const [products, variants, purchases, sales, corrections, refunds] = await Promise.all([
+    supabaseClient.from('products').select('*'),
+    supabaseClient.from('variants').select('*'),
+    supabaseClient.from('purchase_batches').select('*'),
+    supabaseClient.from('sale_records').select('*'),
+    supabaseClient.from('stock_corrections').select('*'),
+    supabaseClient.from('refunds').select('*'),
+  ]);
+
+  // Non-fatal -- return what we have
+  return {
+    exported_at: new Date().toISOString(),
+    products:    products.data    ?? [],
+    variants:    variants.data    ?? [],
+    purchases:   purchases.data   ?? [],
+    sales:       sales.data       ?? [],
+    corrections: corrections.data ?? [],
+    refunds:     refunds.data     ?? [],
+  };
+}
+
+/**
+ * Get audit log entries, most recent first, with optional limit.
+ */
+export async function getAuditLog({ limit = 100 } = {}) {
+  const { data, error } = await supabaseClient
+    .from('audit_log')
+    .select('id, action, table_name, record_id, description, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/**
+ * Get impact count for a product before deletion.
+ */
+export async function getProductDeletionImpact(productId) {
+  const variants = await supabaseClient
+    .from('variants')
+    .select('id')
+    .eq('product_id', productId);
+  if (variants.error) throw new Error(variants.error.message);
+
+  const variantIds = (variants.data ?? []).map(v => v.id);
+  if (variantIds.length === 0) {
+    return { variantCount: 0, purchaseCount: 0, saleCount: 0, correctionCount: 0 };
+  }
+
+  const [purchasesRes, salesRes, correctionsRes] = await Promise.all([
+    supabaseClient.from('purchase_batches').select('id', { count: 'exact', head: true }).in('variant_id', variantIds),
+    supabaseClient.from('sale_records').select('id', { count: 'exact', head: true }).in('variant_id', variantIds),
+    supabaseClient.from('stock_corrections').select('id', { count: 'exact', head: true }).in('variant_id', variantIds),
+  ]);
+
+  return {
+    variantCount:    variantIds.length,
+    purchaseCount:   purchasesRes.count ?? 0,
+    saleCount:       salesRes.count ?? 0,
+    correctionCount: correctionsRes.count ?? 0,
+  };
+}

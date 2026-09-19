@@ -37,6 +37,7 @@
       <li><a href="#/stock"          data-route="/stock">Stock</a></li>
       <li><a href="#/charts"         data-route="/charts">Charts</a></li>
       <li><a href="#/delete-entries" data-route="/delete-entries">Delete Entries</a></li>
+      <li><a href="#/history"        data-route="/history">History &amp; Backup</a></li>
       <li><a href="#/reports"        data-route="/reports">Reports</a></li>
     </ul>
 
@@ -535,6 +536,32 @@
 
       <div id="report-content">
         <p class="text-muted">Select a date and click "Load Report" to generate the daily summary.</p>
+      </div>
+    </section>
+
+    <!-- ---- History & Backup view ---- -->
+    <section id="view-history" class="view hidden" role="region" aria-labelledby="history-heading">
+      <h1 id="history-heading" class="view-title">History &amp; Backup</h1>
+
+      <div class="error-banner" id="history-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Data Backup</h2>
+        <p class="text-muted" style="margin-bottom:1rem; font-size:0.875rem;">
+          Download a full backup of all your data as a JSON file. Keep this safe -- you can use it to restore data if needed.
+        </p>
+        <button type="button" id="btn-export-json" class="btn btn-primary">Download Backup (JSON)</button>
+      </div>
+
+      <div class="card">
+        <h2>Action History</h2>
+        <p class="text-muted" style="margin-bottom:0.75rem; font-size:0.875rem;">
+          Every create and delete action is logged automatically. Last 100 entries shown.
+        </p>
+        <button type="button" id="btn-reload-history" class="btn btn-secondary btn-sm" style="margin-bottom:1rem;">Refresh</button>
+        <div id="history-log">
+          <p class="text-muted">Loading history...</p>
+        </div>
       </div>
     </section>
 

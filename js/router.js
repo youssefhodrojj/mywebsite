@@ -28,6 +28,7 @@ const VIEW_IDS = {
   '/stock':          'view-stock',
   '/charts':         'view-charts',
   '/delete-entries': 'view-delete-entries',
+  '/history':        'view-history',
   '/reports':        'view-reports',
 };
 
@@ -46,6 +47,7 @@ const ROUTES = {
   '/stock':          () => import('./views/stock-view.js'),
   '/charts':         () => import('./views/charts-view.js'),
   '/delete-entries': () => import('./views/delete-entries.js'),
+  '/history':        () => import('./views/history.js'),
   '/reports':        () => import('./views/reports.js'),
 };
 

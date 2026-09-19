@@ -18,6 +18,7 @@ import {
   getPurchasesByVariant,
   getSalesByVariant,
   getCorrectionsByVariant,
+  getProductDeletionImpact,
   showToast,
 } from '../db.js';
 
@@ -652,7 +653,31 @@ async function renderProductsList() {
         card.querySelector('.btn-delete-product')
       )?.dataset.productName ?? product.name;
 
-      if (!confirm(`Delete product "${productName}" and all its data?`)) return;
+      // Show impact before confirming
+      let impact = null;
+      try {
+        impact = await getProductDeletionImpact(product.id);
+      } catch {
+        // non-fatal -- continue with generic message
+      }
+
+      let msg = `WARNING: Permanently delete "${productName}"?\n\n`;
+      if (impact) {
+        msg += `This will also delete:\n`;
+        msg += `  - ${impact.variantCount} variant(s)\n`;
+        msg += `  - ${impact.purchaseCount} purchase record(s)\n`;
+        msg += `  - ${impact.saleCount} sale record(s)\n`;
+        msg += `  - ${impact.correctionCount} correction record(s)\n\n`;
+      }
+      msg += `This CANNOT be undone. Type the product name to confirm:`;
+
+      const typed = prompt(msg);
+      if (typed?.trim().toLowerCase() !== productName.trim().toLowerCase()) {
+        if (typed !== null) {
+          showToast('Product name did not match. Delete cancelled.');
+        }
+        return;
+      }
 
       try {
         await deleteProduct(product.id);
