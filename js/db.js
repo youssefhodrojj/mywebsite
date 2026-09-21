@@ -588,7 +588,9 @@ export async function getRefundsForDate(dateStr) {
 // ============================================================
 
 /**
- * Get total sales count and revenue for the current calendar month.
+ * Get total sales stats for the current calendar month.
+ * units = gross units sold minus refunded units this month
+ * revenue = gross sales revenue minus refund amounts this month
  */
 export async function getMonthlySalesStats() {
   const now = new Date();
@@ -597,20 +599,33 @@ export async function getMonthlySalesStats() {
   const startOfMonth = `${yyyy}-${mm}-01`;
   const nextM = now.getMonth() + 1 === 12 ? `${yyyy + 1}-01-01` : `${yyyy}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
 
-  const { data, error } = await supabaseClient
-    .from('sale_records')
-    .select('quantity, sell_price')
-    .gte('sold_at', startOfMonth)
-    .lt('sold_at', nextM);
-  if (error) throw new Error(error.message);
+  // Fetch sales and refunds for this month in parallel
+  const [salesRes, refundsRes] = await Promise.all([
+    supabaseClient.from('sale_records').select('quantity, sell_price')
+      .gte('sold_at', startOfMonth).lt('sold_at', nextM),
+    supabaseClient.from('refunds').select('quantity, refund_price')
+      .gte('refunded_at', startOfMonth).lt('refunded_at', nextM),
+  ]);
 
-  const units = data.reduce((s, r) => s + Number(r.quantity), 0);
-  const revenue = data.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
-  return { units, revenue };
+  if (salesRes.error) throw new Error(salesRes.error.message);
+  const sales   = salesRes.data ?? [];
+  const refunds = refundsRes.error ? [] : (refundsRes.data ?? []);
+
+  const grossUnits   = sales.reduce((s, r) => s + Number(r.quantity), 0);
+  const refundUnits  = refunds.reduce((s, r) => s + Number(r.quantity), 0);
+  const grossRevenue = sales.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
+  const refundAmount = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
+
+  return {
+    units:   grossUnits - refundUnits,
+    revenue: grossRevenue - refundAmount,
+  };
 }
 
 /**
- * Get total purchases count and cost for the current calendar month.
+ * Get total purchase stats for the current calendar month.
+ * units = units purchased this month + correction adjustments this month
+ * cost  = gross purchase cost minus correction write-offs this month
  */
 export async function getMonthlyPurchaseStats() {
   const now = new Date();
@@ -619,16 +634,29 @@ export async function getMonthlyPurchaseStats() {
   const startOfMonth = `${yyyy}-${mm}-01`;
   const nextM = now.getMonth() + 1 === 12 ? `${yyyy + 1}-01-01` : `${yyyy}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
 
-  const { data, error } = await supabaseClient
-    .from('purchase_batches')
-    .select('quantity, cost_price')
-    .gte('purchased_at', startOfMonth)
-    .lt('purchased_at', nextM);
-  if (error) throw new Error(error.message);
+  // Fetch purchases and corrections for this month in parallel
+  const [purchasesRes, correctionsRes] = await Promise.all([
+    supabaseClient.from('purchase_batches').select('quantity, cost_price')
+      .gte('purchased_at', startOfMonth).lt('purchased_at', nextM),
+    supabaseClient.from('stock_corrections').select('adjustment, cost_per_unit')
+      .gte('corrected_at', startOfMonth).lt('corrected_at', nextM),
+  ]);
 
-  const units = data.reduce((s, r) => s + Number(r.quantity), 0);
-  const cost = data.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
-  return { units, cost };
+  if (purchasesRes.error) throw new Error(purchasesRes.error.message);
+  const purchases   = purchasesRes.data ?? [];
+  const corrections = correctionsRes.error ? [] : (correctionsRes.data ?? []);
+
+  const grossUnits      = purchases.reduce((s, r) => s + Number(r.quantity), 0);
+  const correctionUnits = corrections.reduce((s, r) => s + Number(r.adjustment), 0);
+  const grossCost       = purchases.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
+  const correctionCost  = corrections
+    .filter(c => Number(c.adjustment) < 0 && Number(c.cost_per_unit) > 0)
+    .reduce((s, c) => s + Math.abs(Number(c.adjustment)) * Number(c.cost_per_unit), 0);
+
+  return {
+    units: grossUnits + correctionUnits,
+    cost:  grossCost - correctionCost,
+  };
 }
 
 // ============================================================
