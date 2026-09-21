@@ -35,7 +35,7 @@ async function getVariantAvgCosts() {
     for (const [vid, t] of Object.entries(totals)) {
       avgCosts[vid] = t.totalUnits > 0 ? t.totalCost / t.totalUnits : 0;
     }
-    console.log('[getVariantAvgCosts] result:', avgCosts, 'rows:', data.length);
+    return avgCosts;
     return avgCosts;
   } catch (e) {
     console.warn('[getVariantAvgCosts] exception:', e); return {};
@@ -187,7 +187,6 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
     const avgCost = variantAvgCosts[vid] ?? 0;
     const netQty  = Number(r.quantity) - (refundedQty[vid] ?? 0);
     const contrib = (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
-    console.log('[GP row]', vid, 'sell:', r.sell_price, 'avgCost:', avgCost, 'netQty:', netQty, 'contrib:', contrib);
     return s + contrib;
   }, 0);
   const grossProfitColor = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
@@ -298,7 +297,6 @@ function generatePDF() {
   const doc = new jsPDF();
 
   const { date: dateStr, sales: salesData, purchases: purchasesData, refunds: refundsData, variantAvgCosts: avgCosts = {} } = reportData;
-  console.log('[generatePDF] avgCosts keys:', Object.keys(avgCosts).length, avgCosts);
 
   const totalRevenue = salesData.reduce((s, r)    => s + Number(r.quantity) * Number(r.sell_price),    0);
   const totalCost    = purchasesData.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price),   0);
