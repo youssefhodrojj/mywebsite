@@ -148,13 +148,21 @@ function renderReport(dateStr, sales, purchases, refunds) {
   const totalRefunds = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
   const net          = totalRevenue - totalCost - totalRefunds;
 
+  // Gross Profit = Revenue - (avg cost per unit x units sold)
+  // avg cost = total purchase cost / total units purchased this day
+  const totalUnitsPurchased = purchases.reduce((s, r) => s + Number(r.quantity), 0);
+  const totalUnitsSold      = sales.reduce((s, r) => s + Number(r.quantity), 0);
+  const avgCostPerUnit      = totalUnitsPurchased > 0 ? totalCost / totalUnitsPurchased : 0;
+  const grossProfit         = totalRevenue - totalRefunds - (avgCostPerUnit * totalUnitsSold);
+  const grossProfitColor    = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
+
   // ---- Outer card ----
   const card = document.createElement('div');
   card.className = 'card';
 
   // Heading
   const h2 = document.createElement('h2');
-  h2.textContent = `Daily Report â€” ${formatDate(dateStr)}`;
+  h2.textContent = `Daily Report — ${formatDate(dateStr)}`;
   card.appendChild(h2);
 
   // ---- Summary cards ----
@@ -162,10 +170,11 @@ function renderReport(dateStr, sales, purchases, refunds) {
   summary.style.cssText = 'display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;';
 
   const summaryItems = [
-    { label: 'Sales Revenue',  value: fmt(totalRevenue), color: 'var(--color-success)'  },
-    { label: 'Purchase Cost',  value: fmt(totalCost),    color: 'var(--color-primary)'  },
-    { label: 'Refunds',        value: fmt(totalRefunds), color: 'var(--color-danger)'   },
-    { label: 'Net',            value: fmt(net),           color: null                   },
+    { label: 'Sales Revenue',  value: fmt(totalRevenue),  color: 'var(--color-success)'  },
+    { label: 'Purchase Cost',  value: fmt(totalCost),     color: 'var(--color-primary)'  },
+    { label: 'Refunds',        value: fmt(totalRefunds),  color: 'var(--color-danger)'   },
+    { label: 'Net',            value: fmt(net),            color: null                   },
+    { label: 'Gross Profit',   value: fmt(grossProfit),   color: grossProfitColor        },
   ];
 
   for (const item of summaryItems) {
@@ -272,6 +281,14 @@ function generatePDF() {
   doc.text('Purchase Cost: '   + fmt(totalCost),       14, 46);
   doc.text('Refunds: '         + fmt(totalRefunds),    14, 54);
   doc.text('Net: '             + fmt(net),              14, 62);
+  const gpPDF = salesData.reduce((s,r)=>s+Number(r.quantity)*Number(r.sell_price),0)
+    - refundsData.reduce((s,r)=>s+Number(r.quantity)*Number(r.refund_price),0)
+    - (purchasesData.reduce((s,r)=>s+Number(r.quantity),0) > 0
+      ? (purchasesData.reduce((s,r)=>s+Number(r.quantity)*Number(r.cost_price),0)
+         / purchasesData.reduce((s,r)=>s+Number(r.quantity),0))
+        * salesData.reduce((s,r)=>s+Number(r.quantity),0)
+      : 0);
+  doc.text('Gross Profit: '   + fmt(gpPDF),             14, 70);
 
   let y = 75;
 

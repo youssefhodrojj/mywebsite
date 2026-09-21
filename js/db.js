@@ -617,8 +617,10 @@ export async function getMonthlySalesStats() {
   const refundAmount = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
 
   return {
-    units:   grossUnits - refundUnits,
-    revenue: grossRevenue - refundAmount,
+    units:        grossUnits - refundUnits,
+    revenue:      grossRevenue - refundAmount,
+    grossRevenue,
+    refundAmount,
   };
 }
 
@@ -653,9 +655,14 @@ export async function getMonthlyPurchaseStats() {
     .filter(c => Number(c.adjustment) < 0 && Number(c.cost_per_unit) > 0)
     .reduce((s, c) => s + Math.abs(Number(c.adjustment)) * Number(c.cost_per_unit), 0);
 
+  const netUnits = grossUnits + correctionUnits;
+  const netCost  = grossCost - correctionCost;
+  const avgCostPerUnit = netUnits > 0 ? netCost / netUnits : 0;
+
   return {
-    units: grossUnits + correctionUnits,
-    cost:  grossCost - correctionCost,
+    units:         netUnits,
+    cost:          netCost,
+    avgCostPerUnit,
   };
 }
 
@@ -769,6 +776,13 @@ export async function getDashboardStats() {
     }
   }
 
+  // Gross Profit = Revenue - Cost of units actually sold (not total stock cost)
+  // avg cost per unit = total purchase cost / total units purchased
+  const rawPurchaseCost = purchases.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
+  const avgCostPerUnit = totalUnitsPurchased > 0 ? rawPurchaseCost / totalUnitsPurchased : 0;
+  const costOfGoodsSold = avgCostPerUnit * totalUnitsSold;
+  const totalGrossProfit = totalSalesRevenue - costOfGoodsSold;
+
   return {
     totalProducts,
     totalVariants,
@@ -778,6 +792,9 @@ export async function getDashboardStats() {
     totalUnitsPurchased,
     totalUnitsInStock,
     lowStockCount,
+    totalGrossProfit,
+    avgCostPerUnit,
+    costOfGoodsSold,
   };
 }
 

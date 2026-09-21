@@ -83,24 +83,29 @@ function updateSummaryCards(purchasedUnits, purchaseCosts, soldUnits, salesReven
   const totalSold      = soldUnits.reduce((s, v) => s + v, 0);
   const totalPurchased = purchasedUnits.reduce((s, v) => s + v, 0);
 
-  const ids = ['summary-revenue', 'summary-cost', 'summary-profit', 'summary-units-sold', 'summary-units-purchased'];
-  const values = [
-    fmt(totalRevenue),
-    fmt(totalCost),
-    (netProfit >= 0 ? '+' : '') + fmt(netProfit),
-    totalSold.toLocaleString(),
-    totalPurchased.toLocaleString(),
-  ];
+  // Gross profit = revenue - (avg cost per unit x units sold)
+  const avgCost       = totalPurchased > 0 ? totalCost / totalPurchased : 0;
+  const grossProfit   = totalRevenue - (avgCost * totalSold);
 
-  ids.forEach((id, i) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = values[i];
-  });
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('summary-revenue',       fmt(totalRevenue));
+  setEl('summary-cost',          fmt(totalCost));
+  setEl('summary-units-sold',    totalSold.toLocaleString());
+  setEl('summary-units-purchased', totalPurchased.toLocaleString());
 
   const profitEl = document.getElementById('summary-profit');
   if (profitEl) {
+    profitEl.textContent = (netProfit >= 0 ? '+' : '') + fmt(netProfit);
     profitEl.style.color = netProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
   }
+
+  const gpEl = document.getElementById('summary-gross-profit');
+  if (gpEl) {
+    gpEl.textContent = (grossProfit >= 0 ? '+' : '') + fmt(grossProfit);
+    gpEl.style.color = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
+  }
+
+  return { grossProfits: salesRevenue.map((r, i) => r - (purchasedUnits[i] > 0 ? purchaseCosts[i] / purchasedUnits[i] : 0) * soldUnits[i]) };
 }
 
 async function fetchAndRender() {
@@ -122,10 +127,11 @@ async function fetchAndRender() {
     const { labels, purchasedUnits, purchaseCosts, soldUnits, salesRevenue, netProfits } =
       aggregateByMonth(purchaseRows, salesRows);
 
-    updateSummaryCards(purchasedUnits, purchaseCosts, soldUnits, salesRevenue);
+    const { grossProfits } = updateSummaryCards(purchasedUnits, purchaseCosts, soldUnits, salesRevenue);
     renderUnitsChart('chart-units', labels, purchasedUnits, soldUnits);
     renderMonetaryChart('chart-monetary', labels, purchaseCosts, salesRevenue);
     renderProfitChart('chart-profit', labels, netProfits);
+    renderProfitChart('chart-gross-profit', labels, grossProfits);
   } catch (err) {
     showBanner(`Failed to load chart data: ${err.message}`);
   }

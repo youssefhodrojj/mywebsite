@@ -390,6 +390,10 @@
           <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Units Purchased</p>
           <p id="summary-units-purchased" style="font-size:1.5rem; font-weight:700;">-</p>
         </div>
+        <div class="card" style="flex:1; min-width:140px; text-align:center;">
+          <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Gross Profit</p>
+          <p id="summary-gross-profit" style="font-size:1.5rem; font-weight:700;">-</p>
+        </div>
       </div>
 
       <div class="charts-grid">
@@ -406,6 +410,11 @@
       <div class="chart-card" style="margin-top:1.25rem;">
         <h3>Net Profit per Month</h3>
         <canvas id="chart-profit" role="img" aria-label="Bar chart: net profit per month"></canvas>
+      </div>
+
+      <div class="chart-card" style="margin-top:1.25rem;">
+        <h3>Gross Profit per Month</h3>
+        <canvas id="chart-gross-profit" role="img" aria-label="Bar chart: gross profit per month"></canvas>
       </div>
     </section>
 
@@ -592,7 +601,7 @@
 <!-- =====================================================
      App entry point (ES module)
      ===================================================== -->
-<script type="module" src="js/router.js?v=8"></script>
+<script type="module" src="js/router.js?v=9"></script>
 
 </body>
 </html>
