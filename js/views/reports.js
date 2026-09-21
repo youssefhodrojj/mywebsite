@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Reports view â€” generates a daily report and downloads it as a PDF.
  *
  * HTML elements expected:
@@ -23,7 +23,7 @@ async function getVariantAvgCosts() {
     const { data, error } = await supabaseClient
       .from('purchase_batches')
       .select('variant_id, quantity, cost_price');
-    if (error || !data) return {};
+    if (error || !data) { console.warn('[getVariantAvgCosts] error:', error); return {}; }
     // Build map: variantId -> avg cost per unit
     const totals = {};
     for (const r of data) {
@@ -36,8 +36,8 @@ async function getVariantAvgCosts() {
       avgCosts[vid] = t.totalUnits > 0 ? t.totalCost / t.totalUnits : 0;
     }
     return avgCosts;
-  } catch {
-    return {};
+  } catch (e) {
+    console.warn('[getVariantAvgCosts] exception:', e); return {};
   }
 }
 
@@ -174,13 +174,19 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
   const totalRefunds = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
   const net          = totalRevenue - totalCost - totalRefunds;
 
-  // Gross Profit = sum of (sell_price - avg_cost_per_unit) × qty for each sale
+  // Gross Profit = (sell_price - avg_cost) x net_qty per variant
+  // net_qty = qty_sold - qty_refunded so a full refund cancels the sale entirely
   // Uses ALL-TIME avg cost per variant, not today's purchase cost
+  const refundedQty = {};
+  for (const r of refunds) {
+    refundedQty[r.variant_id] = (refundedQty[r.variant_id] ?? 0) + Number(r.quantity);
+  }
   const grossProfit = sales.reduce((s, r) => {
     const vid     = r.variant_id;
     const avgCost = variantAvgCosts[vid] ?? 0;
-    return s + (Number(r.sell_price) - avgCost) * Number(r.quantity);
-  }, 0) - totalRefunds;
+    const netQty  = Number(r.quantity) - (refundedQty[vid] ?? 0);
+    return s + (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
+  }, 0);
   const grossProfitColor = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
 
   // ---- Outer card ----
@@ -189,7 +195,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
 
   // Heading
   const h2 = document.createElement('h2');
-  h2.textContent = `Daily Report — ${formatDate(dateStr)}`;
+  h2.textContent = `Daily Report ï¿½ ${formatDate(dateStr)}`;
   card.appendChild(h2);
 
   // ---- Summary cards ----
@@ -308,10 +314,15 @@ function generatePDF() {
   doc.text('Purchase Cost: '   + fmt(totalCost),       14, 46);
   doc.text('Refunds: '         + fmt(totalRefunds),    14, 54);
   doc.text('Net: '             + fmt(net),              14, 62);
+  const pdfRefundedQty = {};
+  for (const r of refundsData) {
+    pdfRefundedQty[r.variant_id] = (pdfRefundedQty[r.variant_id] ?? 0) + Number(r.quantity);
+  }
   const gpPDF = salesData.reduce((s, r) => {
     const avgCost = avgCosts[r.variant_id] ?? 0;
-    return s + (Number(r.sell_price) - avgCost) * Number(r.quantity);
-  }, 0) - totalRefunds;
+    const netQty  = Number(r.quantity) - (pdfRefundedQty[r.variant_id] ?? 0);
+    return s + (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
+  }, 0);
   doc.text('Gross Profit: '   + fmt(gpPDF),             14, 70);
 
   let y = 75;
