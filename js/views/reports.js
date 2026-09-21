@@ -186,7 +186,9 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
     const vid     = r.variant_id;
     const avgCost = variantAvgCosts[vid] ?? 0;
     const netQty  = Number(r.quantity) - (refundedQty[vid] ?? 0);
-    return s + (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
+    const contrib = (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
+    console.log('[GP row]', vid, 'sell:', r.sell_price, 'avgCost:', avgCost, 'netQty:', netQty, 'contrib:', contrib);
+    return s + contrib;
   }, 0);
   const grossProfitColor = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
 
