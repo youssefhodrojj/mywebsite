@@ -533,7 +533,7 @@ export async function getSalesForDate(dateStr) {
   const { data, error } = await supabaseClient
     .from('sale_records')
     .select(`
-      id, quantity, sell_price, sold_at,
+      id, variant_id, quantity, sell_price, sold_at,
       variants!inner(
         id, attributes,
         products!inner(id, name)
@@ -571,7 +571,7 @@ export async function getRefundsForDate(dateStr) {
   const { data, error } = await supabaseClient
     .from('refunds')
     .select(`
-      id, quantity, refund_price, reason, refunded_at,
+      id, variant_id, quantity, refund_price, reason, refunded_at,
       variants!inner(
         id, attributes,
         products!inner(id, name)
