@@ -15,6 +15,31 @@
  */
 
 import { getSalesForDate, getPurchasesForDate, getRefundsForDate, showToast } from '../db.js';
+import { supabaseClient } from '../supabase.js';
+
+// Helper: get avg cost per unit for each variant (all-time, not just today)
+async function getVariantAvgCosts() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('purchase_batches')
+      .select('variant_id, quantity, cost_price');
+    if (error || !data) return {};
+    // Build map: variantId -> avg cost per unit
+    const totals = {};
+    for (const r of data) {
+      if (!totals[r.variant_id]) totals[r.variant_id] = { totalCost: 0, totalUnits: 0 };
+      totals[r.variant_id].totalCost  += Number(r.quantity) * Number(r.cost_price);
+      totals[r.variant_id].totalUnits += Number(r.quantity);
+    }
+    const avgCosts = {};
+    for (const [vid, t] of Object.entries(totals)) {
+      avgCosts[vid] = t.totalUnits > 0 ? t.totalCost / t.totalUnits : 0;
+    }
+    return avgCosts;
+  } catch {
+    return {};
+  }
+}
 
 // ---------------------------------------------------------------------------
 // DOM helpers
@@ -138,8 +163,9 @@ function buildTable(headers, rowMapper, rows) {
  * @param {any[]}   sales
  * @param {any[]}   purchases
  * @param {any[]}   refunds
+ * @param {object}  variantAvgCosts  map of variantId -> avg cost per unit (all-time)
  */
-function renderReport(dateStr, sales, purchases, refunds) {
+function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) {
   const container = getReportContent();
   if (!container) return;
 
@@ -148,13 +174,14 @@ function renderReport(dateStr, sales, purchases, refunds) {
   const totalRefunds = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
   const net          = totalRevenue - totalCost - totalRefunds;
 
-  // Gross Profit = Revenue - (avg cost per unit x units sold)
-  // avg cost = total purchase cost / total units purchased this day
-  const totalUnitsPurchased = purchases.reduce((s, r) => s + Number(r.quantity), 0);
-  const totalUnitsSold      = sales.reduce((s, r) => s + Number(r.quantity), 0);
-  const avgCostPerUnit      = totalUnitsPurchased > 0 ? totalCost / totalUnitsPurchased : 0;
-  const grossProfit         = totalRevenue - totalRefunds - (avgCostPerUnit * totalUnitsSold);
-  const grossProfitColor    = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
+  // Gross Profit = sum of (sell_price - avg_cost_per_unit) × qty for each sale
+  // Uses ALL-TIME avg cost per variant, not today's purchase cost
+  const grossProfit = sales.reduce((s, r) => {
+    const vid     = r.variant_id;
+    const avgCost = variantAvgCosts[vid] ?? 0;
+    return s + (Number(r.sell_price) - avgCost) * Number(r.quantity);
+  }, 0) - totalRefunds;
+  const grossProfitColor = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
 
   // ---- Outer card ----
   const card = document.createElement('div');
@@ -261,7 +288,7 @@ function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const { date: dateStr, sales: salesData, purchases: purchasesData, refunds: refundsData } = reportData;
+  const { date: dateStr, sales: salesData, purchases: purchasesData, refunds: refundsData, variantAvgCosts: avgCosts = {} } = reportData;
 
   const totalRevenue = salesData.reduce((s, r)    => s + Number(r.quantity) * Number(r.sell_price),    0);
   const totalCost    = purchasesData.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price),   0);
@@ -281,13 +308,10 @@ function generatePDF() {
   doc.text('Purchase Cost: '   + fmt(totalCost),       14, 46);
   doc.text('Refunds: '         + fmt(totalRefunds),    14, 54);
   doc.text('Net: '             + fmt(net),              14, 62);
-  const gpPDF = salesData.reduce((s,r)=>s+Number(r.quantity)*Number(r.sell_price),0)
-    - refundsData.reduce((s,r)=>s+Number(r.quantity)*Number(r.refund_price),0)
-    - (purchasesData.reduce((s,r)=>s+Number(r.quantity),0) > 0
-      ? (purchasesData.reduce((s,r)=>s+Number(r.quantity)*Number(r.cost_price),0)
-         / purchasesData.reduce((s,r)=>s+Number(r.quantity),0))
-        * salesData.reduce((s,r)=>s+Number(r.quantity),0)
-      : 0);
+  const gpPDF = salesData.reduce((s, r) => {
+    const avgCost = avgCosts[r.variant_id] ?? 0;
+    return s + (Number(r.sell_price) - avgCost) * Number(r.quantity);
+  }, 0) - totalRefunds;
   doc.text('Gross Profit: '   + fmt(gpPDF),             14, 70);
 
   let y = 75;
@@ -429,14 +453,15 @@ export async function init() {
       fresh.textContent = 'Loadingâ€¦';
 
       try {
-        const [sales, purchases, refunds] = await Promise.all([
+        const [sales, purchases, refunds, variantAvgCosts] = await Promise.all([
           getSalesForDate(date),
           getPurchasesForDate(date),
           getRefundsForDate(date),
+          getVariantAvgCosts(),
         ]);
 
-        reportData = { date, sales, purchases, refunds };
-        renderReport(date, sales, purchases, refunds);
+        reportData = { date, sales, purchases, refunds, variantAvgCosts };
+        renderReport(date, sales, purchases, refunds, variantAvgCosts);
 
         const pdf = getBtnPDF();
         if (pdf) pdf.disabled = false;
