@@ -635,12 +635,23 @@ export async function getMonthlyPurchaseStats() {
 // 12. Dashboard all-time stats (fast batch queries)
 // ============================================================
 
-// v7 -- includes refunds and corrections, graceful fallback
+// v8 -- async helpers for non-fatal queries
 /**
- * Get all-time totals. Returns all fields with safe defaults.
- * Refunds restore stock and reduce revenue. Corrections adjust cost.
+ * Get all-time totals. Refunds restore stock and reduce revenue. Corrections adjust cost.
+ * Tables/columns added in migration_v2 are fetched with graceful fallback.
  */
 export async function getDashboardStats() {
+
+  // Helper: run a supabase query and return {data, error} without throwing
+  async function safeQuery(queryBuilder) {
+    try {
+      const result = await queryBuilder;
+      return result;
+    } catch (e) {
+      return { data: [], error: e };
+    }
+  }
+
   const [
     productsRes,
     variantsRes,
@@ -649,14 +660,14 @@ export async function getDashboardStats() {
     correctionsRes,
     refundsRes,
   ] = await Promise.all([
-    supabaseClient.from('products').select('id', { count: 'exact', head: true }),
-    supabaseClient.from('variants').select('id, product_id', { count: 'exact' }),
-    supabaseClient.from('purchase_batches').select('variant_id, quantity, cost_price'),
-    supabaseClient.from('sale_records').select('variant_id, quantity, sell_price'),
+    safeQuery(supabaseClient.from('products').select('id', { count: 'exact', head: true })),
+    safeQuery(supabaseClient.from('variants').select('id, product_id', { count: 'exact' })),
+    safeQuery(supabaseClient.from('purchase_batches').select('variant_id, quantity, cost_price')),
+    safeQuery(supabaseClient.from('sale_records').select('variant_id, quantity, sell_price')),
     // Non-fatal: cost_per_unit column only exists after migration_v2
-    supabaseClient.from('stock_corrections').select('variant_id, adjustment, cost_per_unit').catch(() => ({ data: [], error: null })),
+    safeQuery(supabaseClient.from('stock_corrections').select('variant_id, adjustment, cost_per_unit')),
     // Non-fatal: refunds table only exists after migration_v2
-    supabaseClient.from('refunds').select('variant_id, quantity, refund_price').catch(() => ({ data: [], error: null })),
+    safeQuery(supabaseClient.from('refunds').select('variant_id, quantity, refund_price')),
   ]);
 
   if (productsRes.error) throw new Error(productsRes.error.message);
@@ -666,9 +677,9 @@ export async function getDashboardStats() {
 
   const purchases   = purchasesRes.data ?? [];
   const sales       = salesRes.data ?? [];
-  // If corrections or refunds query failed (table/column not yet created), treat as empty
-  const corrections = (!correctionsRes.error ? correctionsRes.data : null) ?? [];
-  const refunds     = (!refundsRes.error ? refundsRes.data : null) ?? [];
+  // If corrections or refunds failed (table/column not yet created), treat as empty
+  const corrections = correctionsRes.error ? [] : (correctionsRes.data ?? []);
+  const refunds     = refundsRes.error     ? [] : (refundsRes.data     ?? []);
 
   const totalProducts = productsRes.count ?? 0;
   const totalVariants = variantsRes.data?.length ?? 0;
@@ -691,24 +702,21 @@ export async function getDashboardStats() {
     sales.reduce((s, r) => s + Number(r.quantity), 0)
     - refunds.reduce((s, r) => s + Number(r.quantity), 0);
 
-  // Units purchased minus correction write-offs (negative corrections reduce stock)
-  const totalUnitsPurchased =
-    purchases.reduce((s, r) => s + Number(r.quantity), 0)
-    + corrections.reduce((s, c) => s + Number(c.adjustment), 0); // adjustments can be negative
-
-  // Total units in stock = purchased(net) - sold(net) + refunded
-  const totalUnitsInStock = totalUnitsPurchased - totalUnitsSold;
+  // Units in stock = purchased + corrections - sold + refunds
+  const totalUnitsPurchased = purchases.reduce((s, r) => s + Number(r.quantity), 0);
+  const totalCorrectionUnits = corrections.reduce((s, c) => s + Number(c.adjustment), 0);
+  const totalRefundedUnits = refunds.reduce((s, r) => s + Number(r.quantity), 0);
+  const totalUnitsInStock = totalUnitsPurchased + totalCorrectionUnits - totalUnitsSold;
 
   // Low stock count per variant
   const allVariantIds = (variantsRes.data ?? []).map(v => v.id);
   let lowStockCount = 0;
 
   if (allVariantIds.length > 0) {
-    // Build maps for fast lookup
-    const purchaseMap    = {};
-    const salesMap       = {};
-    const correctionMap  = {};
-    const refundMap      = {};
+    const purchaseMap   = {};
+    const salesMap      = {};
+    const correctionMap = {};
+    const refundMap     = {};
 
     for (const r of purchases) {
       purchaseMap[r.variant_id] = (purchaseMap[r.variant_id] ?? 0) + Number(r.quantity);
@@ -725,10 +733,10 @@ export async function getDashboardStats() {
 
     for (const variantId of allVariantIds) {
       const remaining =
-        (purchaseMap[variantId] ?? 0)
-        - (salesMap[variantId] ?? 0)
+        (purchaseMap[variantId]   ?? 0)
+        - (salesMap[variantId]    ?? 0)
         + (correctionMap[variantId] ?? 0)
-        + (refundMap[variantId] ?? 0);  // refunds restore stock
+        + (refundMap[variantId]   ?? 0);
       if (remaining <= 0) lowStockCount++;
     }
   }
