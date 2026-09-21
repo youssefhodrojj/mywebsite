@@ -1,4 +1,4 @@
-// v3 -- fast batch queries
+// v7 -- safe defaults, refunds + corrections
 /**
  * Dashboard view -- uses batch queries for speed instead of nested per-variant loops.
  */
@@ -31,7 +31,17 @@ export async function init() {
       getMonthlyPurchaseStats(),
     ]);
 
-    const allTimeProfit  = stats.totalSalesRevenue - stats.totalPurchaseCost;
+    // Safe defaults in case db.js returns an older shape without new fields
+    const safeStats = {
+      totalProducts:      stats.totalProducts      ?? 0,
+      totalVariants:      stats.totalVariants       ?? 0,
+      lowStockCount:      stats.lowStockCount       ?? 0,
+      totalUnitsSold:     stats.totalUnitsSold      ?? 0,
+      totalUnitsInStock:  stats.totalUnitsInStock   ?? 0,
+      totalSalesRevenue:  stats.totalSalesRevenue   ?? 0,
+      totalPurchaseCost:  stats.totalPurchaseCost   ?? 0,
+    };
+    const allTimeProfit  = safeStats.totalSalesRevenue - safeStats.totalPurchaseCost;
     const monthProfit    = monthlySales.revenue    - monthlyPurchases.cost;
 
     const profitColor  = (v) => v >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
@@ -47,15 +57,15 @@ export async function init() {
       <div class="form-row" style="flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Products</p>
-          <p style="font-size:2rem; font-weight:700;">${stats.totalProducts}</p>
+          <p style="font-size:2rem; font-weight:700;">${safeStats.totalProducts}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Variants</p>
-          <p style="font-size:2rem; font-weight:700;">${stats.totalVariants}</p>
+          <p style="font-size:2rem; font-weight:700;">${safeStats.totalVariants}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Low / Out of Stock</p>
-          <p style="font-size:2rem; font-weight:700; color:var(--color-danger);">${stats.lowStockCount}</p>
+          <p style="font-size:2rem; font-weight:700; color:var(--color-danger);">${safeStats.lowStockCount}</p>
         </div>
       </div>
 
@@ -87,19 +97,19 @@ export async function init() {
       <div class="form-row" style="flex-wrap:wrap; gap:1rem;">
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units Sold (net)</p>
-          <p style="font-size:2rem; font-weight:700;">${stats.totalUnitsSold.toLocaleString()}</p>
+          <p style="font-size:2rem; font-weight:700;">${safeStats.totalUnitsSold.toLocaleString()}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units in Stock</p>
-          <p style="font-size:2rem; font-weight:700; color:${stats.totalUnitsInStock > 0 ? 'var(--color-success)' : 'var(--color-danger)'};">${stats.totalUnitsInStock.toLocaleString()}</p>
+          <p style="font-size:2rem; font-weight:700; color:${safeStats.totalUnitsInStock > 0 ? 'var(--color-success)' : 'var(--color-danger)'};">${safeStats.totalUnitsInStock.toLocaleString()}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Revenue (net)</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${fmt(stats.totalSalesRevenue)}</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${fmt(safeStats.totalSalesRevenue)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Cost (net)</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-primary);">${fmt(stats.totalPurchaseCost)}</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-primary);">${fmt(safeStats.totalPurchaseCost)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Net Profit</p>

@@ -635,9 +635,10 @@ export async function getMonthlyPurchaseStats() {
 // 12. Dashboard all-time stats (fast batch queries)
 // ============================================================
 
+// v7 -- includes refunds and corrections, graceful fallback
 /**
- * Get all-time totals in 3 parallel queries instead of N*M serial loops.
- * Returns: { totalPurchaseCost, totalSalesRevenue, totalUnitsSold, lowStockVariants, totalProducts, totalVariants }
+ * Get all-time totals. Returns all fields with safe defaults.
+ * Refunds restore stock and reduce revenue. Corrections adjust cost.
  */
 export async function getDashboardStats() {
   const [
