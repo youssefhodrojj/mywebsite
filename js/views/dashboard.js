@@ -64,6 +64,10 @@ export async function init() {
           <p style="font-size:2rem; font-weight:700;">${safeStats.totalVariants}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units in Stock</p>
+          <p style="font-size:2rem; font-weight:700; color:${safeStats.totalUnitsInStock > 0 ? 'var(--color-success)' : 'var(--color-danger)'};">${safeStats.totalUnitsInStock.toLocaleString()}</p>
+        </div>
+        <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Low / Out of Stock</p>
           <p style="font-size:2rem; font-weight:700; color:var(--color-danger);">${safeStats.lowStockCount}</p>
         </div>
@@ -98,10 +102,6 @@ export async function init() {
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units Sold (net)</p>
           <p style="font-size:2rem; font-weight:700;">${safeStats.totalUnitsSold.toLocaleString()}</p>
-        </div>
-        <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
-          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units in Stock</p>
-          <p style="font-size:2rem; font-weight:700; color:${safeStats.totalUnitsInStock > 0 ? 'var(--color-success)' : 'var(--color-danger)'};">${safeStats.totalUnitsInStock.toLocaleString()}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Revenue (net)</p>
