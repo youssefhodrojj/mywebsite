@@ -86,15 +86,19 @@ export async function init() {
       <p style="font-size:0.8rem; text-transform:uppercase; color:var(--color-text-muted); letter-spacing:0.05em; margin-bottom:0.75rem;">All Time</p>
       <div class="form-row" style="flex-wrap:wrap; gap:1rem;">
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
-          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units Sold</p>
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units Sold (net)</p>
           <p style="font-size:2rem; font-weight:700;">${stats.totalUnitsSold.toLocaleString()}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
-          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Total Revenue</p>
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Units in Stock</p>
+          <p style="font-size:2rem; font-weight:700; color:${stats.totalUnitsInStock > 0 ? 'var(--color-success)' : 'var(--color-danger)'};">${stats.totalUnitsInStock.toLocaleString()}</p>
+        </div>
+        <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Revenue (net)</p>
           <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${fmt(stats.totalSalesRevenue)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
-          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Total Cost</p>
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Cost (net)</p>
           <p style="font-size:1.5rem; font-weight:700; color:var(--color-primary);">${fmt(stats.totalPurchaseCost)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">

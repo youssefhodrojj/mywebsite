@@ -22,6 +22,7 @@ import {
   getSalesByVariant,
   getPurchasesByVariant,
   getCorrectionsByVariant,
+  getRefundsByVariant,
   createSaleRecord,
   showToast,
 } from '../db.js';
@@ -435,12 +436,13 @@ export async function init() {
       // ---- Compute projected remaining stock (Req 5.6) ----
       let projected = null;
       try {
-        const [purchases, existingSales, corrections] = await Promise.all([
+        const [purchases, existingSales, corrections, existingRefunds] = await Promise.all([
           getPurchasesByVariant(variantId),
           getSalesByVariant(variantId),
           getCorrectionsByVariant(variantId),
+          getRefundsByVariant(variantId),
         ]);
-        const currentStock = computeRemainingStock(purchases, existingSales, corrections);
+        const currentStock = computeRemainingStock(purchases, existingSales, corrections, existingRefunds);
         projected = currentStock - quantity;
       } catch (err) {
         // Non-fatal: skip the warning check and proceed

@@ -9,6 +9,7 @@ import {
   getPurchasesByVariant,
   getSalesByVariant,
   getCorrectionsByVariant,
+  getRefundsByVariant,
 } from '../db.js';
 import { computeRemainingStock, isLowStock } from '../stock.js';
 
@@ -149,17 +150,18 @@ export async function init() {
 
     _rows = await Promise.all(
       pairs.map(async ({ product, variant }) => {
-        const [purchases, sales, corrections] = await Promise.all([
+        const [purchases, sales, corrections, refunds] = await Promise.all([
           getPurchasesByVariant(variant.id),
           getSalesByVariant(variant.id),
           getCorrectionsByVariant(variant.id),
+          getRefundsByVariant(variant.id),
         ]);
         return {
           productId:         product.id,
           productName:       product.name,
           variantId:         variant.id,
           variantAttributes: variant.attributes,
-          remainingStock:    computeRemainingStock(purchases, sales, corrections),
+          remainingStock:    computeRemainingStock(purchases, sales, corrections, refunds),
         };
       })
     );

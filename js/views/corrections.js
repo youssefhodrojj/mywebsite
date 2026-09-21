@@ -17,6 +17,7 @@ import {
   getCorrectionsByVariant,
   getPurchasesByVariant,
   getSalesByVariant,
+  getRefundsByVariant,
   createStockCorrection,
   showToast,
 } from '../db.js';
@@ -382,12 +383,13 @@ export async function init() {
     // ── 4d. Compute current remaining stock ───────────────────────────
     let currentStock;
     try {
-      const [purchases, sales, corrections] = await Promise.all([
+      const [purchases, sales, corrections, refunds] = await Promise.all([
         getPurchasesByVariant(variantId),
         getSalesByVariant(variantId),
         getCorrectionsByVariant(variantId),
+        getRefundsByVariant(variantId),
       ]);
-      currentStock = computeRemainingStock(purchases, sales, corrections);
+      currentStock = computeRemainingStock(purchases, sales, corrections, refunds);
     } catch (err) {
       showToast(`Failed to fetch stock data: ${err.message}`);
       return;

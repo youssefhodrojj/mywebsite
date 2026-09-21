@@ -640,28 +640,20 @@ export async function getMonthlyPurchaseStats() {
  * Returns: { totalPurchaseCost, totalSalesRevenue, totalUnitsSold, lowStockVariants, totalProducts, totalVariants }
  */
 export async function getDashboardStats() {
-  // Run all independent queries in parallel
   const [
     productsRes,
     variantsRes,
     purchasesRes,
     salesRes,
+    correctionsRes,
+    refundsRes,
   ] = await Promise.all([
-    supabaseClient
-      .from('products')
-      .select('id', { count: 'exact', head: true }),
-
-    supabaseClient
-      .from('variants')
-      .select('id, product_id', { count: 'exact' }),
-
-    supabaseClient
-      .from('purchase_batches')
-      .select('quantity, cost_price'),
-
-    supabaseClient
-      .from('sale_records')
-      .select('quantity, sell_price'),
+    supabaseClient.from('products').select('id', { count: 'exact', head: true }),
+    supabaseClient.from('variants').select('id, product_id', { count: 'exact' }),
+    supabaseClient.from('purchase_batches').select('variant_id, quantity, cost_price'),
+    supabaseClient.from('sale_records').select('variant_id, quantity, sell_price'),
+    supabaseClient.from('stock_corrections').select('variant_id, adjustment, cost_per_unit'),
+    supabaseClient.from('refunds').select('variant_id, quantity, refund_price'),
   ]);
 
   if (productsRes.error) throw new Error(productsRes.error.message);
@@ -669,42 +661,70 @@ export async function getDashboardStats() {
   if (purchasesRes.error) throw new Error(purchasesRes.error.message);
   if (salesRes.error) throw new Error(salesRes.error.message);
 
-  const totalProducts     = productsRes.count ?? 0;
-  const totalVariants     = variantsRes.data?.length ?? 0;
-  const totalPurchaseCost = (purchasesRes.data ?? []).reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
-  const totalSalesRevenue = (salesRes.data ?? []).reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
-  const totalUnitsSold    = (salesRes.data ?? []).reduce((s, r) => s + Number(r.quantity), 0);
+  const purchases   = purchasesRes.data ?? [];
+  const sales       = salesRes.data ?? [];
+  const corrections = correctionsRes.data ?? [];
+  const refunds     = refundsRes.data ?? [];
 
-  // Low stock: need remaining stock per variant -- use the 3-table approach
-  // But do it in parallel across all variants at once
+  const totalProducts = productsRes.count ?? 0;
+  const totalVariants = variantsRes.data?.length ?? 0;
+
+  // Purchase cost minus correction write-offs
+  const totalPurchaseCost =
+    purchases.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0)
+    - corrections
+        .filter(c => Number(c.adjustment) < 0 && Number(c.cost_per_unit) > 0)
+        .reduce((s, c) => s + Math.abs(Number(c.adjustment)) * Number(c.cost_per_unit), 0);
+
+  // Sales revenue minus refund amounts
+  const totalRefundAmount = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
+  const totalSalesRevenue =
+    sales.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0)
+    - totalRefundAmount;
+
+  // Units sold minus refunded units
+  const totalUnitsSold =
+    sales.reduce((s, r) => s + Number(r.quantity), 0)
+    - refunds.reduce((s, r) => s + Number(r.quantity), 0);
+
+  // Units purchased minus correction write-offs (negative corrections reduce stock)
+  const totalUnitsPurchased =
+    purchases.reduce((s, r) => s + Number(r.quantity), 0)
+    + corrections.reduce((s, c) => s + Number(c.adjustment), 0); // adjustments can be negative
+
+  // Total units in stock = purchased(net) - sold(net) + refunded
+  const totalUnitsInStock = totalUnitsPurchased - totalUnitsSold;
+
+  // Low stock count per variant
   const allVariantIds = (variantsRes.data ?? []).map(v => v.id);
-
   let lowStockCount = 0;
-  if (allVariantIds.length > 0) {
-    const [allPurchases, allSales, allCorrections] = await Promise.all([
-      supabaseClient.from('purchase_batches').select('variant_id, quantity'),
-      supabaseClient.from('sale_records').select('variant_id, quantity'),
-      supabaseClient.from('stock_corrections').select('variant_id, adjustment'),
-    ]);
 
-    // Build maps: variantId -> total
-    const purchaseMap = {};
-    for (const r of allPurchases.data ?? []) {
+  if (allVariantIds.length > 0) {
+    // Build maps for fast lookup
+    const purchaseMap    = {};
+    const salesMap       = {};
+    const correctionMap  = {};
+    const refundMap      = {};
+
+    for (const r of purchases) {
       purchaseMap[r.variant_id] = (purchaseMap[r.variant_id] ?? 0) + Number(r.quantity);
     }
-    const salesMap = {};
-    for (const r of allSales.data ?? []) {
+    for (const r of sales) {
       salesMap[r.variant_id] = (salesMap[r.variant_id] ?? 0) + Number(r.quantity);
     }
-    const correctionMap = {};
-    for (const r of allCorrections.data ?? []) {
+    for (const r of corrections) {
       correctionMap[r.variant_id] = (correctionMap[r.variant_id] ?? 0) + Number(r.adjustment);
+    }
+    for (const r of refunds) {
+      refundMap[r.variant_id] = (refundMap[r.variant_id] ?? 0) + Number(r.quantity);
     }
 
     for (const variantId of allVariantIds) {
-      const remaining = (purchaseMap[variantId] ?? 0)
+      const remaining =
+        (purchaseMap[variantId] ?? 0)
         - (salesMap[variantId] ?? 0)
-        + (correctionMap[variantId] ?? 0);
+        + (correctionMap[variantId] ?? 0)
+        + (refundMap[variantId] ?? 0);  // refunds restore stock
       if (remaining <= 0) lowStockCount++;
     }
   }
@@ -715,6 +735,8 @@ export async function getDashboardStats() {
     totalPurchaseCost,
     totalSalesRevenue,
     totalUnitsSold,
+    totalUnitsPurchased,
+    totalUnitsInStock,
     lowStockCount,
   };
 }

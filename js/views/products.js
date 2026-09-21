@@ -18,6 +18,7 @@ import {
   getPurchasesByVariant,
   getSalesByVariant,
   getCorrectionsByVariant,
+  getRefundsByVariant,
   getProductDeletionImpact,
   showToast,
 } from '../db.js';
@@ -180,12 +181,13 @@ function buildAttrPairRow(keyVal = '', valueVal = '') {
  * @returns {Promise<number>}
  */
 async function fetchVariantStock(variantId) {
-  const [purchases, sales, corrections] = await Promise.all([
+  const [purchases, sales, corrections, refunds] = await Promise.all([
     getPurchasesByVariant(variantId),
     getSalesByVariant(variantId),
     getCorrectionsByVariant(variantId),
+    getRefundsByVariant(variantId),
   ]);
-  return computeRemainingStock(purchases, sales, corrections);
+  return computeRemainingStock(purchases, sales, corrections, refunds);
 }
 
 // ---------------------------------------------------------------------------
