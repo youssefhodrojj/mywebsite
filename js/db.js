@@ -652,8 +652,10 @@ export async function getDashboardStats() {
     supabaseClient.from('variants').select('id, product_id', { count: 'exact' }),
     supabaseClient.from('purchase_batches').select('variant_id, quantity, cost_price'),
     supabaseClient.from('sale_records').select('variant_id, quantity, sell_price'),
-    supabaseClient.from('stock_corrections').select('variant_id, adjustment, cost_per_unit'),
-    supabaseClient.from('refunds').select('variant_id, quantity, refund_price'),
+    // Non-fatal: cost_per_unit column only exists after migration_v2
+    supabaseClient.from('stock_corrections').select('variant_id, adjustment, cost_per_unit').catch(() => ({ data: [], error: null })),
+    // Non-fatal: refunds table only exists after migration_v2
+    supabaseClient.from('refunds').select('variant_id, quantity, refund_price').catch(() => ({ data: [], error: null })),
   ]);
 
   if (productsRes.error) throw new Error(productsRes.error.message);
@@ -663,8 +665,9 @@ export async function getDashboardStats() {
 
   const purchases   = purchasesRes.data ?? [];
   const sales       = salesRes.data ?? [];
-  const corrections = correctionsRes.data ?? [];
-  const refunds     = refundsRes.data ?? [];
+  // If corrections or refunds query failed (table/column not yet created), treat as empty
+  const corrections = (!correctionsRes.error ? correctionsRes.data : null) ?? [];
+  const refunds     = (!refundsRes.error ? refundsRes.data : null) ?? [];
 
   const totalProducts = productsRes.count ?? 0;
   const totalVariants = variantsRes.data?.length ?? 0;
