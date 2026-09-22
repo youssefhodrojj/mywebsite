@@ -1097,4 +1097,3 @@ export async function getInStockVariantsByProduct() {
   }
   return Object.values(productMap).sort((a, b) => a.productName.localeCompare(b.productName));
 }
-}
