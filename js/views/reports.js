@@ -36,7 +36,7 @@ async function getVariantAvgCosts() {
       avgCosts[vid] = t.totalUnits > 0 ? t.totalCost / t.totalUnits : 0;
     }
     return avgCosts;
-    return avgCosts;
+    // (end of getVariantAvgCosts)
   } catch (e) {
     console.warn('[getVariantAvgCosts] exception:', e); return {};
   }
@@ -198,7 +198,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}, 
 
   // Heading
   const h2 = document.createElement('h2');
-  h2.textContent = Daily Report \u25c6 ;
+  h2.textContent = `Daily Report \u25c6 ${formatDate(dateStr)}`;
   card.appendChild(h2);
 
   // ---- Summary cards ----
