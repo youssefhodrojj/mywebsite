@@ -173,7 +173,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}, 
   const totalRevenue = sales.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
   const totalCost    = purchases.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
   const totalRefunds = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
-  const net          = totalRevenue - totalCost - totalRefunds;
+  const net          = totalRevenue - totalCost - totalRefunds - totalExpenses;
   const totalExpenses = expenses.reduce((s, r) => s + Number(r.amount), 0);
 
   // Gross Profit = (sell_price - avg_cost) x net_qty per variant
@@ -337,8 +337,8 @@ function generatePDF() {
   const totalRevenue = salesData.reduce((s, r)    => s + Number(r.quantity) * Number(r.sell_price),    0);
   const totalCost    = purchasesData.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price),   0);
   const totalRefunds = refundsData.reduce((s, r)  => s + Number(r.quantity) * Number(r.refund_price),  0);
-  const net          = totalRevenue - totalCost - totalRefunds;
   const totalExpenses = expensesData.reduce((s, r) => s + Number(r.amount), 0);
+  const net          = totalRevenue - totalCost - totalRefunds - totalExpenses;
 
   // ---- Title ----
   doc.setFontSize(16);
