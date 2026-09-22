@@ -117,7 +117,7 @@ export async function init() {
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Expenses</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-danger);">-\</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-danger);">${fmt(safeMonthExpenses)}</p>
         </div>
       </div>
 
@@ -145,7 +145,7 @@ export async function init() {
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Expenses</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-danger);">-\</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-danger);">${fmt(safeAllTimeExpenses)}</p>
         </div>
       </div>`;
 

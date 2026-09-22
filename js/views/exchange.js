@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Exchange view — swap one variant for another.
  *
  * Stock effect:
@@ -195,13 +195,8 @@ async function loadHistory() {
 export async function init() {
   setError(null);
 
-  const outProductEl   = document.getElementById('exchange-out-product');
-  const outVariantEl   = document.getElementById('exchange-out-variant');
-  const inProductEl    = document.getElementById('exchange-in-product');
-  const inVariantEl    = document.getElementById('exchange-in-variant');
-  const dateEl         = document.getElementById('exchange-date');
-  const form           = document.getElementById('form-add-exchange');
-
+  const form  = document.getElementById('form-add-exchange');
+  const dateEl = document.getElementById('exchange-date');
   if (!form) return;
 
   // Default date
@@ -209,27 +204,33 @@ export async function init() {
     dateEl.value = new Date().toISOString().slice(0, 10);
   }
 
-  // Populate product dropdowns
+  // Populate both product dropdowns in parallel
   try {
     await Promise.all([
-      populateProductSelect(outProductEl),
-      populateProductSelect(inProductEl),
+      populateProductSelect(document.getElementById('exchange-out-product')),
+      populateProductSelect(document.getElementById('exchange-in-product')),
     ]);
   } catch (err) {
     setError(`Could not load products: ${err.message}`);
   }
 
-  // Wire out-product → out-variant cascade (idempotent via cloneNode)
-  const freshOutProduct = outProductEl.cloneNode(true);
-  outProductEl.parentNode?.replaceChild(freshOutProduct, outProductEl);
-  // Re-populate after clone
-  await populateProductSelect(freshOutProduct).catch(() => {});
-  freshOutProduct.addEventListener('change', () => populateVariantSelect(outVariantEl, freshOutProduct.value));
+  // Wire out-product -> out-variant cascade
+  // Use cloneNode only on the select that needs it; re-look up variant select by id at event time
+  const outProd = document.getElementById('exchange-out-product');
+  const freshOutProd = outProd.cloneNode(true);
+  outProd.parentNode?.replaceChild(freshOutProd, outProd);
+  await populateProductSelect(freshOutProd).catch(() => {});
+  freshOutProd.addEventListener('change', () => {
+    populateVariantSelect(document.getElementById('exchange-out-variant'), freshOutProd.value);
+  });
 
-  const freshInProduct = inProductEl.cloneNode(true);
-  inProductEl.parentNode?.replaceChild(freshInProduct, inProductEl);
-  await populateProductSelect(freshInProduct).catch(() => {});
-  freshInProduct.addEventListener('change', () => populateVariantSelect(inVariantEl, freshInProduct.value));
+  const inProd = document.getElementById('exchange-in-product');
+  const freshInProd = inProd.cloneNode(true);
+  inProd.parentNode?.replaceChild(freshInProd, inProd);
+  await populateProductSelect(freshInProd).catch(() => {});
+  freshInProd.addEventListener('change', () => {
+    populateVariantSelect(document.getElementById('exchange-in-variant'), freshInProd.value);
+  });
 
   // Wire form submit (idempotent)
   const freshForm = form.cloneNode(true);
@@ -239,27 +240,33 @@ export async function init() {
     e.preventDefault();
     setError(null);
 
-    const outVariantId   = document.getElementById('exchange-out-variant')?.value;
-    const inVariantId    = document.getElementById('exchange-in-variant')?.value;
-    const quantity       = parseInt(document.getElementById('exchange-quantity')?.value, 10);
-    const priceCorr      = parseFloat(document.getElementById('exchange-price-correction')?.value || '0');
-    const exchangeDate   = document.getElementById('exchange-date')?.value;
-    const note           = document.getElementById('exchange-note')?.value?.trim();
+    const outVariantId = document.getElementById('exchange-out-variant')?.value;
+    const inVariantId  = document.getElementById('exchange-in-variant')?.value;
+    const quantity     = parseInt(document.getElementById('exchange-quantity')?.value, 10);
+    const priceCorr    = parseFloat(document.getElementById('exchange-price-correction')?.value || '0');
+    const exchangeDate = document.getElementById('exchange-date')?.value;
+    const note         = document.getElementById('exchange-note')?.value?.trim();
 
-    if (!outVariantId) { setError('Please select the outgoing product variant.'); return; }
-    if (!inVariantId)  { setError('Please select the incoming product variant.'); return; }
+    if (!outVariantId)              { setError('Please select the outgoing product variant.'); return; }
+    if (!inVariantId)               { setError('Please select the incoming product variant.');  return; }
     if (outVariantId === inVariantId) { setError('Outgoing and incoming variants must be different.'); return; }
-    if (!quantity || quantity < 1)   { setError('Quantity must be at least 1.'); return; }
-    if (!exchangeDate)               { setError('Please select a date.'); return; }
+    if (!quantity || quantity < 1)  { setError('Quantity must be at least 1.'); return; }
+    if (!exchangeDate)              { setError('Please select a date.'); return; }
 
     const submitBtn = freshForm.querySelector('button[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving…'; }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving\u2026'; }
 
     try {
       await createExchange({ outVariantId, inVariantId, quantity, priceCorrection: isNaN(priceCorr) ? 0 : priceCorr, exchangeDate, note });
       showToast('Exchange recorded.', 'success');
       freshForm.reset();
-      document.getElementById('exchange-date').value = new Date().toISOString().slice(0, 10);
+      const d = document.getElementById('exchange-date');
+      if (d) d.value = new Date().toISOString().slice(0, 10);
+      // Re-populate products after reset
+      await Promise.all([
+        populateProductSelect(document.getElementById('exchange-out-product')),
+        populateProductSelect(document.getElementById('exchange-in-product')),
+      ]).catch(() => {});
       await loadHistory();
     } catch (err) {
       setError(`Failed to save: ${err.message}`);
