@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Delete Entries view module.
  *
  * Allows searching for and deleting wrong sale or purchase entries.
@@ -18,7 +18,7 @@ import {
   deleteSaleRecord,
   deletePurchaseBatch,
   showToast,
-} from '../db.js';
+} from '../db.js?v=12';
 
 // ---------------------------------------------------------------------------
 // DOM helpers — resolved lazily so init() is safe to call before paint

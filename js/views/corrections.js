@@ -1,4 +1,4 @@
-/**
+﻿/**
  * corrections.js — Stock Corrections view module.
  *
  * Wires the #view-corrections section (already in index.html) to the
@@ -20,9 +20,9 @@ import {
   getRefundsByVariant,
   createStockCorrection,
   showToast,
-} from '../db.js';
+} from '../db.js?v=12';
 import { validateStockCorrection } from '../validation.js';
-import { computeRemainingStock } from '../stock.js';
+import { computeRemainingStock } from '../stock.js?v=12';
 
 // ---------------------------------------------------------------------------
 // DOM helpers (resolved lazily so the module can be imported before the DOM

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * products.js — Products & Variants view
  *
  * Renders the full product catalog with nested variants, remaining stock,
@@ -21,10 +21,10 @@ import {
   getRefundsByVariant,
   getProductDeletionImpact,
   showToast,
-} from '../db.js';
+} from '../db.js?v=12';
 
 import { validateProductName, validateVariantAttributes } from '../validation.js';
-import { computeRemainingStock, isLowStock } from '../stock.js';
+import { computeRemainingStock, isLowStock } from '../stock.js?v=12';
 
 // ---------------------------------------------------------------------------
 // DOM helpers

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Expenses view — record and manage business expenses.
  *
  * Two sub-tabs:
@@ -21,8 +21,8 @@
  *     #expense-labels-list
  */
 
-import { showToast } from '../db.js';
-import { supabaseClient } from '../supabase.js';
+import { showToast } from '../db.js?v=12';
+import { supabaseClient } from '../supabase.js?v=12';
 
 // ---------------------------------------------------------------------------
 // DB helpers

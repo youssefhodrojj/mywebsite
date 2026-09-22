@@ -1,4 +1,4 @@
-/**
+﻿/**
  * refunds.js — Refunds view
  *
  * Wires the refund form and history table to the database layer.
@@ -17,7 +17,7 @@ import {
   createRefund,
   deleteRefund,
   showToast,
-} from '../db.js';
+} from '../db.js?v=12';
 
 // ---------------------------------------------------------------------------
 // Helpers

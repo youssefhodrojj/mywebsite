@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Hash-based router for the Stock Management Admin Panel.
  *
  * Handles navigation between views, enforces the authentication guard
@@ -7,7 +7,7 @@
  * Requirements: 1.6
  */
 
-import { getSession, logout, onAuthStateChange } from './auth.js';
+import { getSession, logout, onAuthStateChange } from './auth.js?v=12';
 
 // ---------------------------------------------------------------------------
 // Route -> view-container and view-module mappings
@@ -39,20 +39,20 @@ const VIEW_IDS = {
  * @type {Record<string, () => Promise<{ init: () => void | Promise<void> }>>}
  */
 const ROUTES = {
-  '/login':          () => import('./views/login.js'),
-  '/dashboard':      () => import('./views/dashboard.js'),
-  '/products':       () => import('./views/products.js'),
-  '/purchases':      () => import('./views/purchases.js'),
-  '/corrections':    () => import('./views/corrections.js'),
-  '/sales':          () => import('./views/sales.js'),
-  '/refunds':        () => import('./views/refunds.js'),
-  '/stock':          () => import('./views/stock-view.js'),
-  '/charts':         () => import('./views/charts-view.js'),
-  '/delete-entries': () => import('./views/delete-entries.js'),
-  '/history':        () => import('./views/history.js'),
-  '/reports':        () => import('./views/reports.js'),
-  '/exchange':       () => import('./views/exchange.js'),
-  '/expenses':       () => import('./views/expenses.js'),
+  '/login':          () => import('./views/login.js?v=12'),
+  '/dashboard':      () => import('./views/dashboard.js?v=12'),
+  '/products':       () => import('./views/products.js?v=12'),
+  '/purchases':      () => import('./views/purchases.js?v=12'),
+  '/corrections':    () => import('./views/corrections.js?v=12'),
+  '/sales':          () => import('./views/sales.js?v=12'),
+  '/refunds':        () => import('./views/refunds.js?v=12'),
+  '/stock':          () => import('./views/stock-view.js?v=12'),
+  '/charts':         () => import('./views/charts-view.js?v=12'),
+  '/delete-entries': () => import('./views/delete-entries.js?v=12'),
+  '/history':        () => import('./views/history.js?v=12'),
+  '/reports':        () => import('./views/reports.js?v=12'),
+  '/exchange':       () => import('./views/exchange.js?v=12'),
+  '/expenses':       () => import('./views/expenses.js?v=12'),
 };
 
 /** All routes that require an authenticated session. */

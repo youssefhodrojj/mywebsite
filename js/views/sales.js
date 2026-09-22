@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Sales Recording view module.
  *
  * Wires the #view-sales section (already rendered in index.html) to the
@@ -25,9 +25,9 @@ import {
   getRefundsByVariant,
   createSaleRecord,
   showToast,
-} from '../db.js';
+} from '../db.js?v=12';
 import { validateSaleRecord } from '../validation.js';
-import { computeRemainingStock } from '../stock.js';
+import { computeRemainingStock } from '../stock.js?v=12';
 
 // ---------------------------------------------------------------------------
 // DOM helpers — resolved lazily so init() is safe to call before paint

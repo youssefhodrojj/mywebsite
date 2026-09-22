@@ -1,4 +1,4 @@
-/**
+﻿/**
  * purchases.js — Purchase Batches view
  *
  * Wires the purchase form and history table to the database layer.
@@ -14,7 +14,7 @@ import {
   getPurchasesByVariant,
   createPurchaseBatch,
   showToast,
-} from '../db.js';
+} from '../db.js?v=12';
 import { validatePurchaseBatch } from '../validation.js';
 
 // ---------------------------------------------------------------------------

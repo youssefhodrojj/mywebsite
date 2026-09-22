@@ -1,4 +1,4 @@
-/**
+﻿/**
  * stock-view.js -- Remaining Stock summary view.
  * Uses dropdown selects for product and variant filtering.
  */
@@ -10,9 +10,9 @@ import {
   getSalesByVariant,
   getCorrectionsByVariant,
   getRefundsByVariant,
-} from '../db.js';
-import { computeRemainingStock, isLowStock } from '../stock.js';
-import { supabaseClient } from '../supabase.js';
+} from '../db.js?v=12';
+import { computeRemainingStock, isLowStock } from '../stock.js?v=12';
+import { supabaseClient } from '../supabase.js?v=12';
 
 async function getExchangesByVariant(variantId) {
   // Fetch exchanges where this variant was the out (returned) or in (given) variant
