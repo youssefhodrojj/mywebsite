@@ -30,6 +30,8 @@ const VIEW_IDS = {
   '/delete-entries': 'view-delete-entries',
   '/history':        'view-history',
   '/reports':        'view-reports',
+  '/exchange':       'view-exchange',
+  '/expenses':       'view-expenses',
 };
 
 /**
@@ -49,6 +51,8 @@ const ROUTES = {
   '/delete-entries': () => import('./views/delete-entries.js'),
   '/history':        () => import('./views/history.js'),
   '/reports':        () => import('./views/reports.js'),
+  '/exchange':       () => import('./views/exchange.js'),
+  '/expenses':       () => import('./views/expenses.js'),
 };
 
 /** All routes that require an authenticated session. */

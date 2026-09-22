@@ -14,7 +14,7 @@
  * each call (idempotent).
  */
 
-import { getSalesForDate, getPurchasesForDate, getRefundsForDate, showToast } from '../db.js';
+import { getSalesForDate, getPurchasesForDate, getRefundsForDate, getExpensesForDate, getExchangesForDate, showToast } from '../db.js';
 import { supabaseClient } from '../supabase.js';
 
 // Helper: get avg cost per unit for each variant (all-time, not just today)
@@ -166,7 +166,7 @@ function buildTable(headers, rowMapper, rows) {
  * @param {any[]}   refunds
  * @param {object}  variantAvgCosts  map of variantId -> avg cost per unit (all-time)
  */
-function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) {
+function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}, expenses = [], exchanges = []) {
   const container = getReportContent();
   if (!container) return;
 
@@ -174,6 +174,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
   const totalCost    = purchases.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
   const totalRefunds = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
   const net          = totalRevenue - totalCost - totalRefunds;
+  const totalExpenses = expenses.reduce((s, r) => s + Number(r.amount), 0);
 
   // Gross Profit = (sell_price - avg_cost) x net_qty per variant
   // net_qty = qty_sold - qty_refunded so a full refund cancels the sale entirely
@@ -188,7 +189,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
     const netQty  = Number(r.quantity) - (refundedQty[vid] ?? 0);
     const contrib = (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
     return s + contrib;
-  }, 0);
+  }, 0) - totalExpenses;
   const grossProfitColor = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
 
   // ---- Outer card ----
@@ -197,7 +198,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
 
   // Heading
   const h2 = document.createElement('h2');
-  h2.textContent = `Daily Report � ${formatDate(dateStr)}`;
+  h2.textContent = Daily Report \u25c6 ;
   card.appendChild(h2);
 
   // ---- Summary cards ----
@@ -205,11 +206,12 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
   summary.style.cssText = 'display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;';
 
   const summaryItems = [
-    { label: 'Sales Revenue',  value: fmt(totalRevenue),  color: 'var(--color-success)'  },
-    { label: 'Purchase Cost',  value: fmt(totalCost),     color: 'var(--color-primary)'  },
-    { label: 'Refunds',        value: fmt(totalRefunds),  color: 'var(--color-danger)'   },
-    { label: 'Net',            value: fmt(net),            color: null                   },
-    { label: 'Gross Profit',   value: fmt(grossProfit),   color: grossProfitColor        },
+    { label: 'Sales Revenue',  value: fmt(totalRevenue),   color: 'var(--color-success)'  },
+    { label: 'Purchase Cost',  value: fmt(totalCost),      color: 'var(--color-primary)'  },
+    { label: 'Refunds',        value: fmt(totalRefunds),   color: 'var(--color-danger)'   },
+    { label: 'Expenses',       value: fmt(totalExpenses),  color: 'var(--color-warning)'  },
+    { label: 'Net',            value: fmt(net),             color: null                   },
+    { label: 'Gross Profit',   value: fmt(grossProfit),    color: grossProfitColor        },
   ];
 
   for (const item of summaryItems) {
@@ -274,6 +276,40 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}) 
     refunds,
   ));
 
+  // ---- Expenses table ----
+  const expensesHeading = document.createElement('h3');
+  expensesHeading.style.cssText = 'margin:1rem 0 0.5rem;';
+  expensesHeading.textContent = `Expenses (${expenses.length})`;
+  card.appendChild(expensesHeading);
+  card.appendChild(buildTable(
+    ['Label', 'Note', 'Amount'],
+    r => [
+      r.expense_labels?.name ?? '—',
+      r.note ?? '—',
+      fmt(Number(r.amount)),
+    ],
+    expenses,
+  ));
+
+  // ---- Exchanges table ----
+  const exchangesHeading = document.createElement('h3');
+  exchangesHeading.style.cssText = 'margin:1rem 0 0.5rem;';
+  exchangesHeading.textContent = `Exchanges (${exchanges.length})`;
+  card.appendChild(exchangesHeading);
+  card.appendChild(buildTable(
+    ['Out product', 'Out variant', 'In product', 'In variant', 'Qty', 'Price correction', 'Note'],
+    r => [
+      r.out_variant?.products?.name ?? '—',
+      formatAttributes(r.out_variant?.attributes ?? {}),
+      r.in_variant?.products?.name ?? '—',
+      formatAttributes(r.in_variant?.attributes ?? {}),
+      String(r.quantity),
+      fmt(Number(r.price_correction)),
+      r.note ?? '—',
+    ],
+    exchanges,
+  ));
+
   container.innerHTML = '';
   container.appendChild(card);
 }
@@ -296,12 +332,13 @@ function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const { date: dateStr, sales: salesData, purchases: purchasesData, refunds: refundsData, variantAvgCosts: avgCosts = {} } = reportData;
+  const { date: dateStr, sales: salesData, purchases: purchasesData, refunds: refundsData, variantAvgCosts: avgCosts = {}, expenses: expensesData = [], exchanges: exchangesData = [] } = reportData;
 
   const totalRevenue = salesData.reduce((s, r)    => s + Number(r.quantity) * Number(r.sell_price),    0);
   const totalCost    = purchasesData.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price),   0);
   const totalRefunds = refundsData.reduce((s, r)  => s + Number(r.quantity) * Number(r.refund_price),  0);
   const net          = totalRevenue - totalCost - totalRefunds;
+  const totalExpenses = expensesData.reduce((s, r) => s + Number(r.amount), 0);
 
   // ---- Title ----
   doc.setFontSize(16);
@@ -315,7 +352,8 @@ function generatePDF() {
   doc.text('Sales Revenue: '   + fmt(totalRevenue),    14, 38);
   doc.text('Purchase Cost: '   + fmt(totalCost),       14, 46);
   doc.text('Refunds: '         + fmt(totalRefunds),    14, 54);
-  doc.text('Net: '             + fmt(net),              14, 62);
+  doc.text('Expenses: '        + fmt(totalExpenses),   14, 62);
+  doc.text('Net: '             + fmt(net),              14, 70);
   const pdfRefundedQty = {};
   for (const r of refundsData) {
     pdfRefundedQty[r.variant_id] = (pdfRefundedQty[r.variant_id] ?? 0) + Number(r.quantity);
@@ -324,8 +362,8 @@ function generatePDF() {
     const avgCost = avgCosts[r.variant_id] ?? 0;
     const netQty  = Number(r.quantity) - (pdfRefundedQty[r.variant_id] ?? 0);
     return s + (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
-  }, 0);
-  doc.text('Gross Profit: '   + fmt(gpPDF),             14, 70);
+  }, 0) - totalExpenses;
+  doc.text('Gross Profit: '   + fmt(gpPDF),             14, 78);
 
   let y = 75;
 
@@ -422,6 +460,61 @@ function generatePDF() {
     }
   }
 
+  // ---- Expenses section ----
+  if (expensesData.length > 0) {
+    if (y > 250) { doc.addPage(); y = 20; }
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Expenses (' + expensesData.length + ')', 14, y);
+    y += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Label',  14,  y);
+    doc.text('Note',   80,  y);
+    doc.text('Amount', 165, y);
+    y += 6;
+    doc.line(14, y, 196, y);
+    y += 4;
+    for (const r of expensesData) {
+      if (y > 270) { doc.addPage(); y = 20; }
+      const lname = (r.expense_labels?.name ?? '—').substring(0, 30);
+      const enote = (r.note ?? '—').substring(0, 30);
+      doc.text(lname,                    14,  y);
+      doc.text(enote,                    80,  y);
+      doc.text(fmt(Number(r.amount)),    165, y);
+      y += 6;
+    }
+    y += 6;
+  }
+
+  // ---- Exchanges section ----
+  if (exchangesData.length > 0) {
+    if (y > 250) { doc.addPage(); y = 20; }
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Exchanges (' + exchangesData.length + ')', 14, y);
+    y += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Out',       14,  y);
+    doc.text('In',        90,  y);
+    doc.text('Qty',      150,  y);
+    doc.text('Correction',165, y);
+    y += 6;
+    doc.line(14, y, 196, y);
+    y += 4;
+    for (const r of exchangesData) {
+      if (y > 270) { doc.addPage(); y = 20; }
+      const outName = ((r.out_variant?.products?.name ?? '') + ' ' + formatAttributes(r.out_variant?.attributes ?? {})).substring(0, 35);
+      const inName  = ((r.in_variant?.products?.name  ?? '') + ' ' + formatAttributes(r.in_variant?.attributes  ?? {})).substring(0, 35);
+      doc.text(outName,                        14,  y);
+      doc.text(inName,                         90,  y);
+      doc.text(String(r.quantity),             150, y);
+      doc.text(fmt(Number(r.price_correction)),165, y);
+      y += 6;
+    }
+  }
+
   doc.save('report-' + dateStr + '.pdf');
 }
 
@@ -466,15 +559,17 @@ export async function init() {
       fresh.textContent = 'Loading…';
 
       try {
-        const [sales, purchases, refunds, variantAvgCosts] = await Promise.all([
+        const [sales, purchases, refunds, variantAvgCosts, expenses, exchanges] = await Promise.all([
           getSalesForDate(date),
           getPurchasesForDate(date),
           getRefundsForDate(date),
           getVariantAvgCosts(),
+          getExpensesForDate(date).catch(() => []),
+          getExchangesForDate(date).catch(() => []),
         ]);
 
-        reportData = { date, sales, purchases, refunds, variantAvgCosts };
-        renderReport(date, sales, purchases, refunds, variantAvgCosts);
+        reportData = { date, sales, purchases, refunds, variantAvgCosts, expenses, exchanges };
+        renderReport(date, sales, purchases, refunds, variantAvgCosts, expenses, exchanges);
 
         const pdf = getBtnPDF();
         if (pdf) pdf.disabled = false;

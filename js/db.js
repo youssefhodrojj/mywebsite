@@ -802,24 +802,30 @@ export async function getDashboardStats() {
  * Get all data for export/backup as JSON.
  */
 export async function exportAllData() {
-  const [products, variants, purchases, sales, corrections, refunds] = await Promise.all([
+  const [products, variants, purchases, sales, corrections, refunds, expenseLabels, expensesList, exchangesList] = await Promise.all([
     supabaseClient.from('products').select('*'),
     supabaseClient.from('variants').select('*'),
     supabaseClient.from('purchase_batches').select('*'),
     supabaseClient.from('sale_records').select('*'),
     supabaseClient.from('stock_corrections').select('*'),
     supabaseClient.from('refunds').select('*'),
+    supabaseClient.from('expense_labels').select('*'),
+    supabaseClient.from('expenses').select('*'),
+    supabaseClient.from('exchanges').select('*'),
   ]);
 
   // Non-fatal -- return what we have
   return {
-    exported_at: new Date().toISOString(),
-    products:    products.data    ?? [],
-    variants:    variants.data    ?? [],
-    purchases:   purchases.data   ?? [],
-    sales:       sales.data       ?? [],
-    corrections: corrections.data ?? [],
-    refunds:     refunds.data     ?? [],
+    exported_at:    new Date().toISOString(),
+    products:       products.data       ?? [],
+    variants:       variants.data       ?? [],
+    purchases:      purchases.data      ?? [],
+    sales:          sales.data          ?? [],
+    corrections:    corrections.data    ?? [],
+    refunds:        refunds.data        ?? [],
+    expense_labels: expenseLabels.data  ?? [],
+    expenses:       expensesList.data   ?? [],
+    exchanges:      exchangesList.data  ?? [],
   };
 }
 
@@ -863,4 +869,129 @@ export async function getProductDeletionImpact(productId) {
     saleCount:       salesRes.count ?? 0,
     correctionCount: correctionsRes.count ?? 0,
   };
+}
+
+// ============================================================
+// 13. Expense Labels
+// ============================================================
+
+export async function getExpenseLabels() {
+  const { data, error } = await supabaseClient
+    .from('expense_labels')
+    .select('id, name, created_at')
+    .order('name', { ascending: true });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// ============================================================
+// 14. Expenses — monthly + all-time stats for dashboard/charts
+// ============================================================
+
+/**
+ * Get total expenses for the current calendar month.
+ * @returns {Promise<number>}
+ */
+export async function getMonthlyExpenses() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm   = String(now.getMonth() + 1).padStart(2, '0');
+  const startOfMonth = `${yyyy}-${mm}-01`;
+  const nextM = now.getMonth() + 1 === 12
+    ? `${yyyy + 1}-01-01`
+    : `${yyyy}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
+
+  const { data, error } = await supabaseClient
+    .from('expenses')
+    .select('amount')
+    .gte('expense_date', startOfMonth)
+    .lt('expense_date', nextM);
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).reduce((s, r) => s + Number(r.amount), 0);
+}
+
+/**
+ * Get all-time total expenses.
+ * @returns {Promise<number>}
+ */
+export async function getAllTimeExpenses() {
+  const { data, error } = await supabaseClient
+    .from('expenses')
+    .select('amount');
+  if (error) throw new Error(error.message);
+  return (data ?? []).reduce((s, r) => s + Number(r.amount), 0);
+}
+
+/**
+ * Get monthly expenses aggregated by month for charts.
+ * @param {{ startMonth: string, endMonth: string }} param0
+ * @returns {Promise<Array<{ month: string, total: number }>>}
+ */
+export async function getMonthlyExpenseSummary({ startMonth, endMonth }) {
+  const startDate = `${startMonth}-01`;
+  const endDate   = _nextMonthStart(endMonth);
+
+  const { data, error } = await supabaseClient
+    .from('expenses')
+    .select('amount, expense_date')
+    .gte('expense_date', startDate)
+    .lt('expense_date',  endDate);
+
+  if (error) throw new Error(error.message);
+
+  // Aggregate by YYYY-MM
+  const buckets = {};
+  for (const r of data ?? []) {
+    const m = r.expense_date.slice(0, 7);
+    buckets[m] = (buckets[m] ?? 0) + Number(r.amount);
+  }
+  return Object.entries(buckets)
+    .map(([month, total]) => ({ month: `${month}-01`, total }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+}
+
+/**
+ * Get expenses for a specific date (YYYY-MM-DD) for the daily report.
+ * @param {string} dateStr
+ * @returns {Promise<Array>}
+ */
+export async function getExpensesForDate(dateStr) {
+  const { data, error } = await supabaseClient
+    .from('expenses')
+    .select(`id, amount, note, expense_date,
+             expense_labels(id, name)`)
+    .eq('expense_date', dateStr)
+    .order('created_at', { ascending: true });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+// ============================================================
+// 15. Exchanges — daily report data
+// ============================================================
+
+/**
+ * Get exchanges for a specific date (YYYY-MM-DD) for the daily report.
+ * @param {string} dateStr
+ * @returns {Promise<Array>}
+ */
+export async function getExchangesForDate(dateStr) {
+  const { data, error } = await supabaseClient
+    .from('exchanges')
+    .select(`
+      id, quantity, price_correction, exchange_date, note,
+      out_variant:out_variant_id(
+        id, attributes,
+        products!inner(id, name)
+      ),
+      in_variant:in_variant_id(
+        id, attributes,
+        products!inner(id, name)
+      )
+    `)
+    .eq('exchange_date', dateStr)
+    .order('created_at', { ascending: true });
+  if (error) throw new Error(error.message);
+  return data;
 }

@@ -36,6 +36,8 @@
       <li><a href="#/corrections"    data-route="/corrections">Corrections</a></li>
       <li><a href="#/stock"          data-route="/stock">Stock</a></li>
       <li><a href="#/charts"         data-route="/charts">Charts</a></li>
+      <li><a href="#/exchange"       data-route="/exchange">Exchange</a></li>
+      <li><a href="#/expenses"       data-route="/expenses">Expenses</a></li>
       <li><a href="#/delete-entries" data-route="/delete-entries">Delete Entries</a></li>
       <li><a href="#/history"        data-route="/history">History &amp; Backup</a></li>
       <li><a href="#/reports"        data-route="/reports">Reports</a></li>
@@ -394,6 +396,10 @@
           <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Gross Profit</p>
           <p id="summary-gross-profit" style="font-size:1.5rem; font-weight:700;">-</p>
         </div>
+        <div class="card" style="flex:1; min-width:140px; text-align:center;">
+          <p class="text-muted" style="font-size:0.78rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.3rem;">Expenses</p>
+          <p id="summary-expenses" style="font-size:1.5rem; font-weight:700; color:var(--color-danger);">-</p>
+        </div>
       </div>
 
       <div class="charts-grid">
@@ -415,6 +421,11 @@
       <div class="chart-card" style="margin-top:1.25rem;">
         <h3>Gross Profit per Month</h3>
         <canvas id="chart-gross-profit" role="img" aria-label="Bar chart: gross profit per month"></canvas>
+      </div>
+
+      <div class="chart-card" style="margin-top:1.25rem;">
+        <h3>Expenses per Month</h3>
+        <canvas id="chart-expenses" role="img" aria-label="Bar chart: expenses per month"></canvas>
       </div>
     </section>
 
@@ -568,6 +579,197 @@
       </div>
     </section>
 
+    <!-- ---- Exchange view ---- -->
+    <section id="view-exchange" class="view hidden" role="region" aria-labelledby="exchange-heading">
+      <h1 id="exchange-heading" class="view-title">Exchange</h1>
+      <div class="error-banner" id="exchange-error" role="alert" aria-live="polite"></div>
+
+      <div class="card">
+        <h2>Record Exchange</h2>
+        <p class="text-muted" style="margin-bottom:1rem; font-size:0.875rem;">
+          Exchange swaps the outgoing variant back into stock and removes the incoming variant from stock.
+          Sales records are not changed. Add a price correction only if the customer paid a difference.
+        </p>
+        <form id="form-add-exchange" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="exchange-out-product">Outgoing product (returned by customer) <span aria-hidden="true">*</span></label>
+              <select id="exchange-out-product" name="outProductId" required>
+                <option value="">-- select product --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="exchange-out-variant">Outgoing variant <span aria-hidden="true">*</span></label>
+              <select id="exchange-out-variant" name="outVariantId" required>
+                <option value="">-- select variant --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="exchange-in-product">Incoming product (given to customer) <span aria-hidden="true">*</span></label>
+              <select id="exchange-in-product" name="inProductId" required>
+                <option value="">-- select product --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="exchange-in-variant">Incoming variant <span aria-hidden="true">*</span></label>
+              <select id="exchange-in-variant" name="inVariantId" required>
+                <option value="">-- select variant --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="exchange-quantity">Quantity <span aria-hidden="true">*</span></label>
+              <input type="number" id="exchange-quantity" name="quantity" min="1" step="1" required placeholder="1" />
+            </div>
+            <div class="form-group">
+              <label for="exchange-price-correction">Price correction (optional, + or -)</label>
+              <input type="number" id="exchange-price-correction" name="priceCorrection" step="0.01" placeholder="0.00" />
+            </div>
+            <div class="form-group">
+              <label for="exchange-date">Date <span aria-hidden="true">*</span></label>
+              <input type="date" id="exchange-date" name="exchangeDate" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="exchange-note">Note (optional)</label>
+            <input type="text" id="exchange-note" name="note" placeholder="e.g. Wrong size" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Save Exchange</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Exchange History</h2>
+        <div style="overflow-x:auto;">
+          <table class="history-table" aria-label="Exchange history">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Out product</th>
+                <th>Out variant</th>
+                <th>In product</th>
+                <th>In variant</th>
+                <th>Qty</th>
+                <th>Price correction</th>
+                <th>Note</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="exchange-history-body">
+              <tr><td colspan="9" class="text-muted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---- Expenses view ---- -->
+    <section id="view-expenses" class="view hidden" role="region" aria-labelledby="expenses-heading">
+      <h1 id="expenses-heading" class="view-title">Expenses</h1>
+      <div class="error-banner" id="expenses-error" role="alert" aria-live="polite"></div>
+
+      <!-- Sub-tab buttons -->
+      <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+        <button type="button" id="btn-expenses-tab-list"   class="btn btn-primary  btn-sm">Expenses</button>
+        <button type="button" id="btn-expenses-tab-labels" class="btn btn-secondary btn-sm">Manage Labels</button>
+      </div>
+
+      <!-- Expenses tab -->
+      <div id="expenses-tab-list">
+        <div class="card">
+          <h2>Record Expense</h2>
+          <form id="form-add-expense" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="expense-label-select">Label <span aria-hidden="true">*</span></label>
+                <select id="expense-label-select" name="labelId" required>
+                  <option value="">-- select label --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="expense-amount">Amount <span aria-hidden="true">*</span></label>
+                <input type="number" id="expense-amount" name="amount" min="0.01" step="0.01" required placeholder="0.00" />
+              </div>
+              <div class="form-group">
+                <label for="expense-date">Date <span aria-hidden="true">*</span></label>
+                <input type="date" id="expense-date" name="expenseDate" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="expense-note">Note (optional)</label>
+              <input type="text" id="expense-note" name="note" placeholder="e.g. Delivery fee" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Save Expense</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Expense History</h2>
+          <div class="form-row" style="margin-bottom:1rem; align-items:flex-end;">
+            <div class="form-group">
+              <label for="expense-filter-label">Label</label>
+              <select id="expense-filter-label">
+                <option value="">-- all labels --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="expense-filter-date-start">From date</label>
+              <input type="date" id="expense-filter-date-start" />
+            </div>
+            <div class="form-group">
+              <label for="expense-filter-date-end">To date</label>
+              <input type="date" id="expense-filter-date-end" />
+            </div>
+            <div class="form-group" style="flex:0; align-self:flex-end;">
+              <button type="button" id="btn-expense-filter-apply" class="btn btn-secondary btn-sm">Filter</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="history-table" aria-label="Expense history">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Label</th>
+                  <th>Note</th>
+                  <th style="text-align:right;">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="expense-history-body">
+                <tr><td colspan="5" class="text-muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Labels tab -->
+      <div id="expenses-tab-labels" style="display:none;">
+        <div class="card">
+          <h2>Manage Expense Labels</h2>
+          <p class="text-muted" style="margin-bottom:1rem; font-size:0.875rem;">
+            Labels are categories for your expenses (e.g. Rent, Delivery, Packaging). Add labels here, then use them when recording expenses.
+          </p>
+          <form id="form-add-expense-label" novalidate style="display:flex; gap:0.5rem; align-items:flex-end; flex-wrap:wrap;">
+            <div class="form-group" style="flex:1; min-width:180px; margin-bottom:0;">
+              <label for="expense-label-name">Label name <span aria-hidden="true">*</span></label>
+              <input type="text" id="expense-label-name" name="name" required placeholder="e.g. Rent" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-end;">Add Label</button>
+          </form>
+        </div>
+        <div class="card">
+          <h2>Existing Labels</h2>
+          <div id="expense-labels-list">
+            <p class="text-muted">Loading…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main><!-- /#content -->
 
 </div><!-- /#app -->
@@ -601,7 +803,7 @@
 <!-- =====================================================
      App entry point (ES module)
      ===================================================== -->
-<script type="module" src="js/router.js?v=9"></script>
+<script type="module" src="js/router.js?v=10"></script>
 
 </body>
 </html>

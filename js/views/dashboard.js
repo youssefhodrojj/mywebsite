@@ -1,4 +1,4 @@
-// v7 -- safe defaults, refunds + corrections
+ï»¿// v7 -- safe defaults, refunds + corrections
 /**
  * Dashboard view -- uses batch queries for speed instead of nested per-variant loops.
  */
@@ -6,6 +6,8 @@ import {
   getDashboardStats,
   getMonthlySalesStats,
   getMonthlyPurchaseStats,
+  getMonthlyExpenses,
+  getAllTimeExpenses,
 } from '../db.js';
 
 export async function init() {
@@ -24,11 +26,13 @@ export async function init() {
   const fmt = (n) => Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   try {
-    // All three are independent -- run in parallel
-    const [stats, monthlySales, monthlyPurchases] = await Promise.all([
+    // All four are independent -- run in parallel
+    const [stats, monthlySales, monthlyPurchases, monthlyExpenses, allTimeExpenses] = await Promise.all([
       getDashboardStats(),
       getMonthlySalesStats(),
       getMonthlyPurchaseStats(),
+      getMonthlyExpenses().catch(() => 0),
+      getAllTimeExpenses().catch(() => 0),
     ]);
 
     // Safe defaults in case db.js returns an older shape without new fields
@@ -46,8 +50,15 @@ export async function init() {
     const allTimeProfit  = safeStats.totalSalesRevenue - safeStats.totalPurchaseCost;
     const monthProfit    = monthlySales.revenue    - monthlyPurchases.cost;
 
-    // Monthly gross profit = monthly revenue - (avg cost per unit × units sold this month)
+    // Monthly gross profit = monthly revenue - (avg cost per unit ï¿½ units sold this month)
     const monthGrossProfit = monthlySales.revenue - (safeStats.avgCostPerUnit * monthlySales.units);
+    // Expenses deducted from net/gross profit
+    const safeMonthExpenses   = Number(monthlyExpenses)   || 0;
+    const safeAllTimeExpenses = Number(allTimeExpenses) || 0;
+    const monthNetAfterExp    = monthProfit - safeMonthExpenses;
+    const monthGrossAfterExp  = monthGrossProfit - safeMonthExpenses;
+    const allTimeNetAfterExp  = allTimeProfit - safeAllTimeExpenses;
+    const allTimeGrossAfterExp = safeStats.totalGrossProfit - safeAllTimeExpenses;
 
     const profitColor  = (v) => v >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
     const profitSign   = (v) => v >= 0 ? '+' : '';
@@ -104,6 +115,10 @@ export async function init() {
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Gross Profit</p>
           <p style="font-size:1.5rem; font-weight:700; color:${profitColor(monthGrossProfit)};" title="Revenue minus cost of units sold">${profitSign(monthGrossProfit)}${fmt(monthGrossProfit)}</p>
         </div>
+        <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Expenses</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-danger);">-\</p>
+        </div>
       </div>
 
       <p style="font-size:0.8rem; text-transform:uppercase; color:var(--color-text-muted); letter-spacing:0.05em; margin-bottom:0.75rem;">All Time</p>
@@ -127,6 +142,10 @@ export async function init() {
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Gross Profit</p>
           <p style="font-size:1.5rem; font-weight:700; color:${profitColor(safeStats.totalGrossProfit)};" title="Revenue minus cost of units actually sold">${profitSign(safeStats.totalGrossProfit)}${fmt(safeStats.totalGrossProfit)}</p>
+        </div>
+        <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
+          <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Expenses</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-danger);">-\</p>
         </div>
       </div>`;
 
