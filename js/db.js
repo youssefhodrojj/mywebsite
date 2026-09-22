@@ -995,3 +995,83 @@ export async function getExchangesForDate(dateStr) {
   if (error) throw new Error(error.message);
   return data;
 }
+
+// ============================================================
+// 16. Exchange — smart variant helpers
+// ============================================================
+
+/**
+ * Get all variants that have at least one sale record (for the outgoing/returned dropdown).
+ * Returns grouped by product: { productId, productName, variants: [{id, attributes}] }
+ */
+export async function getSoldVariantsByProduct() {
+  const { data, error } = await supabaseClient
+    .from('sale_records')
+    .select(`
+      variant_id,
+      variants!inner(
+        id, attributes,
+        products!inner(id, name)
+      )
+    `);
+  if (error) throw new Error(error.message);
+
+  // Deduplicate and group by product
+  const productMap = {};
+  const seenVariants = new Set();
+  for (const row of data ?? []) {
+    const v = row.variants;
+    if (!v || seenVariants.has(v.id)) continue;
+    seenVariants.add(v.id);
+    const pid = v.products.id;
+    if (!productMap[pid]) {
+      productMap[pid] = { productId: pid, productName: v.products.name, variants: [] };
+    }
+    productMap[pid].variants.push({ id: v.id, attributes: v.attributes });
+  }
+  return Object.values(productMap).sort((a, b) => a.productName.localeCompare(b.productName));
+}
+
+/**
+ * Get all variants that have remaining stock > 0 (for the incoming/given dropdown).
+ * Stock = purchased + corrections - sold + refunds
+ * Returns grouped by product: { productId, productName, variants: [{id, attributes, stock}] }
+ */
+export async function getInStockVariantsByProduct() {
+  // Fetch all movement data in parallel
+  const [purchasesRes, salesRes, correctionsRes, refundsRes, variantsRes] = await Promise.all([
+    supabaseClient.from('purchase_batches').select('variant_id, quantity'),
+    supabaseClient.from('sale_records').select('variant_id, quantity'),
+    supabaseClient.from('stock_corrections').select('variant_id, adjustment'),
+    supabaseClient.from('refunds').select('variant_id, quantity'),
+    supabaseClient.from('variants').select(`id, attributes, products!inner(id, name)`),
+  ]);
+
+  if (variantsRes.error) throw new Error(variantsRes.error.message);
+
+  const purchases   = purchasesRes.data   ?? [];
+  const sales       = salesRes.data       ?? [];
+  const corrections = correctionsRes.data ?? [];
+  const refunds     = refundsRes.data     ?? [];
+  const variants    = variantsRes.data    ?? [];
+
+  // Build stock map per variant
+  const stockMap = {};
+  for (const r of purchases)   stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) + Number(r.quantity);
+  for (const r of sales)       stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) - Number(r.quantity);
+  for (const r of corrections) stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) + Number(r.adjustment);
+  for (const r of refunds)     stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) + Number(r.quantity);
+
+  // Group variants with stock > 0 by product
+  const productMap = {};
+  for (const v of variants) {
+    const stock = stockMap[v.id] ?? 0;
+    if (stock <= 0) continue;
+    const pid = v.products.id;
+    if (!productMap[pid]) {
+      productMap[pid] = { productId: pid, productName: v.products.name, variants: [] };
+    }
+    productMap[pid].variants.push({ id: v.id, attributes: v.attributes, stock });
+  }
+  return Object.values(productMap).sort((a, b) => a.productName.localeCompare(b.productName));
+}

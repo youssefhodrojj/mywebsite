@@ -2,27 +2,21 @@
  * Exchange view — swap one variant for another.
  *
  * Stock effect:
- *   - out_variant stock decreases by quantity (customer returns it)
- *   - in_variant  stock decreases by quantity (we give them the new one)
+ *   - out_variant stock increases  (customer returns it)
+ *   - in_variant  stock decreases  (we give them the new one)
+ *
+ * Outgoing dropdown  — only variants that have been sold (can only exchange what was sold)
+ * Incoming dropdown  — only variants with remaining stock > 0 (can only give what's available)
  *
  * Sales records are NOT modified. An optional price_correction is recorded
  * (positive = customer pays more, negative = we refund the difference).
- *
- * HTML elements expected in index.html:
- *   #view-exchange
- *   #exchange-error
- *   #exchange-out-product, #exchange-out-variant
- *   #exchange-in-product,  #exchange-in-variant
- *   #exchange-quantity, #exchange-price-correction, #exchange-date, #exchange-note
- *   #form-add-exchange
- *   #exchange-history-body
  */
 
-import { getProducts, getVariantsByProduct, showToast } from '../db.js';
+import { getSoldVariantsByProduct, getInStockVariantsByProduct, showToast } from '../db.js';
 import { supabaseClient } from '../supabase.js';
 
 // ---------------------------------------------------------------------------
-// DB helpers (local — not exported, exchange is self-contained)
+// DB helpers
 // ---------------------------------------------------------------------------
 
 async function getExchanges() {
@@ -104,31 +98,38 @@ function fmtDate(d) {
 }
 
 // ---------------------------------------------------------------------------
-// Populate product/variant dropdowns
+// Populate dropdowns using smart variant lists
 // ---------------------------------------------------------------------------
 
-async function populateProductSelect(selectEl) {
-  selectEl.innerHTML = '<option value="">-- select product --</option>';
-  const products = await getProducts();
-  for (const p of products) {
+/**
+ * Populate a product select + wired variant select from a grouped list.
+ * @param {HTMLSelectElement} productSel
+ * @param {HTMLSelectElement} variantSel
+ * @param {Array<{productId, productName, variants}>} groups
+ */
+function populateProductAndVariant(productSel, variantSel, groups) {
+  // Populate product dropdown
+  productSel.innerHTML = '<option value="">-- select product --</option>';
+  for (const g of groups) {
     const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name;
-    selectEl.appendChild(opt);
+    opt.value = g.productId;
+    opt.textContent = g.productName;
+    productSel.appendChild(opt);
   }
-  return products;
-}
 
-async function populateVariantSelect(selectEl, productId) {
-  selectEl.innerHTML = '<option value="">-- select variant --</option>';
-  if (!productId) return;
-  const variants = await getVariantsByProduct(productId);
-  for (const v of variants) {
-    const opt = document.createElement('option');
-    opt.value = v.id;
-    opt.textContent = formatAttrs(v.attributes);
-    selectEl.appendChild(opt);
-  }
+  // Wire change event: filter variant dropdown to selected product
+  productSel.addEventListener('change', () => {
+    const selectedGroup = groups.find(g => g.productId === productSel.value);
+    variantSel.innerHTML = '<option value="">-- select variant --</option>';
+    if (!selectedGroup) return;
+    for (const v of selectedGroup.variants) {
+      const opt = document.createElement('option');
+      opt.value = v.id;
+      const stockLabel = v.stock !== undefined ? ` (${v.stock} in stock)` : '';
+      opt.textContent = formatAttrs(v.attributes) + stockLabel;
+      variantSel.appendChild(opt);
+    }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -138,11 +139,11 @@ async function populateVariantSelect(selectEl, productId) {
 async function loadHistory() {
   const tbody = document.getElementById('exchange-history-body');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" class="text-muted">Loading…</td></tr>';
   try {
     const rows = await getExchanges();
     if (rows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No exchanges recorded.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-muted">No exchanges recorded.</td></tr>';
       return;
     }
     tbody.innerHTML = '';
@@ -170,7 +171,6 @@ async function loadHistory() {
       tbody.appendChild(tr);
     }
 
-    // Wire delete buttons
     tbody.querySelectorAll('[data-delete-exchange]').forEach(btn => {
       btn.addEventListener('click', async () => {
         if (!confirm('Delete this exchange? This cannot be undone.')) return;
@@ -184,7 +184,7 @@ async function loadHistory() {
       });
     });
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-muted">Error: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="text-muted">Error: ${err.message}</td></tr>`;
   }
 }
 
@@ -195,8 +195,13 @@ async function loadHistory() {
 export async function init() {
   setError(null);
 
-  const form  = document.getElementById('form-add-exchange');
-  const dateEl = document.getElementById('exchange-date');
+  const outProductSel = document.getElementById('exchange-out-product');
+  const outVariantSel = document.getElementById('exchange-out-variant');
+  const inProductSel  = document.getElementById('exchange-in-product');
+  const inVariantSel  = document.getElementById('exchange-in-variant');
+  const dateEl        = document.getElementById('exchange-date');
+  const form          = document.getElementById('form-add-exchange');
+
   if (!form) return;
 
   // Default date
@@ -204,37 +209,31 @@ export async function init() {
     dateEl.value = new Date().toISOString().slice(0, 10);
   }
 
-  // Populate both product dropdowns in parallel
+  // Load smart variant lists in parallel
+  let soldGroups = [], stockGroups = [];
   try {
-    await Promise.all([
-      populateProductSelect(document.getElementById('exchange-out-product')),
-      populateProductSelect(document.getElementById('exchange-in-product')),
+    [soldGroups, stockGroups] = await Promise.all([
+      getSoldVariantsByProduct(),    // outgoing: must have been sold
+      getInStockVariantsByProduct(), // incoming: must have stock > 0
     ]);
   } catch (err) {
-    setError(`Could not load products: ${err.message}`);
+    setError(`Could not load variants: ${err.message}`);
+    return;
   }
 
-  // Wire out-product -> out-variant cascade
-  // Use cloneNode only on the select that needs it; re-look up variant select by id at event time
-  const outProd = document.getElementById('exchange-out-product');
-  const freshOutProd = outProd.cloneNode(true);
-  outProd.parentNode?.replaceChild(freshOutProd, outProd);
-  await populateProductSelect(freshOutProd).catch(() => {});
-  freshOutProd.addEventListener('change', () => {
-    populateVariantSelect(document.getElementById('exchange-out-variant'), freshOutProd.value);
-  });
+  // Populate dropdowns — wire each product select to its variant select
+  populateProductAndVariant(outProductSel, outVariantSel, soldGroups);
+  populateProductAndVariant(inProductSel,  inVariantSel,  stockGroups);
 
-  const inProd = document.getElementById('exchange-in-product');
-  const freshInProd = inProd.cloneNode(true);
-  inProd.parentNode?.replaceChild(freshInProd, inProd);
-  await populateProductSelect(freshInProd).catch(() => {});
-  freshInProd.addEventListener('change', () => {
-    populateVariantSelect(document.getElementById('exchange-in-variant'), freshInProd.value);
-  });
-
-  // Wire form submit (idempotent)
+  // Wire form submit (idempotent via clone-replace)
   const freshForm = form.cloneNode(true);
   form.parentNode?.replaceChild(freshForm, form);
+
+  // Re-wire product→variant cascades after clone (clone strips event listeners)
+  const freshOutProduct = document.getElementById('exchange-out-product');
+  const freshInProduct  = document.getElementById('exchange-in-product');
+  populateProductAndVariant(freshOutProduct, document.getElementById('exchange-out-variant'), soldGroups);
+  populateProductAndVariant(freshInProduct,  document.getElementById('exchange-in-variant'),  stockGroups);
 
   freshForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -247,14 +246,22 @@ export async function init() {
     const exchangeDate = document.getElementById('exchange-date')?.value;
     const note         = document.getElementById('exchange-note')?.value?.trim();
 
-    if (!outVariantId)              { setError('Please select the outgoing product variant.'); return; }
-    if (!inVariantId)               { setError('Please select the incoming product variant.');  return; }
-    if (outVariantId === inVariantId) { setError('Outgoing and incoming variants must be different.'); return; }
-    if (!quantity || quantity < 1)  { setError('Quantity must be at least 1.'); return; }
-    if (!exchangeDate)              { setError('Please select a date.'); return; }
+    if (!outVariantId)               { setError('Please select the outgoing product variant.'); return; }
+    if (!inVariantId)                { setError('Please select the incoming product variant.');  return; }
+    if (outVariantId === inVariantId){ setError('Outgoing and incoming variants must be different.'); return; }
+    if (!quantity || quantity < 1)   { setError('Quantity must be at least 1.'); return; }
+    if (!exchangeDate)               { setError('Please select a date.'); return; }
+
+    // Check incoming stock covers the quantity
+    const inGroup   = stockGroups.find(g => g.variants.some(v => v.id === inVariantId));
+    const inVariant = inGroup?.variants.find(v => v.id === inVariantId);
+    if (inVariant && inVariant.stock < quantity) {
+      setError(`Not enough stock for the incoming variant. Available: ${inVariant.stock}`);
+      return;
+    }
 
     const submitBtn = freshForm.querySelector('button[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving\u2026'; }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving…'; }
 
     try {
       await createExchange({ outVariantId, inVariantId, quantity, priceCorrection: isNaN(priceCorr) ? 0 : priceCorr, exchangeDate, note });
@@ -262,11 +269,15 @@ export async function init() {
       freshForm.reset();
       const d = document.getElementById('exchange-date');
       if (d) d.value = new Date().toISOString().slice(0, 10);
-      // Re-populate products after reset
-      await Promise.all([
-        populateProductSelect(document.getElementById('exchange-out-product')),
-        populateProductSelect(document.getElementById('exchange-in-product')),
-      ]).catch(() => {});
+
+      // Reload smart variant lists (stock has changed)
+      [soldGroups, stockGroups] = await Promise.all([
+        getSoldVariantsByProduct(),
+        getInStockVariantsByProduct(),
+      ]);
+      populateProductAndVariant(document.getElementById('exchange-out-product'), document.getElementById('exchange-out-variant'), soldGroups);
+      populateProductAndVariant(document.getElementById('exchange-in-product'),  document.getElementById('exchange-in-variant'),  stockGroups);
+
       await loadHistory();
     } catch (err) {
       setError(`Failed to save: ${err.message}`);
