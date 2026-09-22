@@ -188,6 +188,9 @@ async function loadHistory() {
   }
 }
 
+// Module-level submit handler reference for idempotent listener removal
+let _submitHandler = null;
+
 // ---------------------------------------------------------------------------
 // Init
 // ---------------------------------------------------------------------------
@@ -221,21 +224,27 @@ export async function init() {
     return;
   }
 
+  // Reset product selects by cloning just them (strips old change listeners, keeps form intact)
+  function resetSelect(id) {
+    const el = document.getElementById(id);
+    if (!el) return el;
+    const fresh = el.cloneNode(false); // cloneNode(false) = no children = clean empty select
+    el.parentNode?.replaceChild(fresh, el);
+    return fresh;
+  }
+  const freshOutProductSel = resetSelect('exchange-out-product');
+  const freshOutVariantSel = resetSelect('exchange-out-variant');
+  const freshInProductSel  = resetSelect('exchange-in-product');
+  const freshInVariantSel  = resetSelect('exchange-in-variant');
+
   // Populate dropdowns — wire each product select to its variant select
-  populateProductAndVariant(outProductSel, outVariantSel, soldGroups);
-  populateProductAndVariant(inProductSel,  inVariantSel,  stockGroups);
+  populateProductAndVariant(freshOutProductSel, freshOutVariantSel, soldGroups);
+  populateProductAndVariant(freshInProductSel,  freshInVariantSel,  stockGroups);
 
-  // Wire form submit (idempotent via clone-replace)
-  const freshForm = form.cloneNode(true);
-  form.parentNode?.replaceChild(freshForm, form);
+  // Wire form submit — remove old listener first to stay idempotent
+  if (_submitHandler) form.removeEventListener('submit', _submitHandler);
 
-  // Re-wire product→variant cascades after clone (clone strips event listeners)
-  const freshOutProduct = document.getElementById('exchange-out-product');
-  const freshInProduct  = document.getElementById('exchange-in-product');
-  populateProductAndVariant(freshOutProduct, document.getElementById('exchange-out-variant'), soldGroups);
-  populateProductAndVariant(freshInProduct,  document.getElementById('exchange-in-variant'),  stockGroups);
-
-  freshForm.addEventListener('submit', async (e) => {
+  _submitHandler = async (e) => {
     e.preventDefault();
     setError(null);
 
@@ -246,11 +255,11 @@ export async function init() {
     const exchangeDate = document.getElementById('exchange-date')?.value;
     const note         = document.getElementById('exchange-note')?.value?.trim();
 
-    if (!outVariantId)               { setError('Please select the outgoing product variant.'); return; }
-    if (!inVariantId)                { setError('Please select the incoming product variant.');  return; }
-    if (outVariantId === inVariantId){ setError('Outgoing and incoming variants must be different.'); return; }
-    if (!quantity || quantity < 1)   { setError('Quantity must be at least 1.'); return; }
-    if (!exchangeDate)               { setError('Please select a date.'); return; }
+    if (!outVariantId)                { setError('Please select the outgoing product variant.'); return; }
+    if (!inVariantId)                 { setError('Please select the incoming product variant.');  return; }
+    if (outVariantId === inVariantId) { setError('Outgoing and incoming variants must be different.'); return; }
+    if (!quantity || quantity < 1)    { setError('Quantity must be at least 1.'); return; }
+    if (!exchangeDate)                { setError('Please select a date.'); return; }
 
     // Check incoming stock covers the quantity
     const inGroup   = stockGroups.find(g => g.variants.some(v => v.id === inVariantId));
@@ -260,13 +269,13 @@ export async function init() {
       return;
     }
 
-    const submitBtn = freshForm.querySelector('button[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving…'; }
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving\u2026'; }
 
     try {
       await createExchange({ outVariantId, inVariantId, quantity, priceCorrection: isNaN(priceCorr) ? 0 : priceCorr, exchangeDate, note });
       showToast('Exchange recorded.', 'success');
-      freshForm.reset();
+      form.reset();
       const d = document.getElementById('exchange-date');
       if (d) d.value = new Date().toISOString().slice(0, 10);
 
@@ -284,7 +293,9 @@ export async function init() {
     } finally {
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Exchange'; }
     }
-  });
+  };
+
+  form.addEventListener('submit', _submitHandler);
 
   await loadHistory();
 }
