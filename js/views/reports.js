@@ -174,7 +174,8 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}, 
   const totalCost    = purchases.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
   const totalRefunds = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
   const totalExpenses = expenses.reduce((s, r) => s + Number(r.amount), 0);
-  const net          = totalRevenue - totalCost - totalRefunds - totalExpenses;
+  const totalPriceCorrections = exchanges.reduce((s, r) => s + Number(r.price_correction ?? 0), 0);
+  const net          = totalRevenue - totalCost - totalRefunds - totalExpenses + totalPriceCorrections;
 
   // Gross Profit = (sell_price - avg_cost) x net_qty per variant
   // net_qty = qty_sold - qty_refunded so a full refund cancels the sale entirely
@@ -189,7 +190,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}, 
     const netQty  = Number(r.quantity) - (refundedQty[vid] ?? 0);
     const contrib = (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
     return s + contrib;
-  }, 0) - totalExpenses;
+  }, 0) - totalExpenses + totalPriceCorrections;
   const grossProfitColor = grossProfit >= 0 ? 'var(--color-success)' : 'var(--color-danger)';
 
   // ---- Outer card ----
@@ -210,6 +211,7 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}, 
     { label: 'Purchase Cost',  value: fmt(totalCost),      color: 'var(--color-primary)'  },
     { label: 'Refunds',        value: fmt(totalRefunds),   color: 'var(--color-danger)'   },
     { label: 'Expenses',       value: fmt(totalExpenses),  color: 'var(--color-warning)'  },
+    { label: 'Price Corrections', value: fmt(totalPriceCorrections), color: totalPriceCorrections >= 0 ? 'var(--color-success)' : 'var(--color-danger)' },
     { label: 'Net',            value: fmt(net),             color: null                   },
     { label: 'Gross Profit',   value: fmt(grossProfit),    color: grossProfitColor        },
   ];
@@ -338,7 +340,8 @@ function generatePDF() {
   const totalCost    = purchasesData.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price),   0);
   const totalRefunds = refundsData.reduce((s, r)  => s + Number(r.quantity) * Number(r.refund_price),  0);
   const totalExpenses = expensesData.reduce((s, r) => s + Number(r.amount), 0);
-  const net          = totalRevenue - totalCost - totalRefunds - totalExpenses;
+  const totalPriceCorrections = exchangesData.reduce((s, r) => s + Number(r.price_correction ?? 0), 0);
+  const net          = totalRevenue - totalCost - totalRefunds - totalExpenses + totalPriceCorrections;
 
   // ---- Title ----
   doc.setFontSize(16);
@@ -362,7 +365,7 @@ function generatePDF() {
     const avgCost = avgCosts[r.variant_id] ?? 0;
     const netQty  = Number(r.quantity) - (pdfRefundedQty[r.variant_id] ?? 0);
     return s + (Number(r.sell_price) - avgCost) * Math.max(0, netQty);
-  }, 0) - totalExpenses;
+  }, 0) - totalExpenses + totalPriceCorrections;
   doc.text('Gross Profit: '   + fmt(gpPDF),             14, 78);
 
   let y = 75;

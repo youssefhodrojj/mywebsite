@@ -599,28 +599,33 @@ export async function getMonthlySalesStats() {
   const startOfMonth = `${yyyy}-${mm}-01`;
   const nextM = now.getMonth() + 1 === 12 ? `${yyyy + 1}-01-01` : `${yyyy}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
 
-  // Fetch sales and refunds for this month in parallel
-  const [salesRes, refundsRes] = await Promise.all([
+  // Fetch sales, refunds and exchange corrections for this month in parallel
+  const [salesRes, refundsRes, exchangesRes] = await Promise.all([
     supabaseClient.from('sale_records').select('quantity, sell_price')
       .gte('sold_at', startOfMonth).lt('sold_at', nextM),
     supabaseClient.from('refunds').select('quantity, refund_price')
       .gte('refunded_at', startOfMonth).lt('refunded_at', nextM),
+    supabaseClient.from('exchanges').select('price_correction')
+      .gte('exchange_date', startOfMonth).lt('exchange_date', nextM),
   ]);
 
   if (salesRes.error) throw new Error(salesRes.error.message);
-  const sales   = salesRes.data ?? [];
-  const refunds = refundsRes.error ? [] : (refundsRes.data ?? []);
+  const sales     = salesRes.data ?? [];
+  const refunds   = refundsRes.error   ? [] : (refundsRes.data   ?? []);
+  const exchanges = exchangesRes.error ? [] : (exchangesRes.data ?? []);
 
-  const grossUnits   = sales.reduce((s, r) => s + Number(r.quantity), 0);
-  const refundUnits  = refunds.reduce((s, r) => s + Number(r.quantity), 0);
-  const grossRevenue = sales.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
-  const refundAmount = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
+  const grossUnits       = sales.reduce((s, r) => s + Number(r.quantity), 0);
+  const refundUnits      = refunds.reduce((s, r) => s + Number(r.quantity), 0);
+  const grossRevenue     = sales.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
+  const refundAmount     = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
+  const priceCorrections = exchanges.reduce((s, r) => s + Number(r.price_correction ?? 0), 0);
 
   return {
     units:        grossUnits - refundUnits,
-    revenue:      grossRevenue - refundAmount,
+    revenue:      grossRevenue - refundAmount + priceCorrections,
     grossRevenue,
     refundAmount,
+    priceCorrections,
   };
 }
 
@@ -705,7 +710,7 @@ export async function getDashboardStats() {
     // Non-fatal: refunds table only exists after migration_v2
     safeQuery(supabaseClient.from('refunds').select('variant_id, quantity, refund_price')),
     // Non-fatal: exchanges only exist after migration_v6
-    safeQuery(supabaseClient.from('exchanges').select('out_variant_id, in_variant_id, quantity')),
+    safeQuery(supabaseClient.from('exchanges').select('out_variant_id, in_variant_id, quantity, price_correction')),
   ]);
 
   if (productsRes.error) throw new Error(productsRes.error.message);
@@ -730,11 +735,13 @@ export async function getDashboardStats() {
         .filter(c => Number(c.adjustment) < 0 && Number(c.cost_per_unit) > 0)
         .reduce((s, c) => s + Math.abs(Number(c.adjustment)) * Number(c.cost_per_unit), 0);
 
-  // Sales revenue minus refund amounts
+  // Sales revenue minus refund amounts + exchange price corrections
   const totalRefundAmount = refunds.reduce((s, r) => s + Number(r.quantity) * Number(r.refund_price), 0);
+  const totalPriceCorrections = exchanges.reduce((s, r) => s + Number(r.price_correction ?? 0), 0);
   const totalSalesRevenue =
     sales.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0)
-    - totalRefundAmount;
+    - totalRefundAmount
+    + totalPriceCorrections;
 
   // Units sold minus refunded units
   const totalUnitsSold =
@@ -960,6 +967,33 @@ export async function getMonthlyExpenseSummary({ startMonth, endMonth }) {
   for (const r of data ?? []) {
     const m = r.expense_date.slice(0, 7);
     buckets[m] = (buckets[m] ?? 0) + Number(r.amount);
+  }
+  return Object.entries(buckets)
+    .map(([month, total]) => ({ month: `${month}-01`, total }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+}
+
+/**
+ * Get monthly price corrections from exchanges aggregated by month for charts.
+ * @param {{ startMonth: string, endMonth: string }} param0
+ * @returns {Promise<Array<{ month: string, total: number }>>}
+ */
+export async function getMonthlyPriceCorrectionSummary({ startMonth, endMonth }) {
+  const startDate = `${startMonth}-01`;
+  const endDate   = _nextMonthStart(endMonth);
+
+  const { data, error } = await supabaseClient
+    .from('exchanges')
+    .select('price_correction, exchange_date')
+    .gte('exchange_date', startDate)
+    .lt('exchange_date',  endDate);
+
+  if (error) throw new Error(error.message);
+
+  const buckets = {};
+  for (const r of data ?? []) {
+    const m = r.exchange_date.slice(0, 7);
+    buckets[m] = (buckets[m] ?? 0) + Number(r.price_correction ?? 0);
   }
   return Object.entries(buckets)
     .map(([month, total]) => ({ month: `${month}-01`, total }))
