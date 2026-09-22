@@ -773,8 +773,6 @@ export async function getDashboardStats() {
     }
     for (const r of refunds) {
       refundMap[r.variant_id] = (refundMap[r.variant_id] ?? 0) + Number(r.quantity);
-    for (const r of refunds) {
-      refundMap[r.variant_id] = (refundMap[r.variant_id] ?? 0) + Number(r.quantity);
     }
     for (const r of exchanges) {
       exchangeOutMap[r.out_variant_id] = (exchangeOutMap[r.out_variant_id] ?? 0) + Number(r.quantity);
