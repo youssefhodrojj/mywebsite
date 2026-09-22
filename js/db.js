@@ -1059,7 +1059,7 @@ export async function getInStockVariantsByProduct() {
     supabaseClient.from('sale_records').select('variant_id, quantity'),
     supabaseClient.from('stock_corrections').select('variant_id, adjustment'),
     supabaseClient.from('refunds').select('variant_id, quantity'),
-    supabaseClient.from('exchanges').select('out_variant_id, in_variant_id, quantity').catch(() => ({ data: [], error: null })),
+    supabaseClient.from('exchanges').select('out_variant_id, in_variant_id, quantity'),
     supabaseClient.from('variants').select('id, attributes, products!inner(id, name)'),
   ]);
 
