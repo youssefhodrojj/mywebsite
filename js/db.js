@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * db.js â€” Centralised database access layer
  *
  * All Supabase queries live here. View modules never import supabase-js
@@ -205,7 +205,7 @@ export async function updateVariant(id, { attributes }) {
 /**
  * Fetch all purchase batches for a given variant, ordered by date descending.
  *
- * @param {string} variantId  — UUID of the variant.
+ * @param {string} variantId  ï¿½ UUID of the variant.
  * @returns {Promise<Array<{id: string, variant_id: string, quantity: number, cost_price: string, purchased_at: string, created_at: string}>>}
  */
 export async function getPurchasesByVariant(variantId) {
@@ -243,7 +243,7 @@ export async function createPurchaseBatch({ variantId, quantity, costPrice, purc
 /**
  * Fetch all stock corrections for a given variant, ordered by date descending.
  *
- * @param {string} variantId  — UUID of the variant.
+ * @param {string} variantId  ï¿½ UUID of the variant.
  * @returns {Promise<Array<{id: string, variant_id: string, adjustment: number, reason: string|null, corrected_at: string, created_at: string}>>}
  */
 export async function getCorrectionsByVariant(variantId) {
@@ -281,7 +281,7 @@ export async function createStockCorrection({ variantId, adjustment, reason, cor
 /**
  * Fetch all sale records for a given variant, ordered by date descending.
  *
- * @param {string} variantId  — UUID of the variant.
+ * @param {string} variantId  ï¿½ UUID of the variant.
  * @returns {Promise<Array<{id: string, variant_id: string, quantity: number, sell_price: string, sold_at: string, created_at: string}>>}
  */
 export async function getSalesByVariant(variantId) {
@@ -319,8 +319,8 @@ export async function createSaleRecord({ variantId, quantity, sellPrice, soldAt 
 /**
  * Compute the first day of the month immediately following endMonth.
  *
- * @param {string} endMonth  — 'YYYY-MM' format
- * @returns {string}  — 'YYYY-MM-DD' of the first day of the next month
+ * @param {string} endMonth  ï¿½ 'YYYY-MM' format
+ * @returns {string}  ï¿½ 'YYYY-MM-DD' of the first day of the next month
  */
 function _nextMonthStart(endMonth) {
   const [year, month] = endMonth.split('-').map(Number);
@@ -337,8 +337,8 @@ function _nextMonthStart(endMonth) {
  * total_cost (numeric).
  *
  * @param {{ startMonth: string, endMonth: string, productId?: string }} param0
- *   startMonth / endMonth — 'YYYY-MM' (inclusive on both ends)
- *   productId             — optional UUID; when provided only rows for that
+ *   startMonth / endMonth ï¿½ 'YYYY-MM' (inclusive on both ends)
+ *   productId             ï¿½ optional UUID; when provided only rows for that
  *                           product are returned
  * @returns {Promise<Array<{product_id: string, month: string, total_units: number, total_cost: string}>>}
  */
@@ -370,8 +370,8 @@ export async function getMonthlyPurchaseSummary({ startMonth, endMonth, productI
  * total_revenue (numeric).
  *
  * @param {{ startMonth: string, endMonth: string, productId?: string }} param0
- *   startMonth / endMonth — 'YYYY-MM' (inclusive on both ends)
- *   productId             — optional UUID; when provided only rows for that
+ *   startMonth / endMonth ï¿½ 'YYYY-MM' (inclusive on both ends)
+ *   productId             ï¿½ optional UUID; when provided only rows for that
  *                           product are returned
  * @returns {Promise<Array<{product_id: string, month: string, total_units: number, total_revenue: string}>>}
  */
@@ -694,6 +694,7 @@ export async function getDashboardStats() {
     salesRes,
     correctionsRes,
     refundsRes,
+    exchangesRes,
   ] = await Promise.all([
     safeQuery(supabaseClient.from('products').select('id', { count: 'exact', head: true })),
     safeQuery(supabaseClient.from('variants').select('id, product_id', { count: 'exact' })),
@@ -703,6 +704,8 @@ export async function getDashboardStats() {
     safeQuery(supabaseClient.from('stock_corrections').select('variant_id, adjustment, cost_per_unit')),
     // Non-fatal: refunds table only exists after migration_v2
     safeQuery(supabaseClient.from('refunds').select('variant_id, quantity, refund_price')),
+    // Non-fatal: exchanges only exist after migration_v6
+    safeQuery(supabaseClient.from('exchanges').select('out_variant_id, in_variant_id, quantity')),
   ]);
 
   if (productsRes.error) throw new Error(productsRes.error.message);
@@ -715,6 +718,7 @@ export async function getDashboardStats() {
   // If corrections or refunds failed (table/column not yet created), treat as empty
   const corrections = correctionsRes.error ? [] : (correctionsRes.data ?? []);
   const refunds     = refundsRes.error     ? [] : (refundsRes.data     ?? []);
+  const exchanges   = exchangesRes.error   ? [] : (exchangesRes.data   ?? []);
 
   const totalProducts = productsRes.count ?? 0;
   const totalVariants = variantsRes.data?.length ?? 0;
@@ -741,7 +745,10 @@ export async function getDashboardStats() {
   const totalUnitsPurchased = purchases.reduce((s, r) => s + Number(r.quantity), 0);
   const totalCorrectionUnits = corrections.reduce((s, c) => s + Number(c.adjustment), 0);
   const totalRefundedUnits = refunds.reduce((s, r) => s + Number(r.quantity), 0);
-  const totalUnitsInStock = totalUnitsPurchased + totalCorrectionUnits - totalUnitsSold;
+  // exchanges: out_variant stock +qty (returned), in_variant stock -qty (given out)
+  const totalExchangeOut = exchanges.reduce((s, r) => s + Number(r.quantity), 0);
+  const totalExchangeIn  = exchanges.reduce((s, r) => s + Number(r.quantity), 0);
+  const totalUnitsInStock = totalUnitsPurchased + totalCorrectionUnits - totalUnitsSold + totalExchangeOut - totalExchangeIn;
 
   // Low stock count per variant
   const allVariantIds = (variantsRes.data ?? []).map(v => v.id);
@@ -752,6 +759,8 @@ export async function getDashboardStats() {
     const salesMap      = {};
     const correctionMap = {};
     const refundMap     = {};
+    const exchangeOutMap = {}; // out_variant gets stock back
+    const exchangeInMap  = {}; // in_variant loses stock
 
     for (const r of purchases) {
       purchaseMap[r.variant_id] = (purchaseMap[r.variant_id] ?? 0) + Number(r.quantity);
@@ -764,6 +773,12 @@ export async function getDashboardStats() {
     }
     for (const r of refunds) {
       refundMap[r.variant_id] = (refundMap[r.variant_id] ?? 0) + Number(r.quantity);
+    for (const r of refunds) {
+      refundMap[r.variant_id] = (refundMap[r.variant_id] ?? 0) + Number(r.quantity);
+    }
+    for (const r of exchanges) {
+      exchangeOutMap[r.out_variant_id] = (exchangeOutMap[r.out_variant_id] ?? 0) + Number(r.quantity);
+      exchangeInMap[r.in_variant_id]   = (exchangeInMap[r.in_variant_id]   ?? 0) + Number(r.quantity);
     }
 
     for (const variantId of allVariantIds) {
@@ -771,7 +786,9 @@ export async function getDashboardStats() {
         (purchaseMap[variantId]   ?? 0)
         - (salesMap[variantId]    ?? 0)
         + (correctionMap[variantId] ?? 0)
-        + (refundMap[variantId]   ?? 0);
+        + (refundMap[variantId]      ?? 0)
+        + (exchangeOutMap[variantId]  ?? 0)
+        - (exchangeInMap[variantId]   ?? 0);
       if (remaining <= 0) lowStockCount++;
     }
   }
@@ -885,7 +902,7 @@ export async function getExpenseLabels() {
 }
 
 // ============================================================
-// 14. Expenses — monthly + all-time stats for dashboard/charts
+// 14. Expenses ï¿½ monthly + all-time stats for dashboard/charts
 // ============================================================
 
 /**
@@ -968,7 +985,7 @@ export async function getExpensesForDate(dateStr) {
 }
 
 // ============================================================
-// 15. Exchanges — daily report data
+// 15. Exchanges ï¿½ daily report data
 // ============================================================
 
 /**
@@ -997,7 +1014,7 @@ export async function getExchangesForDate(dateStr) {
 }
 
 // ============================================================
-// 16. Exchange — smart variant helpers
+// 16. Exchange ï¿½ smart variant helpers
 // ============================================================
 
 /**
@@ -1039,12 +1056,13 @@ export async function getSoldVariantsByProduct() {
  */
 export async function getInStockVariantsByProduct() {
   // Fetch all movement data in parallel
-  const [purchasesRes, salesRes, correctionsRes, refundsRes, variantsRes] = await Promise.all([
+  const [purchasesRes, salesRes, correctionsRes, refundsRes, exchangesRes, variantsRes] = await Promise.all([
     supabaseClient.from('purchase_batches').select('variant_id, quantity'),
     supabaseClient.from('sale_records').select('variant_id, quantity'),
     supabaseClient.from('stock_corrections').select('variant_id, adjustment'),
     supabaseClient.from('refunds').select('variant_id, quantity'),
-    supabaseClient.from('variants').select(`id, attributes, products!inner(id, name)`),
+    supabaseClient.from('exchanges').select('out_variant_id, in_variant_id, quantity').catch(() => ({ data: [], error: null })),
+    supabaseClient.from('variants').select('id, attributes, products!inner(id, name)'),
   ]);
 
   if (variantsRes.error) throw new Error(variantsRes.error.message);
@@ -1053,14 +1071,20 @@ export async function getInStockVariantsByProduct() {
   const sales       = salesRes.data       ?? [];
   const corrections = correctionsRes.data ?? [];
   const refunds     = refundsRes.data     ?? [];
+  const exchanges   = (exchangesRes && !exchangesRes.error) ? (exchangesRes.data ?? []) : [];
   const variants    = variantsRes.data    ?? [];
 
   // Build stock map per variant
   const stockMap = {};
-  for (const r of purchases)   stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) + Number(r.quantity);
-  for (const r of sales)       stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) - Number(r.quantity);
-  for (const r of corrections) stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) + Number(r.adjustment);
-  for (const r of refunds)     stockMap[r.variant_id] = (stockMap[r.variant_id] ?? 0) + Number(r.quantity);
+  for (const r of purchases)   stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) + Number(r.quantity);
+  for (const r of sales)       stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) - Number(r.quantity);
+  for (const r of corrections) stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) + Number(r.adjustment);
+  for (const r of refunds)     stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) + Number(r.quantity);
+  // exchanges: out_variant returned to stock (+), in_variant given to customer (-)
+  for (const r of exchanges) {
+    stockMap[r.out_variant_id] = (stockMap[r.out_variant_id] ?? 0) + Number(r.quantity);
+    stockMap[r.in_variant_id]  = (stockMap[r.in_variant_id]  ?? 0) - Number(r.quantity);
+  }
 
   // Group variants with stock > 0 by product
   const productMap = {};
@@ -1074,4 +1098,5 @@ export async function getInStockVariantsByProduct() {
     productMap[pid].variants.push({ id: v.id, attributes: v.attributes, stock });
   }
   return Object.values(productMap).sort((a, b) => a.productName.localeCompare(b.productName));
+}
 }

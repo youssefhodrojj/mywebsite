@@ -12,6 +12,19 @@ import {
   getRefundsByVariant,
 } from '../db.js';
 import { computeRemainingStock, isLowStock } from '../stock.js';
+import { supabaseClient } from '../supabase.js';
+
+async function getExchangesByVariant(variantId) {
+  // Fetch exchanges where this variant was the out (returned) or in (given) variant
+  const [outRes, inRes] = await Promise.all([
+    supabaseClient.from('exchanges').select('quantity').eq('out_variant_id', variantId),
+    supabaseClient.from('exchanges').select('quantity').eq('in_variant_id',  variantId),
+  ]);
+  return {
+    out: outRes.data ?? [],
+    in:  inRes.data  ?? [],
+  };
+}
 
 const getErrorBanner      = () => document.getElementById('stock-error');
 const getProductFilter    = () => document.getElementById('stock-product-filter');
@@ -150,18 +163,19 @@ export async function init() {
 
     _rows = await Promise.all(
       pairs.map(async ({ product, variant }) => {
-        const [purchases, sales, corrections, refunds] = await Promise.all([
+        const [purchases, sales, corrections, refunds, exchangeData] = await Promise.all([
           getPurchasesByVariant(variant.id),
           getSalesByVariant(variant.id),
           getCorrectionsByVariant(variant.id),
           getRefundsByVariant(variant.id),
+          getExchangesByVariant(variant.id).catch(() => ({ out: [], in: [] })),
         ]);
         return {
           productId:         product.id,
           productName:       product.name,
           variantId:         variant.id,
           variantAttributes: variant.attributes,
-          remainingStock:    computeRemainingStock(purchases, sales, corrections, refunds),
+          remainingStock:    computeRemainingStock(purchases, sales, corrections, refunds, exchangeData.out, exchangeData.in),
         };
       })
     );
