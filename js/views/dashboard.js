@@ -109,11 +109,11 @@ export async function init() {
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Net Profit</p>
-          <p style="font-size:1.5rem; font-weight:700; color:${profitColor(monthProfit)};">${profitSign(monthProfit)}${fmt(monthProfit)}</p>
+           <p style="font-size:1.5rem; font-weight:700; color:${profitColor(monthNetAfterExp)};">${profitSign(monthNetAfterExp)}${fmt(monthNetAfterExp)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Gross Profit</p>
-          <p style="font-size:1.5rem; font-weight:700; color:${profitColor(monthGrossProfit)};" title="Revenue minus cost of units sold">${profitSign(monthGrossProfit)}${fmt(monthGrossProfit)}</p>
+           <p style="font-size:1.5rem; font-weight:700; color:${profitColor(monthGrossAfterExp)};" title="Revenue minus cost of units sold minus expenses">${profitSign(monthGrossAfterExp)}${fmt(monthGrossAfterExp)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Expenses</p>
@@ -137,11 +137,11 @@ export async function init() {
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Net Profit</p>
-          <p style="font-size:1.5rem; font-weight:700; color:${profitColor(allTimeProfit)};">${profitSign(allTimeProfit)}${fmt(allTimeProfit)}</p>
+           <p style="font-size:1.5rem; font-weight:700; color:${profitColor(allTimeNetAfterExp)};">${profitSign(allTimeNetAfterExp)}${fmt(allTimeNetAfterExp)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Gross Profit</p>
-          <p style="font-size:1.5rem; font-weight:700; color:${profitColor(safeStats.totalGrossProfit)};" title="Revenue minus cost of units actually sold">${profitSign(safeStats.totalGrossProfit)}${fmt(safeStats.totalGrossProfit)}</p>
+           <p style="font-size:1.5rem; font-weight:700; color:${profitColor(allTimeGrossAfterExp)};" title="Revenue minus cost of units actually sold minus expenses">${profitSign(allTimeGrossAfterExp)}${fmt(allTimeGrossAfterExp)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Expenses</p>
