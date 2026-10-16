@@ -101,7 +101,7 @@ export async function init() {
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Revenue</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${fmt(monthlySales.revenue)}</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${fmt(monthlySales.revenue - safeMonthExpenses)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Purchase Cost</p>
@@ -129,7 +129,7 @@ export async function init() {
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Revenue (net)</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${fmt(safeStats.totalSalesRevenue)}</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${fmt(safeStats.totalSalesRevenue - safeAllTimeExpenses)}</p>
         </div>
         <div class="card" style="flex:1; min-width:130px; text-align:center; margin-bottom:0;">
           <p class="text-muted" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;">Cost (net)</p>

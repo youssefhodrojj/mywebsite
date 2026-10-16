@@ -80,7 +80,7 @@ function aggregateByMonth(purchases, sales, expenses = [], priceCorrections = []
     purchasedUnits.push(b.purchasedUnits);
     purchaseCosts.push(b.purchaseCosts);
     soldUnits.push(b.soldUnits);
-    salesRevenue.push(b.salesRevenue + b.priceCorrection);
+    salesRevenue.push(b.salesRevenue + b.priceCorrection - b.expenseTotal);
     netProfits.push(b.salesRevenue + b.priceCorrection - b.purchaseCosts - b.expenseTotal);
     expenseTotals.push(b.expenseTotal);
   }
@@ -100,7 +100,7 @@ function updateSummaryCards(purchasedUnits, purchaseCosts, soldUnits, salesReven
   const grossProfit   = totalRevenue - (avgCost * totalSold) - totalExpenses;
 
   const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  setEl('summary-revenue',           fmt(totalRevenue));
+  setEl('summary-revenue',           fmt(totalRevenue - totalExpenses));
   setEl('summary-cost',              fmt(totalCost));
   setEl('summary-units-sold',        totalSold.toLocaleString());
   setEl('summary-units-purchased',   totalPurchased.toLocaleString());
