@@ -449,8 +449,13 @@ export async function createRefund({ saleRecordId, variantId, quantity, refundPr
  * Delete a refund by id.
  */
 export async function deleteRefund(id) {
-  const { error } = await supabaseClient.from('refunds').delete().eq('id', id);
+  const { data, error } = await supabaseClient
+    .from('refunds')
+    .delete()
+    .eq('id', id)
+    .select('id');
   if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error('Delete failed — refund not found or permission denied.');
 }
 
 // ============================================================
@@ -461,16 +466,26 @@ export async function deleteRefund(id) {
  * Delete a sale record by id.
  */
 export async function deleteSaleRecord(id) {
-  const { error } = await supabaseClient.from('sale_records').delete().eq('id', id);
+  const { data, error } = await supabaseClient
+    .from('sale_records')
+    .delete()
+    .eq('id', id)
+    .select('id');
   if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error('Delete failed — sale record not found or permission denied.');
 }
 
 /**
  * Delete a purchase batch by id.
  */
 export async function deletePurchaseBatch(id) {
-  const { error } = await supabaseClient.from('purchase_batches').delete().eq('id', id);
+  const { data, error } = await supabaseClient
+    .from('purchase_batches')
+    .delete()
+    .eq('id', id)
+    .select('id');
   if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error('Delete failed — purchase not found or permission denied.');
 }
 
 /**
