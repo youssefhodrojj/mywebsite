@@ -1146,3 +1146,24 @@ export async function getInStockVariantsByProduct() {
   }
   return Object.values(productMap).sort((a, b) => a.productName.localeCompare(b.productName));
 }
+
+// ============================================================
+// 17. Exchange — per-variant stock helpers
+// ============================================================
+
+/**
+ * Get exchanges that affect a specific variant's stock.
+ * Returns { out: [], in: [] }
+ *   out = exchanges where this variant was returned by the customer (+stock)
+ *   in  = exchanges where this variant was given to the customer (−stock)
+ */
+export async function getExchangesByVariant(variantId) {
+  const [outRes, inRes] = await Promise.all([
+    supabaseClient.from('exchanges').select('id, quantity').eq('out_variant_id', variantId),
+    supabaseClient.from('exchanges').select('id, quantity').eq('in_variant_id',  variantId),
+  ]);
+  return {
+    out: outRes.data ?? [],
+    in:  inRes.data  ?? [],
+  };
+}

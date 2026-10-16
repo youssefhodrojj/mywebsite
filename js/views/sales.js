@@ -23,6 +23,7 @@ import {
   getPurchasesByVariant,
   getCorrectionsByVariant,
   getRefundsByVariant,
+  getExchangesByVariant,
   createSaleRecord,
   showToast,
 } from '../db.js?v=13';
@@ -294,9 +295,51 @@ function renderHistory(sales) {
   container.appendChild(table);
 }
 
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
+/**
+ * Show or hide the stock badge near the variant dropdown.
+ * @param {number|null} stock — null hides the badge
+ */
+function setStockBadge(stock) {
+  let badge = document.getElementById('sale-stock-badge');
+  if (!badge) {
+    // Create badge element once and insert after the variant select
+    badge = document.createElement('p');
+    badge.id = 'sale-stock-badge';
+    badge.style.cssText = 'font-size:0.82rem; margin-top:0.3rem; font-weight:500;';
+    const variantGroup = document.getElementById('sale-variant')?.closest('.form-group');
+    if (variantGroup) variantGroup.appendChild(badge);
+  }
+  if (stock === null) {
+    badge.textContent = '';
+    return;
+  }
+  if (stock <= 0) {
+    badge.style.color = 'var(--color-danger)';
+    badge.textContent = stock === 0 ? '⚠ Out of stock (0 remaining)' : `⚠ Stock: ${stock} (negative — check data)`;
+  } else if (stock <= 3) {
+    badge.style.color = 'var(--color-warning)';
+    badge.textContent = `⚠ Low stock: ${stock} remaining`;
+  } else {
+    badge.style.color = 'var(--color-success)';
+    badge.textContent = `✓ In stock: ${stock} remaining`;
+  }
+}
+
+/**
+ * Compute remaining stock for a variant including all movements.
+ */
+async function fetchVariantStock(variantId) {
+  const [purchases, sales, corrections, refunds, exchanges] = await Promise.all([
+    getPurchasesByVariant(variantId),
+    getSalesByVariant(variantId),
+    getCorrectionsByVariant(variantId),
+    getRefundsByVariant(variantId),
+    getExchangesByVariant(variantId),
+  ]);
+  return { purchases, sales, corrections, refunds, exchanges };
+}
+
+
 
 /**
  * Initialise the Sales Recording view.
@@ -347,8 +390,9 @@ export async function init() {
     _productChangeHandler = async () => {
       const productId = productSelect.value;
 
-      // Reset variant dropdown and history
+      // Reset variant dropdown, history, and stock badge
       renderVariantOptions([]);
+      setStockBadge(null);
       if (historyEl) {
         historyEl.innerHTML = '<p class="text-muted">Select a variant to see history.</p>';
       }
@@ -374,6 +418,7 @@ export async function init() {
 
     _variantChangeHandler = async () => {
       const variantId = variantSelect.value;
+      setStockBadge(null);
 
       if (!variantId) {
         if (historyEl) {
@@ -383,7 +428,15 @@ export async function init() {
       }
 
       try {
-        const sales = await getSalesByVariant(variantId);
+        const [sales, stockData] = await Promise.all([
+          getSalesByVariant(variantId),
+          fetchVariantStock(variantId),
+        ]);
+        const stock = computeRemainingStock(
+          stockData.purchases, stockData.sales, stockData.corrections,
+          stockData.refunds, stockData.exchanges.out, stockData.exchanges.in
+        );
+        setStockBadge(stock);
         renderHistory(sales);
       } catch (err) {
         if (historyEl) {
@@ -435,14 +488,13 @@ export async function init() {
 
       // ---- Compute projected remaining stock (Req 5.6) ----
       let projected = null;
+      let currentStock = null;
       try {
-        const [purchases, existingSales, corrections, existingRefunds] = await Promise.all([
-          getPurchasesByVariant(variantId),
-          getSalesByVariant(variantId),
-          getCorrectionsByVariant(variantId),
-          getRefundsByVariant(variantId),
-        ]);
-        const currentStock = computeRemainingStock(purchases, existingSales, corrections, existingRefunds);
+        const stockData = await fetchVariantStock(variantId);
+        currentStock = computeRemainingStock(
+          stockData.purchases, stockData.sales, stockData.corrections,
+          stockData.refunds, stockData.exchanges.out, stockData.exchanges.in
+        );
         projected = currentStock - quantity;
       } catch (err) {
         // Non-fatal: skip the warning check and proceed
@@ -452,8 +504,8 @@ export async function init() {
       // ---- Warn if projected stock goes below zero ----
       if (projected !== null && projected < 0) {
         const confirmed = await confirmModal(
-          'Stock will go negative',
-          `This sale will result in a remaining stock of ${projected}. Proceed?`
+          'Selling more than available stock',
+          `Current stock: ${currentStock} unit${currentStock !== 1 ? 's' : ''}.\nAfter this sale: ${projected} remaining.\nDo you want to proceed?`
         );
         if (!confirmed) return;
       }
@@ -471,9 +523,17 @@ export async function init() {
         if (pInput) pInput.value = '';
         if (dInput) dInput.value = new Date().toISOString().slice(0, 10);
 
-        // Re-render history for the currently selected variant
+        // Re-render history and update stock badge
         try {
-          const updatedSales = await getSalesByVariant(variantId);
+          const [updatedSales, stockData] = await Promise.all([
+            getSalesByVariant(variantId),
+            fetchVariantStock(variantId),
+          ]);
+          const newStock = computeRemainingStock(
+            stockData.purchases, stockData.sales, stockData.corrections,
+            stockData.refunds, stockData.exchanges.out, stockData.exchanges.in
+          );
+          setStockBadge(newStock);
           renderHistory(updatedSales);
         } catch {
           // History refresh failure is non-fatal
