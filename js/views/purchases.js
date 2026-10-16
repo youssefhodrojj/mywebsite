@@ -14,7 +14,7 @@ import {
   getPurchasesByVariant,
   createPurchaseBatch,
   showToast,
-} from '../db.js?v=13';
+} from '../db.js?v=14';
 import { validatePurchaseBatch } from '../validation.js';
 
 // ---------------------------------------------------------------------------

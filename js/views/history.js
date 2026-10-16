@@ -2,8 +2,8 @@
  * history.js -- History & Backup view
  * Shows audit log with meaningful descriptions and provides a JSON backup download.
  */
-import { getAuditLog, exportAllData, showToast } from '../db.js?v=13';
-import { supabaseClient } from '../supabase.js?v=13';
+import { getAuditLog, exportAllData, showToast } from '../db.js?v=14';
+import { supabaseClient } from '../supabase.js?v=14';
 
 function setErrorBanner(message) {
   const el = document.getElementById('history-error');

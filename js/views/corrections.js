@@ -20,9 +20,9 @@ import {
   getRefundsByVariant,
   createStockCorrection,
   showToast,
-} from '../db.js?v=13';
+} from '../db.js?v=14';
 import { validateStockCorrection } from '../validation.js';
-import { computeRemainingStock } from '../stock.js?v=13';
+import { computeRemainingStock } from '../stock.js?v=14';
 
 // ---------------------------------------------------------------------------
 // DOM helpers (resolved lazily so the module can be imported before the DOM

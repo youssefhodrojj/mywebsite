@@ -12,8 +12,8 @@
  * (positive = customer pays more, negative = we refund the difference).
  */
 
-import { getSoldVariantsByProduct, getInStockVariantsByProduct, showToast } from '../db.js?v=13';
-import { supabaseClient } from '../supabase.js?v=13';
+import { getSoldVariantsByProduct, getInStockVariantsByProduct, showToast } from '../db.js?v=14';
+import { supabaseClient } from '../supabase.js?v=14';
 
 // ---------------------------------------------------------------------------
 // DB helpers

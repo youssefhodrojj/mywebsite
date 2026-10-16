@@ -10,9 +10,9 @@ import {
   getSalesByVariant,
   getCorrectionsByVariant,
   getRefundsByVariant,
-} from '../db.js?v=13';
-import { computeRemainingStock, isLowStock } from '../stock.js?v=13';
-import { supabaseClient } from '../supabase.js?v=13';
+} from '../db.js?v=14';
+import { computeRemainingStock, isLowStock } from '../stock.js?v=14';
+import { supabaseClient } from '../supabase.js?v=14';
 
 async function getExchangesByVariant(variantId) {
   // Fetch exchanges where this variant was the out (returned) or in (given) variant

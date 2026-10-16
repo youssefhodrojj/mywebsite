@@ -7,7 +7,7 @@
  * Requirements: 1.6
  */
 
-import { getSession, logout, onAuthStateChange } from './auth.js?v=13';
+import { getSession, logout, onAuthStateChange } from './auth.js?v=14';
 
 // ---------------------------------------------------------------------------
 // Route -> view-container and view-module mappings
@@ -39,20 +39,20 @@ const VIEW_IDS = {
  * @type {Record<string, () => Promise<{ init: () => void | Promise<void> }>>}
  */
 const ROUTES = {
-  '/login':          () => import('./views/login.js?v=13'),
-  '/dashboard':      () => import('./views/dashboard.js?v=13'),
-  '/products':       () => import('./views/products.js?v=13'),
-  '/purchases':      () => import('./views/purchases.js?v=13'),
-  '/corrections':    () => import('./views/corrections.js?v=13'),
-  '/sales':          () => import('./views/sales.js?v=13'),
-  '/refunds':        () => import('./views/refunds.js?v=13'),
-  '/stock':          () => import('./views/stock-view.js?v=13'),
-  '/charts':         () => import('./views/charts-view.js?v=13'),
-  '/delete-entries': () => import('./views/delete-entries.js?v=13'),
-  '/history':        () => import('./views/history.js?v=13'),
-  '/reports':        () => import('./views/reports.js?v=13'),
-  '/exchange':       () => import('./views/exchange.js?v=13'),
-  '/expenses':       () => import('./views/expenses.js?v=13'),
+  '/login':          () => import('./views/login.js?v=14'),
+  '/dashboard':      () => import('./views/dashboard.js?v=14'),
+  '/products':       () => import('./views/products.js?v=14'),
+  '/purchases':      () => import('./views/purchases.js?v=14'),
+  '/corrections':    () => import('./views/corrections.js?v=14'),
+  '/sales':          () => import('./views/sales.js?v=14'),
+  '/refunds':        () => import('./views/refunds.js?v=14'),
+  '/stock':          () => import('./views/stock-view.js?v=14'),
+  '/charts':         () => import('./views/charts-view.js?v=14'),
+  '/delete-entries': () => import('./views/delete-entries.js?v=14'),
+  '/history':        () => import('./views/history.js?v=14'),
+  '/reports':        () => import('./views/reports.js?v=14'),
+  '/exchange':       () => import('./views/exchange.js?v=14'),
+  '/expenses':       () => import('./views/expenses.js?v=14'),
 };
 
 /** All routes that require an authenticated session. */
