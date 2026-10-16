@@ -159,6 +159,70 @@ function buildTable(headers, rowMapper, rows) {
 }
 
 /**
+ * Build a grouped-by-product section.
+ * Shows each product as a sub-header with its own table of variants + a subtotal row.
+ * @param {string[]} headers          - Column headers (excluding Product column)
+ * @param {(row: any) => string[]} rowMapper - Maps a row to cell values (excluding product name)
+ * @param {any[]} rows                - All rows (each must have variants.products.name)
+ * @param {(row: any) => number} valueGetter - Returns the numeric value for subtotal
+ * @param {(row: any) => number} qtyGetter   - Returns the quantity for subtotal
+ * @returns {DocumentFragment}
+ */
+function buildGroupedByProduct(headers, rowMapper, rows, valueGetter, qtyGetter) {
+  const frag = document.createDocumentFragment();
+
+  if (rows.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'text-muted';
+    empty.style.cssText = 'padding:0.5rem 0;';
+    empty.textContent = 'No records.';
+    frag.appendChild(empty);
+    return frag;
+  }
+
+  // Group rows by product name
+  const groups = {};
+  const order  = [];
+  for (const row of rows) {
+    const pname = row.variants?.products?.name ?? '—';
+    if (!groups[pname]) { groups[pname] = []; order.push(pname); }
+    groups[pname].push(row);
+  }
+
+  for (const pname of order) {
+    const productRows = groups[pname];
+    const totalQty    = productRows.reduce((s, r) => s + qtyGetter(r), 0);
+    const totalValue  = productRows.reduce((s, r) => s + valueGetter(r), 0);
+
+    // Product header row
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.5rem; background:var(--color-bg); border-radius:4px; margin:0.75rem 0 0.25rem;';
+    header.innerHTML = `
+      <span style="font-weight:700; font-size:0.95rem;">${pname}</span>
+      <span style="font-size:0.85rem; color:var(--color-text-muted);">${totalQty} unit${totalQty !== 1 ? 's' : ''} &nbsp;·&nbsp; <strong style="color:var(--color-text)">${fmt(totalValue)}</strong></span>`;
+    frag.appendChild(header);
+
+    // Table for this product's variants
+    const table = document.createElement('table');
+    table.className = 'history-table';
+    table.style.cssText = 'margin-bottom:0.25rem;';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr>${headers.map(h => `<th scope="col">${h}</th>`).join('')}</tr>`;
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    for (const row of productRows) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = rowMapper(row).map(cell => `<td>${cell}</td>`).join('');
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    frag.appendChild(table);
+  }
+
+  return frag;
+}
+
+/**
  * Render the full daily report into #report-content.
  * @param {string}  dateStr
  * @param {any[]}   sales
@@ -227,38 +291,40 @@ function renderReport(dateStr, sales, purchases, refunds, variantAvgCosts = {}, 
   }
   card.appendChild(summary);
 
-  // ---- Sales table ----
+  // ---- Sales — grouped by product ----
   const salesHeading = document.createElement('h3');
-  salesHeading.style.cssText = 'margin-bottom:0.5rem;';
+  salesHeading.style.cssText = 'margin-bottom:0.25rem;';
   salesHeading.textContent = `Sales (${sales.length})`;
   card.appendChild(salesHeading);
-  card.appendChild(buildTable(
-    ['Product', 'Variant', 'Qty', 'Price/unit', 'Total'],
+  card.appendChild(buildGroupedByProduct(
+    ['Variant', 'Qty', 'Price/unit', 'Total'],
     s => [
-      s.variants?.products?.name ?? '—',
       formatAttributes(s.variants?.attributes ?? {}),
       String(s.quantity),
       fmt(Number(s.sell_price)),
       fmt(Number(s.quantity) * Number(s.sell_price)),
     ],
     sales,
+    s => Number(s.quantity) * Number(s.sell_price),
+    s => Number(s.quantity),
   ));
 
-  // ---- Purchases table ----
+  // ---- Purchases — grouped by product ----
   const purchasesHeading = document.createElement('h3');
-  purchasesHeading.style.cssText = 'margin:1rem 0 0.5rem;';
+  purchasesHeading.style.cssText = 'margin:1rem 0 0.25rem;';
   purchasesHeading.textContent = `Purchases (${purchases.length})`;
   card.appendChild(purchasesHeading);
-  card.appendChild(buildTable(
-    ['Product', 'Variant', 'Qty', 'Cost/unit', 'Total'],
+  card.appendChild(buildGroupedByProduct(
+    ['Variant', 'Qty', 'Cost/unit', 'Total'],
     p => [
-      p.variants?.products?.name ?? '—',
       formatAttributes(p.variants?.attributes ?? {}),
       String(p.quantity),
       fmt(Number(p.cost_price)),
       fmt(Number(p.quantity) * Number(p.cost_price)),
     ],
     purchases,
+    p => Number(p.quantity) * Number(p.cost_price),
+    p => Number(p.quantity),
   ));
 
   // ---- Refunds table (always shown so the count is visible) ----
@@ -370,66 +436,88 @@ function generatePDF() {
 
   let y = 75;
 
-  // ---- Sales section ----
+  // ---- Sales section — grouped by product ----
   if (salesData.length > 0) {
+    // Group sales by product
+    const salesByProduct = {};
+    const salesOrder = [];
+    for (const s of salesData) {
+      const pname = s.variants?.products?.name ?? '—';
+      if (!salesByProduct[pname]) { salesByProduct[pname] = []; salesOrder.push(pname); }
+      salesByProduct[pname].push(s);
+    }
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('Sales (' + salesData.length + ')', 14, y);
     y += 8;
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    // Header row
-    doc.text('Product', 14, y);
-    doc.text('Variant',  65, y);
-    doc.text('Qty',     120, y);
-    doc.text('Price',   135, y);
-    doc.text('Total',   165, y);
-    y += 6;
-    doc.line(14, y, 196, y);
-    y += 4;
-    for (const s of salesData) {
-      if (y > 270) { doc.addPage(); y = 20; }
-      const pname = s.variants?.products?.name ?? '';
-      const vattr = formatAttributes(s.variants?.attributes ?? {});
-      doc.text(pname.substring(0, 25),                                   14,  y);
-      doc.text(vattr.substring(0, 25),                                    65,  y);
-      doc.text(String(s.quantity),                                        120, y);
-      doc.text(fmt(Number(s.sell_price)),                                 135, y);
-      doc.text(fmt(Number(s.quantity) * Number(s.sell_price)),            165, y);
-      y += 6;
+    for (const pname of salesOrder) {
+      if (y > 260) { doc.addPage(); y = 20; }
+      const pRows = salesByProduct[pname];
+      const pTotal = pRows.reduce((s, r) => s + Number(r.quantity) * Number(r.sell_price), 0);
+      const pQty   = pRows.reduce((s, r) => s + Number(r.quantity), 0);
+      // Product sub-header
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(pname.substring(0, 30), 14, y);
+      doc.text(pQty + ' units · ' + fmt(pTotal), 130, y);
+      y += 5;
+      doc.line(14, y, 196, y);
+      y += 4;
+      // Variant rows
+      doc.setFont('helvetica', 'normal');
+      for (const s of pRows) {
+        if (y > 270) { doc.addPage(); y = 20; }
+        const vattr = formatAttributes(s.variants?.attributes ?? {});
+        doc.text(vattr.substring(0, 30),                          20,  y);
+        doc.text(String(s.quantity),                              120, y);
+        doc.text(fmt(Number(s.sell_price)),                       135, y);
+        doc.text(fmt(Number(s.quantity) * Number(s.sell_price)),  165, y);
+        y += 6;
+      }
+      y += 3;
     }
-    y += 6;
+    y += 4;
   }
 
-  // ---- Purchases section ----
+  // ---- Purchases section — grouped by product ----
   if (purchasesData.length > 0) {
     if (y > 250) { doc.addPage(); y = 20; }
+    const purchByProduct = {};
+    const purchOrder = [];
+    for (const p of purchasesData) {
+      const pname = p.variants?.products?.name ?? '—';
+      if (!purchByProduct[pname]) { purchByProduct[pname] = []; purchOrder.push(pname); }
+      purchByProduct[pname].push(p);
+    }
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('Purchases (' + purchasesData.length + ')', 14, y);
     y += 8;
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Product', 14, y);
-    doc.text('Variant',  65, y);
-    doc.text('Qty',     120, y);
-    doc.text('Cost',    135, y);
-    doc.text('Total',   165, y);
-    y += 6;
-    doc.line(14, y, 196, y);
-    y += 4;
-    for (const p of purchasesData) {
-      if (y > 270) { doc.addPage(); y = 20; }
-      const pname = p.variants?.products?.name ?? '';
-      const vattr = formatAttributes(p.variants?.attributes ?? {});
-      doc.text(pname.substring(0, 25),                                    14,  y);
-      doc.text(vattr.substring(0, 25),                                    65,  y);
-      doc.text(String(p.quantity),                                        120, y);
-      doc.text(fmt(Number(p.cost_price)),                                 135, y);
-      doc.text(fmt(Number(p.quantity) * Number(p.cost_price)),            165, y);
-      y += 6;
+    for (const pname of purchOrder) {
+      if (y > 260) { doc.addPage(); y = 20; }
+      const pRows  = purchByProduct[pname];
+      const pTotal = pRows.reduce((s, r) => s + Number(r.quantity) * Number(r.cost_price), 0);
+      const pQty   = pRows.reduce((s, r) => s + Number(r.quantity), 0);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(pname.substring(0, 30), 14, y);
+      doc.text(pQty + ' units · ' + fmt(pTotal), 130, y);
+      y += 5;
+      doc.line(14, y, 196, y);
+      y += 4;
+      doc.setFont('helvetica', 'normal');
+      for (const p of pRows) {
+        if (y > 270) { doc.addPage(); y = 20; }
+        const vattr = formatAttributes(p.variants?.attributes ?? {});
+        doc.text(vattr.substring(0, 30),                          20,  y);
+        doc.text(String(p.quantity),                              120, y);
+        doc.text(fmt(Number(p.cost_price)),                       135, y);
+        doc.text(fmt(Number(p.quantity) * Number(p.cost_price)),  165, y);
+        y += 6;
+      }
+      y += 3;
     }
-    y += 6;
+    y += 4;
   }
 
   // ---- Refunds section ----
