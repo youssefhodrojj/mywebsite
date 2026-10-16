@@ -19,6 +19,7 @@
 import {
   getProducts,
   getVariantsByProduct,
+  getVariantsWithStockByProduct,
   getSalesByVariant,
   getPurchasesByVariant,
   getCorrectionsByVariant,
@@ -228,10 +229,8 @@ function renderProductOptions(products) {
 }
 
 /**
- * Populate the variant dropdown with the given variants array.
- * Resets to placeholder and disables if no variants are provided.
- *
- * @param {Array<{id: string, attributes: object}>} variants
+ * Populate the variant dropdown with stock counts shown in each option.
+ * @param {Array<{id: string, attributes: object, stock: number}>} variants
  */
 function renderVariantOptions(variants) {
   const select = getVariantSelect();
@@ -248,7 +247,15 @@ function renderVariantOptions(variants) {
   for (const variant of variants) {
     const opt = document.createElement('option');
     opt.value = variant.id;
-    opt.textContent = formatAttributes(variant.attributes);
+    const attrs = formatAttributes(variant.attributes);
+    // Show stock count in the option label
+    if (variant.stock !== undefined) {
+      const stock = Math.max(0, variant.stock);
+      const stockLabel = stock === 0 ? ' — out of stock' : ` — ${stock} in stock`;
+      opt.textContent = attrs + stockLabel;
+    } else {
+      opt.textContent = attrs;
+    }
     select.appendChild(opt);
   }
 }
@@ -401,7 +408,7 @@ export async function init() {
       if (!productId) return;
 
       try {
-        const variants = await getVariantsByProduct(productId);
+        const variants = await getVariantsWithStockByProduct(productId);
         renderVariantOptions(variants);
       } catch (err) {
         setErrorBanner(`Failed to load variants: ${err.message}`);
@@ -526,16 +533,19 @@ export async function init() {
         if (pInput) pInput.value = '';
         if (dInput) dInput.value = new Date().toISOString().slice(0, 10);
 
-        // Re-render history and update stock badge
+        // Re-render history and update stock badge + variant list
         try {
-          const [updatedSales, stockData] = await Promise.all([
+          const productId = productSelect?.value;
+          const [updatedSales, stockData, updatedVariants] = await Promise.all([
             getSalesByVariant(variantId),
             fetchVariantStock(variantId),
+            productId ? getVariantsWithStockByProduct(productId) : Promise.resolve(null),
           ]);
           const newStock = computeRemainingStock(
             stockData.purchases, stockData.sales, stockData.corrections,
             stockData.refunds, stockData.exchanges.out, stockData.exchanges.in
           );
+          if (updatedVariants) renderVariantOptions(updatedVariants);
           setStockBadge(newStock);
           renderHistory(updatedSales);
         } catch {

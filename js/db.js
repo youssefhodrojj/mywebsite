@@ -1152,6 +1152,44 @@ export async function getInStockVariantsByProduct() {
 // ============================================================
 
 /**
+ * Get all variants for a product with their computed remaining stock.
+ * Used by sales tab to show "(X in stock)" next to each variant option.
+ * @param {string} productId
+ * @returns {Promise<Array<{id: string, attributes: object, stock: number}>>}
+ */
+export async function getVariantsWithStockByProduct(productId) {
+  // Step 1: get variant IDs for this product
+  const { data: variantData, error: variantErr } = await supabaseClient
+    .from('variants').select('id, attributes').eq('product_id', productId).order('created_at');
+  if (variantErr) throw new Error(variantErr.message);
+  const variantList = variantData ?? [];
+  const ids = variantList.map(v => v.id);
+  if (ids.length === 0) return [];
+
+  // Step 2: fetch all movements for these variants in parallel
+  const [purchasesRes, salesRes, correctionsRes, refundsRes, exchOutRes, exchInRes] = await Promise.all([
+    supabaseClient.from('purchase_batches').select('variant_id, quantity').in('variant_id', ids),
+    supabaseClient.from('sale_records').select('variant_id, quantity').in('variant_id', ids),
+    supabaseClient.from('stock_corrections').select('variant_id, adjustment').in('variant_id', ids),
+    supabaseClient.from('refunds').select('variant_id, quantity').in('variant_id', ids),
+    supabaseClient.from('exchanges').select('out_variant_id, quantity').in('out_variant_id', ids),
+    supabaseClient.from('exchanges').select('in_variant_id, quantity').in('in_variant_id', ids),
+  ]);
+
+  // Step 3: build stock map
+  const stockMap = {};
+  for (const id of ids) stockMap[id] = 0;
+  for (const r of purchasesRes.data  ?? []) stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) + Number(r.quantity);
+  for (const r of salesRes.data      ?? []) stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) - Number(r.quantity);
+  for (const r of correctionsRes.data?? []) stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) + Number(r.adjustment);
+  for (const r of refundsRes.data    ?? []) stockMap[r.variant_id]     = (stockMap[r.variant_id]     ?? 0) + Number(r.quantity);
+  for (const r of exchOutRes.data    ?? []) stockMap[r.out_variant_id] = (stockMap[r.out_variant_id] ?? 0) + Number(r.quantity);
+  for (const r of exchInRes.data     ?? []) stockMap[r.in_variant_id]  = (stockMap[r.in_variant_id]  ?? 0) - Number(r.quantity);
+
+  return variantList.map(v => ({ id: v.id, attributes: v.attributes, stock: stockMap[v.id] ?? 0 }));
+}
+
+/**
  * Get exchanges that affect a specific variant's stock.
  * Returns { out: [], in: [] }
  *   out = exchanges where this variant was returned by the customer (+stock)
