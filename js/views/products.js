@@ -21,10 +21,10 @@ import {
   getRefundsByVariant,
   getProductDeletionImpact,
   showToast,
-} from '../db.js?v=12';
+} from '../db.js?v=13';
 
 import { validateProductName, validateVariantAttributes } from '../validation.js';
-import { computeRemainingStock, isLowStock } from '../stock.js?v=12';
+import { computeRemainingStock, isLowStock } from '../stock.js?v=13';
 
 // ---------------------------------------------------------------------------
 // DOM helpers

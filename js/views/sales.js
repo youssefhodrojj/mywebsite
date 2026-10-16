@@ -25,9 +25,9 @@ import {
   getRefundsByVariant,
   createSaleRecord,
   showToast,
-} from '../db.js?v=12';
+} from '../db.js?v=13';
 import { validateSaleRecord } from '../validation.js';
-import { computeRemainingStock } from '../stock.js?v=12';
+import { computeRemainingStock } from '../stock.js?v=13';
 
 // ---------------------------------------------------------------------------
 // DOM helpers — resolved lazily so init() is safe to call before paint

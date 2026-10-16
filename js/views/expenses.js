@@ -21,8 +21,8 @@
  *     #expense-labels-list
  */
 
-import { showToast } from '../db.js?v=12';
-import { supabaseClient } from '../supabase.js?v=12';
+import { showToast } from '../db.js?v=13';
+import { supabaseClient } from '../supabase.js?v=13';
 
 // ---------------------------------------------------------------------------
 // DB helpers

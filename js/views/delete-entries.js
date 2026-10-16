@@ -18,7 +18,7 @@ import {
   deleteSaleRecord,
   deletePurchaseBatch,
   showToast,
-} from '../db.js?v=12';
+} from '../db.js?v=13';
 
 // ---------------------------------------------------------------------------
 // DOM helpers — resolved lazily so init() is safe to call before paint

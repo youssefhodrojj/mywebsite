@@ -8,7 +8,7 @@ import {
   getMonthlyPurchaseStats,
   getMonthlyExpenses,
   getAllTimeExpenses,
-} from '../db.js?v=12';
+} from '../db.js?v=13';
 
 export async function init() {
   const container = document.getElementById('dashboard-content');

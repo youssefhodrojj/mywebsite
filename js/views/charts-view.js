@@ -1,8 +1,8 @@
 ﻿﻿/**
  * charts-view.js � Monthly Charts view with profit summary cards.
  */
-import { getProducts, getMonthlyPurchaseSummary, getMonthlySalesSummary, getMonthlyExpenseSummary, getMonthlyPriceCorrectionSummary } from '../db.js?v=12';
-import { renderUnitsChart, renderMonetaryChart, renderProfitChart } from '../charts.js?v=12';
+import { getProducts, getMonthlyPurchaseSummary, getMonthlySalesSummary, getMonthlyExpenseSummary, getMonthlyPriceCorrectionSummary } from '../db.js?v=13';
+import { renderUnitsChart, renderMonetaryChart, renderProfitChart } from '../charts.js?v=13';
 
 const getErrorBanner     = () => document.getElementById('charts-error');
 const getStartMonthInput = () => document.getElementById('chart-start-month');

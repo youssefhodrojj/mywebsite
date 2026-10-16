@@ -2,7 +2,7 @@
  * history.js -- History & Backup view
  * Shows audit log and provides a JSON backup download.
  */
-import { getAuditLog, exportAllData, showToast } from '../db.js?v=12';
+import { getAuditLog, exportAllData, showToast } from '../db.js?v=13';
 
 function setErrorBanner(message) {
   const el = document.getElementById('history-error');

@@ -14,8 +14,8 @@
  * each call (idempotent).
  */
 
-import { getSalesForDate, getPurchasesForDate, getRefundsForDate, getExpensesForDate, getExchangesForDate, showToast } from '../db.js?v=12';
-import { supabaseClient } from '../supabase.js?v=12';
+import { getSalesForDate, getPurchasesForDate, getRefundsForDate, getExpensesForDate, getExchangesForDate, showToast } from '../db.js?v=13';
+import { supabaseClient } from '../supabase.js?v=13';
 
 // Helper: get avg cost per unit for each variant (all-time, not just today)
 async function getVariantAvgCosts() {
