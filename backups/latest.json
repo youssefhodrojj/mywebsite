@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-10-19T02:39:06.164Z",
+  "exported_at": "2026-10-20T02:51:03.589Z",
   "tables": {
     "products": [
       {
@@ -1057,6 +1057,110 @@
         "cost_price": 25,
         "purchased_at": "2026-10-15",
         "created_at": "2026-10-15T12:10:20.61585+00:00"
+      },
+      {
+        "id": "defa2ba5-a465-4153-a2ef-cebb68c59c34",
+        "variant_id": "b1067d83-772b-457c-ba48-7577e01f7b4a",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:33:47.353615+00:00"
+      },
+      {
+        "id": "9a50a202-0c78-4f4c-8a06-9f7a44934edb",
+        "variant_id": "06a4ff57-a5e3-4553-9d5c-399ef9a1e503",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:34:00.505101+00:00"
+      },
+      {
+        "id": "092c38ff-9711-4493-98c6-60e701d06b72",
+        "variant_id": "2bf7ce6c-35fb-4b68-ad72-af8b837b5ab6",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:34:26.059522+00:00"
+      },
+      {
+        "id": "fef5ffa2-c60c-44b0-928f-9e328db47094",
+        "variant_id": "dc6b3a4c-5252-43c0-b6ee-c2ee0c031e15",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:34:33.594383+00:00"
+      },
+      {
+        "id": "06983d37-31da-4f34-b5a3-3f38b098275f",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:34:54.686289+00:00"
+      },
+      {
+        "id": "04a2dd27-ebbc-461a-9b54-521ba9c5c048",
+        "variant_id": "3eea9ce8-a728-4bdf-8317-998b079bee56",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:36:29.28776+00:00"
+      },
+      {
+        "id": "38a9fd0f-af7b-49ca-a011-1f65ba6a5599",
+        "variant_id": "4b4b35be-13f2-4329-a8d2-c227065aa56d",
+        "quantity": 2,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:36:37.362506+00:00"
+      },
+      {
+        "id": "b9489a5c-5a73-4169-9ae1-febbafb0ad5b",
+        "variant_id": "fcf11528-4964-4a94-a9ce-15b015762457",
+        "quantity": 3,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:36:53.010155+00:00"
+      },
+      {
+        "id": "2c034c29-53c4-47fd-bcd5-2f24586425a8",
+        "variant_id": "f158e457-68f5-4b98-9c74-09ecbc420af0",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:37:12.392611+00:00"
+      },
+      {
+        "id": "592789cf-1d02-4009-838d-2ec328f708cc",
+        "variant_id": "3fe708f9-5f0e-44a6-95a2-e9dd4132c7a9",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:37:20.48701+00:00"
+      },
+      {
+        "id": "e815200b-ce43-4bc1-87cd-11312954c464",
+        "variant_id": "4d6f96d4-d46e-403d-a40e-321ddfde8a0f",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:37:28.454994+00:00"
+      },
+      {
+        "id": "0f5b53ea-6bd0-4309-a9d7-224704514c1c",
+        "variant_id": "3f52ae25-87fa-470b-8b8c-b8bdf39f267b",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:37:46.897012+00:00"
+      },
+      {
+        "id": "661c3562-c1ff-423f-9766-82de8a5f818f",
+        "variant_id": "04807fb9-e289-4e48-9226-4d0fa1e7e9cf",
+        "quantity": 1,
+        "cost_price": 25,
+        "purchased_at": "2026-10-19",
+        "created_at": "2026-10-19T07:37:59.558401+00:00"
       }
     ],
     "sale_records": [
@@ -2211,6 +2315,86 @@
         "sell_price": 35,
         "sold_at": "2026-10-16",
         "created_at": "2026-10-16T12:05:15.792587+00:00"
+      },
+      {
+        "id": "72d15eed-28a9-4e38-bd66-02a1dbb3bdfd",
+        "variant_id": "3eea9ce8-a728-4bdf-8317-998b079bee56",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:44:13.994869+00:00"
+      },
+      {
+        "id": "c2e5c062-36f5-4387-86f9-3efa338df3df",
+        "variant_id": "4609143a-1c77-470a-9237-3d9f33c1d309",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:45:35.468538+00:00"
+      },
+      {
+        "id": "a20ecc16-c45c-416a-9618-00b50e84be4f",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:46:16.427193+00:00"
+      },
+      {
+        "id": "94e383d8-70f8-4071-b2c6-acb118d85208",
+        "variant_id": "cd586619-b837-44da-b6ed-c89462094c1d",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:47:12.544017+00:00"
+      },
+      {
+        "id": "0fd3d464-74f1-456f-a7ad-1a043fbeeec1",
+        "variant_id": "6fa86f24-209b-4691-aa5a-8e82d4be7010",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:48:39.227294+00:00"
+      },
+      {
+        "id": "46bb709e-d68c-41e0-8029-6293541a5d44",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:49:07.196537+00:00"
+      },
+      {
+        "id": "75ad37d4-cb2d-4b9b-bb82-7a4f103203b3",
+        "variant_id": "f158e457-68f5-4b98-9c74-09ecbc420af0",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:49:31.060551+00:00"
+      },
+      {
+        "id": "e302da8f-b1e7-4982-a0cb-d960d2629245",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:49:58.156254+00:00"
+      },
+      {
+        "id": "04c56555-d240-4631-bf35-2241b76a19e3",
+        "variant_id": "4609143a-1c77-470a-9237-3d9f33c1d309",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T07:50:14.909801+00:00"
+      },
+      {
+        "id": "52bfec2c-83d6-4109-8c17-75210324f848",
+        "variant_id": "b1067d83-772b-457c-ba48-7577e01f7b4a",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-19",
+        "created_at": "2026-10-19T08:24:59.692118+00:00"
       }
     ],
     "stock_corrections": [
@@ -5611,6 +5795,213 @@
         "record_id": "07183bfd-bbc2-4232-a151-71bf132a2d08",
         "description": "Deleted record from sale_records",
         "created_at": "2026-10-16T16:03:57.205752+00:00"
+      },
+      {
+        "id": "5a39b170-edbb-4083-8c7d-3135b85ffdfe",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "defa2ba5-a465-4153-a2ef-cebb68c59c34",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:33:47.353615+00:00"
+      },
+      {
+        "id": "d3af8b2c-d0a7-424b-913f-c9a0c3a2ac68",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "9a50a202-0c78-4f4c-8a06-9f7a44934edb",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:34:00.505101+00:00"
+      },
+      {
+        "id": "3e6613bf-63a0-4584-aeea-91578ea67b4e",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "092c38ff-9711-4493-98c6-60e701d06b72",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:34:26.059522+00:00"
+      },
+      {
+        "id": "496aaebc-ece8-4d51-bc6b-4bd5a8351ba1",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "fef5ffa2-c60c-44b0-928f-9e328db47094",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:34:33.594383+00:00"
+      },
+      {
+        "id": "f7da951e-eecb-472a-b353-56d930e10dc4",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "06983d37-31da-4f34-b5a3-3f38b098275f",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:34:54.686289+00:00"
+      },
+      {
+        "id": "6f2e515e-660d-4b0c-b8a7-cd457dccf1b9",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "04a2dd27-ebbc-461a-9b54-521ba9c5c048",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:36:29.28776+00:00"
+      },
+      {
+        "id": "f5cd6e40-6924-4ef8-9cf5-8c2394f1b2e7",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "38a9fd0f-af7b-49ca-a011-1f65ba6a5599",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:36:37.362506+00:00"
+      },
+      {
+        "id": "fecc7999-67be-4a48-94e6-d56a67c0644b",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "b9489a5c-5a73-4169-9ae1-febbafb0ad5b",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:36:53.010155+00:00"
+      },
+      {
+        "id": "6e031e34-f5f7-42b9-a2f2-4bfe1ac4e627",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "2c034c29-53c4-47fd-bcd5-2f24586425a8",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:37:12.392611+00:00"
+      },
+      {
+        "id": "1d3ce812-2a13-4a46-966e-c312c9889b22",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "592789cf-1d02-4009-838d-2ec328f708cc",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:37:20.48701+00:00"
+      },
+      {
+        "id": "9dd1e243-5919-4c17-a4c8-f84e292ab1c9",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "e815200b-ce43-4bc1-87cd-11312954c464",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:37:28.454994+00:00"
+      },
+      {
+        "id": "5737f1f5-bd69-445c-92bd-54bf7d10b9e2",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "0f5b53ea-6bd0-4309-a9d7-224704514c1c",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:37:46.897012+00:00"
+      },
+      {
+        "id": "43ad0f32-b9f6-4c20-a05b-253baaf16e3d",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "purchase_batches",
+        "record_id": "661c3562-c1ff-423f-9766-82de8a5f818f",
+        "description": "Created record in purchase_batches",
+        "created_at": "2026-10-19T07:37:59.558401+00:00"
+      },
+      {
+        "id": "1d4c19e3-8923-4e87-9545-5c1ab846a551",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "72d15eed-28a9-4e38-bd66-02a1dbb3bdfd",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:44:13.994869+00:00"
+      },
+      {
+        "id": "29f9da7f-d2a5-436b-ab81-1b2123b8daaf",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "c2e5c062-36f5-4387-86f9-3efa338df3df",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:45:35.468538+00:00"
+      },
+      {
+        "id": "ee689dd4-704f-4f39-9610-4cc49d1bb6ef",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "a20ecc16-c45c-416a-9618-00b50e84be4f",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:46:16.427193+00:00"
+      },
+      {
+        "id": "d0ce76e1-1537-4924-b6a7-f83b4df4e4fa",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "94e383d8-70f8-4071-b2c6-acb118d85208",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:47:12.544017+00:00"
+      },
+      {
+        "id": "fd7ec918-2439-44cf-8ad8-e4a7e9bc43d9",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "0fd3d464-74f1-456f-a7ad-1a043fbeeec1",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:48:39.227294+00:00"
+      },
+      {
+        "id": "b0d6ab46-bcda-4e09-b69f-bc4fbf95acfd",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "46bb709e-d68c-41e0-8029-6293541a5d44",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:49:07.196537+00:00"
+      },
+      {
+        "id": "31337037-a830-47d0-951c-6ebf7250224a",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "75ad37d4-cb2d-4b9b-bb82-7a4f103203b3",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:49:31.060551+00:00"
+      },
+      {
+        "id": "f2a06723-aeb4-48be-b359-167eb2bde92c",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "e302da8f-b1e7-4982-a0cb-d960d2629245",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:49:58.156254+00:00"
+      },
+      {
+        "id": "9ab3a7b7-1054-443e-be45-f9a63e0bb3d6",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "04c56555-d240-4631-bf35-2241b76a19e3",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T07:50:14.909801+00:00"
+      },
+      {
+        "id": "f6c56297-bb1a-4591-aaa6-f1e19d9d90c4",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "52bfec2c-83d6-4109-8c17-75210324f848",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-19T08:24:59.692118+00:00"
       }
     ]
   }
