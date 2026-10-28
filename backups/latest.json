@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-10-27T03:08:13.497Z",
+  "exported_at": "2026-10-28T03:22:18.730Z",
   "tables": {
     "products": [
       {
@@ -2995,6 +2995,14 @@
         "sell_price": 35,
         "sold_at": "2026-10-24",
         "created_at": "2026-10-24T08:00:37.388065+00:00"
+      },
+      {
+        "id": "9e952d72-ede2-41ec-87a0-a00e7066e468",
+        "variant_id": "7ef99b58-4909-4927-8554-d648ee2b8f0a",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-10-27",
+        "created_at": "2026-10-27T12:43:02.808262+00:00"
       }
     ],
     "stock_corrections": [
@@ -3465,6 +3473,16 @@
         "reason": null,
         "refunded_at": "2026-10-24",
         "created_at": "2026-10-24T09:31:47.996971+00:00"
+      },
+      {
+        "id": "82581d87-a20a-44ee-a346-e778ab705316",
+        "sale_record_id": "07b0d4eb-70c1-42bd-98a6-1350393ba890",
+        "variant_id": "3f52ae25-87fa-470b-8b8c-b8bdf39f267b",
+        "quantity": 1,
+        "refund_price": 33,
+        "reason": null,
+        "refunded_at": "2026-10-27",
+        "created_at": "2026-10-27T13:15:46.182719+00:00"
       }
     ],
     "audit_log": [
@@ -7427,6 +7445,24 @@
         "record_id": "f40e9c41-d2a1-4047-a731-bcdc4e61aba8",
         "description": "Created record in stock_corrections",
         "created_at": "2026-10-24T10:44:54.553823+00:00"
+      },
+      {
+        "id": "e575f57c-2f4d-412c-9119-345534f68e9b",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "9e952d72-ede2-41ec-87a0-a00e7066e468",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-27T12:43:02.808262+00:00"
+      },
+      {
+        "id": "45ca1781-3b97-4f63-a001-7d03fb5fce5e",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "refunds",
+        "record_id": "82581d87-a20a-44ee-a346-e778ab705316",
+        "description": "Created record in refunds",
+        "created_at": "2026-10-27T13:15:46.182719+00:00"
       }
     ]
   }
