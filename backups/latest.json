@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-10-28T03:22:18.730Z",
+  "exported_at": "2026-10-29T03:45:06.790Z",
   "tables": {
     "products": [
       {
@@ -3003,6 +3003,14 @@
         "sell_price": 35,
         "sold_at": "2026-10-27",
         "created_at": "2026-10-27T12:43:02.808262+00:00"
+      },
+      {
+        "id": "79470930-31cd-4514-8bee-c86acc0a740e",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 3,
+        "sell_price": 35,
+        "sold_at": "2026-10-28",
+        "created_at": "2026-10-28T11:01:36.037264+00:00"
       }
     ],
     "stock_corrections": [
@@ -3483,6 +3491,26 @@
         "reason": null,
         "refunded_at": "2026-10-27",
         "created_at": "2026-10-27T13:15:46.182719+00:00"
+      },
+      {
+        "id": "79cb132b-f477-4b21-b0a1-5bbc090374e3",
+        "sale_record_id": "fc04b9f3-1920-408f-b098-fc525d261a9e",
+        "variant_id": "6fa86f24-209b-4691-aa5a-8e82d4be7010",
+        "quantity": 1,
+        "refund_price": 35,
+        "reason": null,
+        "refunded_at": "2026-10-27",
+        "created_at": "2026-10-28T06:15:27.733709+00:00"
+      },
+      {
+        "id": "32afd597-7785-4fc1-b75f-d0d33611d182",
+        "sale_record_id": "571608d8-8592-469f-8f2b-b4e9ed4a033d",
+        "variant_id": "6fa86f24-209b-4691-aa5a-8e82d4be7010",
+        "quantity": 1,
+        "refund_price": 35,
+        "reason": null,
+        "refunded_at": "2026-10-28",
+        "created_at": "2026-10-28T10:29:32.247084+00:00"
       }
     ],
     "audit_log": [
@@ -7463,6 +7491,33 @@
         "record_id": "82581d87-a20a-44ee-a346-e778ab705316",
         "description": "Created record in refunds",
         "created_at": "2026-10-27T13:15:46.182719+00:00"
+      },
+      {
+        "id": "e9ce46d3-37ee-4d94-9d4f-4c4294c82c55",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "refunds",
+        "record_id": "79cb132b-f477-4b21-b0a1-5bbc090374e3",
+        "description": "Created record in refunds",
+        "created_at": "2026-10-28T06:15:27.733709+00:00"
+      },
+      {
+        "id": "1c8757ad-ec45-4411-b898-7d0305eb2bdd",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "refunds",
+        "record_id": "32afd597-7785-4fc1-b75f-d0d33611d182",
+        "description": "Created record in refunds",
+        "created_at": "2026-10-28T10:29:32.247084+00:00"
+      },
+      {
+        "id": "c795f8a6-6e23-4157-9629-b0b59d6c17df",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "79470930-31cd-4514-8bee-c86acc0a740e",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-28T11:01:36.037264+00:00"
       }
     ]
   }
