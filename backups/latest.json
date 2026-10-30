@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-10-29T03:45:06.790Z",
+  "exported_at": "2026-10-30T03:48:19.966Z",
   "tables": {
     "products": [
       {
@@ -3511,6 +3511,26 @@
         "reason": null,
         "refunded_at": "2026-10-28",
         "created_at": "2026-10-28T10:29:32.247084+00:00"
+      },
+      {
+        "id": "32bae687-e2e1-4ff8-8c24-630568bd262c",
+        "sale_record_id": "022f16b4-88da-425a-978c-bd402ff70ac7",
+        "variant_id": "a1ec4215-ca01-4000-ba33-674381128c74",
+        "quantity": 1,
+        "refund_price": 35,
+        "reason": null,
+        "refunded_at": "2026-10-28",
+        "created_at": "2026-10-29T10:55:40.14412+00:00"
+      },
+      {
+        "id": "2766cdd4-8451-40d1-a8d8-2d38e2e4faeb",
+        "sale_record_id": "7f655cd1-2258-4334-8c89-d9ff62827368",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 1,
+        "refund_price": 35,
+        "reason": null,
+        "refunded_at": "2026-10-29",
+        "created_at": "2026-10-29T10:56:15.732415+00:00"
       }
     ],
     "audit_log": [
@@ -7518,6 +7538,24 @@
         "record_id": "79470930-31cd-4514-8bee-c86acc0a740e",
         "description": "Created record in sale_records",
         "created_at": "2026-10-28T11:01:36.037264+00:00"
+      },
+      {
+        "id": "1c7cd7f1-cae5-409b-8a1a-4d607c4105e7",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "refunds",
+        "record_id": "32bae687-e2e1-4ff8-8c24-630568bd262c",
+        "description": "Created record in refunds",
+        "created_at": "2026-10-29T10:55:40.14412+00:00"
+      },
+      {
+        "id": "86d38578-e2b1-4538-beb5-8121669e0acd",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "refunds",
+        "record_id": "2766cdd4-8451-40d1-a8d8-2d38e2e4faeb",
+        "description": "Created record in refunds",
+        "created_at": "2026-10-29T10:56:15.732415+00:00"
       }
     ]
   }
