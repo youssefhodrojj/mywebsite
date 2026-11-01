@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-10-31T03:31:45.551Z",
+  "exported_at": "2026-11-01T03:37:42.750Z",
   "tables": {
     "products": [
       {
@@ -3179,6 +3179,14 @@
         "sell_price": 35,
         "sold_at": "2026-10-28",
         "created_at": "2026-10-28T11:01:36.037264+00:00"
+      },
+      {
+        "id": "d9629dcc-910f-4947-be7e-284d14648a79",
+        "variant_id": "dc6b3a4c-5252-43c0-b6ee-c2ee0c031e15",
+        "quantity": 3,
+        "sell_price": 35,
+        "sold_at": "2026-10-31",
+        "created_at": "2026-10-31T19:26:22.122203+00:00"
       }
     ],
     "stock_corrections": [
@@ -7913,6 +7921,15 @@
         "record_id": "39314863-f204-45e7-ac3b-7661962a30d6",
         "description": "Created record in purchase_batches",
         "created_at": "2026-10-30T09:11:31.001686+00:00"
+      },
+      {
+        "id": "9671c707-3284-4986-9393-77214a0d8abc",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "d9629dcc-910f-4947-be7e-284d14648a79",
+        "description": "Created record in sale_records",
+        "created_at": "2026-10-31T19:26:22.122203+00:00"
       }
     ]
   }
