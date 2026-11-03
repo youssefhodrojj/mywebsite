@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-11-02T03:43:11.373Z",
+  "exported_at": "2026-11-03T04:47:31.246Z",
   "tables": {
     "products": [
       {
@@ -3187,6 +3187,62 @@
         "sell_price": 35,
         "sold_at": "2026-10-31",
         "created_at": "2026-10-31T19:26:22.122203+00:00"
+      },
+      {
+        "id": "5acc6eb1-e568-4174-bba7-768e11c93ca0",
+        "variant_id": "4b4b35be-13f2-4329-a8d2-c227065aa56d",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-11-02",
+        "created_at": "2026-11-02T08:56:26.611599+00:00"
+      },
+      {
+        "id": "0a37c140-c7ef-47c5-95a5-c411c2bf7850",
+        "variant_id": "dc6b3a4c-5252-43c0-b6ee-c2ee0c031e15",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-11-02",
+        "created_at": "2026-11-02T08:56:37.685508+00:00"
+      },
+      {
+        "id": "55c5fd86-5f08-48aa-8945-23a78cc59b85",
+        "variant_id": "0dce2a47-be9c-4e10-b223-0a2164e04586",
+        "quantity": 2,
+        "sell_price": 35,
+        "sold_at": "2026-11-02",
+        "created_at": "2026-11-02T08:57:09.85821+00:00"
+      },
+      {
+        "id": "ca01389a-0c7c-4dd2-8264-8fb84e5c5d00",
+        "variant_id": "6fa86f24-209b-4691-aa5a-8e82d4be7010",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-11-02",
+        "created_at": "2026-11-02T08:57:24.969167+00:00"
+      },
+      {
+        "id": "eb7320ad-3e01-48f3-94ab-9c199f6aa09a",
+        "variant_id": "f158e457-68f5-4b98-9c74-09ecbc420af0",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-11-02",
+        "created_at": "2026-11-02T08:57:42.494837+00:00"
+      },
+      {
+        "id": "d7b7e388-8098-4fcf-94c9-fa8a56cac84b",
+        "variant_id": "f158e457-68f5-4b98-9c74-09ecbc420af0",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-11-02",
+        "created_at": "2026-11-02T08:58:13.679508+00:00"
+      },
+      {
+        "id": "85cebeff-5b41-43bf-a63d-4c1db4dbce98",
+        "variant_id": "334e772e-d9e7-4f7a-8950-a873940fae55",
+        "quantity": 1,
+        "sell_price": 35,
+        "sold_at": "2026-11-02",
+        "created_at": "2026-11-02T08:58:32.163264+00:00"
       }
     ],
     "stock_corrections": [
@@ -3707,6 +3763,16 @@
         "reason": null,
         "refunded_at": "2026-10-29",
         "created_at": "2026-10-29T10:56:15.732415+00:00"
+      },
+      {
+        "id": "8b24f56b-b293-4982-a792-e57196e0bbc0",
+        "sale_record_id": "a20ecc16-c45c-416a-9618-00b50e84be4f",
+        "variant_id": "642f4eec-bf01-412b-b343-4f557a76ae31",
+        "quantity": 1,
+        "refund_price": 35,
+        "reason": null,
+        "refunded_at": "2026-11-02",
+        "created_at": "2026-11-02T09:47:11.414464+00:00"
       }
     ],
     "audit_log": [
@@ -7930,6 +7996,78 @@
         "record_id": "d9629dcc-910f-4947-be7e-284d14648a79",
         "description": "Created record in sale_records",
         "created_at": "2026-10-31T19:26:22.122203+00:00"
+      },
+      {
+        "id": "a631ec0a-5ff4-4c94-8d41-ecb0c5686d3a",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "5acc6eb1-e568-4174-bba7-768e11c93ca0",
+        "description": "Created record in sale_records",
+        "created_at": "2026-11-02T08:56:26.611599+00:00"
+      },
+      {
+        "id": "75051b1c-2ae2-4ed1-8a6c-070e852faf69",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "0a37c140-c7ef-47c5-95a5-c411c2bf7850",
+        "description": "Created record in sale_records",
+        "created_at": "2026-11-02T08:56:37.685508+00:00"
+      },
+      {
+        "id": "d044d336-73ab-40ca-b7f7-208c4d00c7b7",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "55c5fd86-5f08-48aa-8945-23a78cc59b85",
+        "description": "Created record in sale_records",
+        "created_at": "2026-11-02T08:57:09.85821+00:00"
+      },
+      {
+        "id": "cfd99bc1-7f14-4b2f-a55a-69a951f2d5da",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "ca01389a-0c7c-4dd2-8264-8fb84e5c5d00",
+        "description": "Created record in sale_records",
+        "created_at": "2026-11-02T08:57:24.969167+00:00"
+      },
+      {
+        "id": "f476905c-bd91-4483-adb6-854dfe342bb5",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "eb7320ad-3e01-48f3-94ab-9c199f6aa09a",
+        "description": "Created record in sale_records",
+        "created_at": "2026-11-02T08:57:42.494837+00:00"
+      },
+      {
+        "id": "eeadd656-696c-4246-9de4-7b08c0ef2d81",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "d7b7e388-8098-4fcf-94c9-fa8a56cac84b",
+        "description": "Created record in sale_records",
+        "created_at": "2026-11-02T08:58:13.679508+00:00"
+      },
+      {
+        "id": "0ebf0c4c-c197-4526-9c70-de2214d11811",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "sale_records",
+        "record_id": "85cebeff-5b41-43bf-a63d-4c1db4dbce98",
+        "description": "Created record in sale_records",
+        "created_at": "2026-11-02T08:58:32.163264+00:00"
+      },
+      {
+        "id": "a4e3c50d-df1d-42bb-baad-035ac8349681",
+        "user_id": "8dbf0b16-b0c8-4b18-a8ff-713b39941f63",
+        "action": "INSERT",
+        "table_name": "refunds",
+        "record_id": "8b24f56b-b293-4982-a792-e57196e0bbc0",
+        "description": "Created record in refunds",
+        "created_at": "2026-11-02T09:47:11.414464+00:00"
       }
     ]
   }
